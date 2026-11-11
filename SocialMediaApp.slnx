@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".env" />
+  </Folder>
   <Project Path="SocialMediaApp/SocialMediaApp.csproj" />
   <Project Path="SocialMediaAppLibrary/SocialMediaAppLibrary.csproj" />
 </Solution>
