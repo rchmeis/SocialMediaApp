@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repository
+namespace SocialMediaAppLibrary.Models
 {
-    public class EventRepository
+    public class User
     {
-
     }
 }

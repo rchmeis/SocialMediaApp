@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repository
+namespace SocialMediaAppLibrary.Models
 {
-    internal class PrivateMessageRepository
+    internal class Post
     {
     }
 }
