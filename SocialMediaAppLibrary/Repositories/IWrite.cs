@@ -6,8 +6,8 @@ namespace SocialMediaAppLibrary.Repositories
 {
     public interface IWrite<T,TKey>
     {
-        T Write(T entity);
-        T Update(TKey id, T entity);
-        T Delete(TKey id);
+        public T Write(T entity);
+        public T Update(TKey id, T entity);
+        public T Delete(TKey id);
     }
 }

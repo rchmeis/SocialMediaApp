@@ -6,9 +6,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\SignupFlow\" />
-    <Folder Include="Pages\OnboardingFlow\" />
-  </ItemGroup>
-
 </Project>

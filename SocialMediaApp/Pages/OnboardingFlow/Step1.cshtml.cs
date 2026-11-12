@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SocialMediaApp.Pages.Account
+namespace SocialMediaApp.Pages.OnboardingFlow
 {
-    public class MyProfileModel : PageModel
+    public class Step1Model : PageModel
     {
         public void OnGet()
         {

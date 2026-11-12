@@ -1,11 +1,13 @@
 ﻿using SocialMediaAppLibrary.Database;
+using SocialMediaAppLibrary.Repositories;
+using SocialMediaAppLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SocialMediaAppLibrary.Repository
 {
-    public class EventRepository
+    public class EventRepository: ICrud<Event, int>
     {
         private readonly DbConnect _dbConnect;
 
@@ -14,5 +16,30 @@ namespace SocialMediaAppLibrary.Repository
             _dbConnect = dbConnect;
         }
 
+        public Event Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Event> ReadAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Event? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Event Update(int id, Event entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Event Write(Event entity)
+        {
+            throw new NotImplementedException();        }
+
+      
     }
 }
