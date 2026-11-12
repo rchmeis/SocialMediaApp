@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Models
 {
-    internal class Partner
+    public class Partner
     {
     }
 }

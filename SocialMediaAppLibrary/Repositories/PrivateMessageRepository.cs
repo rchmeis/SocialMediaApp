@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repository
+namespace SocialMediaAppLibrary.Repositories
 {
-    public class PrivateMessageRepository: ICrud<PrivateMessage, int>
+    public class PrivateMessageRepository: IPrivateMessageRepository
     {
 
         private readonly DbConnect _dbConnect;
@@ -17,27 +17,27 @@ namespace SocialMediaAppLibrary.Repository
             _dbConnect = dbConnect;
         }
 
-        PrivateMessage IWrite<PrivateMessage, int>.Delete(int id)
+        public PrivateMessage Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        List<PrivateMessage> IRead<PrivateMessage, int>.ReadAll()
+        public List<PrivateMessage> ReadAll()
         {
             throw new NotImplementedException();
         }
 
-        PrivateMessage? IRead<PrivateMessage, int>.ReadById(int id)
+        public PrivateMessage? ReadById(int id)
         {
             throw new NotImplementedException();
         }
 
-        PrivateMessage IWrite<PrivateMessage, int>.Update(int id, PrivateMessage entity)
+        public PrivateMessage Update(int id, PrivateMessage entity)
         {
             throw new NotImplementedException();
         }
 
-        PrivateMessage IWrite<PrivateMessage, int>.Write(PrivateMessage entity)
+        public PrivateMessage Write(PrivateMessage entity)
         {
             throw new NotImplementedException();
         }

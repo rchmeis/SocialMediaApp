@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repository
+namespace SocialMediaAppLibrary.Repositories
 {
-    public class PartnerRepository: ICrud<Partner, int>
+    public class PartnerRepository: IPartnerRepository
     {
 
         private readonly DbConnect _dbConnect;
@@ -17,27 +17,27 @@ namespace SocialMediaAppLibrary.Repository
             _dbConnect = dbConnect;
         }
 
-        Partner IWrite<Partner, int>.Delete(int id)
+        public Partner Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        List<Partner> IRead<Partner, int>.ReadAll()
+        public List<Partner> ReadAll()
         {
             throw new NotImplementedException();
         }
 
-        Partner? IRead<Partner, int>.ReadById(int id)
+        public Partner? ReadById(int id)
         {
             throw new NotImplementedException();
         }
 
-        Partner IWrite<Partner, int>.Update(int id, Partner entity)
+        public Partner Update(int id, Partner entity)
         {
             throw new NotImplementedException();
         }
 
-        Partner IWrite<Partner, int>.Write(Partner entity)
+        public Partner Write(Partner entity)
         {
             throw new NotImplementedException();
         }

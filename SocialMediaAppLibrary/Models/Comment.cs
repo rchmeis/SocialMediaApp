@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Models
 {
-    internal class Comment
+    public class Comment
     {
     }
 }

@@ -3,11 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SocialMediaAppLibrary.Models;
-using SocialMediaAppLibrary.Repositories;
 
-namespace SocialMediaAppLibrary.Repository
+namespace SocialMediaAppLibrary.Repositories
 {
-    public class PostRepository : ICrud<Post, int>
+    public class PostRepository : IPostRepository
     {
 
         private readonly DbConnect _dbConnect;
@@ -17,27 +16,27 @@ namespace SocialMediaAppLibrary.Repository
             _dbConnect = dbConnect;
         }
 
-        Post IWrite<Post, int>.Delete(int id)
+        public Post Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        List<Post> IRead<Post, int>.ReadAll()
+        public List<Post> ReadAll()
         {
             throw new NotImplementedException();
         }
 
-        Post? IRead<Post, int>.ReadById(int id)
+        public Post? ReadById(int id)
         {
             throw new NotImplementedException();
         }
 
-        Post IWrite<Post, int>.Update(int id, Post entity)
+        public Post Update(int id, Post entity)
         {
             throw new NotImplementedException();
         }
 
-        Post IWrite<Post, int>.Write(Post entity)
+        public Post Write(Post entity)
         {
             throw new NotImplementedException();
         }

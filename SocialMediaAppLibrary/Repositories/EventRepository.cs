@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repository
+namespace SocialMediaAppLibrary.Repositories
 {
-    public class EventRepository: ICrud<Event, int>
+    public class EventRepository: IEventRepository
     {
         private readonly DbConnect _dbConnect;
 
