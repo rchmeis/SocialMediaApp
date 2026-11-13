@@ -1,10 +1,12 @@
-﻿using System;
+﻿using SocialMediaAppLibrary.Models;
+using SocialMediaAppLibrary.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SocialMediaAppLibrary.Services
 {
-    public interface IPostService
+    public interface IPostService : ICrud<Post,int>
     {
     }
 }

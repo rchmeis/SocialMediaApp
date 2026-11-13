@@ -1,10 +1,12 @@
-﻿using System;
+﻿using SocialMediaAppLibrary.Models;
+using SocialMediaAppLibrary.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SocialMediaAppLibrary.Services
 {
-    internal interface IAuthenticationService
+    public interface IAuthenticationService :ICrud<UserAuthentication, int>
     {
     }
 }

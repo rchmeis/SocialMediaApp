@@ -6,6 +6,6 @@ using System.Text;
 namespace SocialMediaAppLibrary.Repositories
 {
     public interface IEventRepository : ICrud<Event, int>
-    {
+    {        
     }
 }
