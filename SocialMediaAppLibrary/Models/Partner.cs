@@ -4,7 +4,9 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Models
 {
-    public class Partner
+    public class Partner:User
     {
+        public string NameOfOrganisation { get; set; }
+        public List<StudentJob> StudentJobs { get; set; }=new List<StudentJob>();
     }
 }
