@@ -6,10 +6,10 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Services
 {
-    public class AuthenticationService : IAuthenticationService
+    public class UserAuthenticationService : IUserAuthenticationService
     {
         private readonly IUserAuthenticationRepository _authenticationRepository;
-        public AuthenticationService(IUserAuthenticationRepository authenticationRepository)
+        public UserAuthenticationService(IUserAuthenticationRepository authenticationRepository)
         {
             _authenticationRepository = authenticationRepository;
         }

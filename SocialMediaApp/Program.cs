@@ -1,8 +1,6 @@
 using SocialMediaAppLibrary.Services;
 using SocialMediaAppLibrary.Repositories;
-using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Database;
-using Microsoft.AspNetCore.Authentication;
 
 namespace SocialMediaApp
 {    
@@ -25,8 +23,10 @@ namespace SocialMediaApp
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddScoped<IPartnerRepository, PartnerRepository>();
             builder.Services.AddScoped<IPartnerService, PartnerService>();
-            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             builder.Services.AddScoped<IUserAuthenticationRepository, UserAuthenticationRepository>();
+            builder.Services.AddScoped<IStudentJobService, StudentJobService>();
+            builder.Services.AddScoped<IStudentJobRepository, StudentJobRepository>();
 
             var app = builder.Build();
 
