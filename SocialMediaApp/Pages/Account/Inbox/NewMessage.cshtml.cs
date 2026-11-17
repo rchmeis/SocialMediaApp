@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SocialMediaApp.Pages.CheckoutFlow
+namespace SocialMediaApp.Pages.Account.Inbox
 {
-    public class ConfirmModel : PageModel
+    public class NewMessageModel : PageModel
     {
         public void OnGet()
         {
