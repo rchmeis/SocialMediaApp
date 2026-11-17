@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SocialMediaApp.Pages.Account.Profile
+namespace SocialMediaApp.Pages.Account.Inbox
 {
-    public class ProfileModel : PageModel
+    public class IndexModel : PageModel
     {
         public void OnGet()
         {

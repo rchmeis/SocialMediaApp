@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SocialMediaApp.Pages.OnboardingFlow
+namespace SocialMediaApp.Pages.Posts
 {
-    public class Step2Model : PageModel
+    public class CreatePostModel : PageModel
     {
         public void OnGet()
         {

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SocialMediaApp.Pages
+namespace SocialMediaApp.Pages.Events
 {
-    public class EventsModel : PageModel
+    public class UpdateEventModel : PageModel
     {
         public void OnGet()
         {

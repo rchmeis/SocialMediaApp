@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SocialMediaApp.Pages
+namespace SocialMediaApp.Pages.Account.Profile
 {
-    public class StudentJobsModel : PageModel
+    public class ConnectionsModel : PageModel
     {
         public void OnGet()
         {
