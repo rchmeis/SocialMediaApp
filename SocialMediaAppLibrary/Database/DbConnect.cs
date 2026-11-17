@@ -6,7 +6,7 @@ using DotNetEnv;
 
 namespace SocialMediaAppLibrary.Database
 {
-    public class DbConnect
+    public class DbConnect: IDbConnect
     {
         private string _connectionString;
         public DbConnect()

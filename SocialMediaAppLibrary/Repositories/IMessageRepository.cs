@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Repositories
 {
-    public interface IStudentJobRepository:ICrud<StudentJob, int>
+    public interface IMessageRepository : ICrud<PrivateMessage, int>
     {
     }
 }

@@ -8,6 +8,6 @@ namespace SocialMediaAppLibrary.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public City city { get; set; } //REMOVE IF REST OF GROUP DONT APPROVE
+        public City City { get; set; }
     }
 }

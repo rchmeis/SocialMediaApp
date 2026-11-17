@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Services
 {
-    public interface IPrivateMessageService:ICrud<PrivateMessage, int>
+    public interface IJobService:ICrud<StudentJob, int>
     {
     }
 }

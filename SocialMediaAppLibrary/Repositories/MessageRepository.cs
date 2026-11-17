@@ -1,18 +1,22 @@
-﻿using SocialMediaAppLibrary.Models;
+﻿using SocialMediaAppLibrary.Database;
+using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Services
+namespace SocialMediaAppLibrary.Repositories
 {
-    public class PrivateMessageService : IPrivateMessageService
+    public class MessageRepository: IMessageRepository
     {
-        private readonly IPrivateMessageRepository _privateMessageRepository;
-        public PrivateMessageService(IPrivateMessageRepository privateMessageRepository)
+
+        private readonly DbConnect _dbConnect;
+
+        public MessageRepository(DbConnect dbConnect)
         {
-            _privateMessageRepository = privateMessageRepository;
+            _dbConnect = dbConnect;
         }
+
         public PrivateMessage Delete(int id)
         {
             throw new NotImplementedException();

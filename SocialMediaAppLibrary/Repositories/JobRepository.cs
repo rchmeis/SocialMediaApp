@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Services
+namespace SocialMediaAppLibrary.Repositories
 {
-    public class StudentJobService : IStudentJobService
+    public class JobRepository : IJobRepository
     {
         public StudentJob Delete(int id)
         {

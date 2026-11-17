@@ -10,23 +10,28 @@ namespace SocialMediaApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
+
             // Add services to the container.
+            builder.Services.AddSession();
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
+
             builder.Services.AddRazorPages();
-            builder.Services.AddScoped<DbConnect>();
+            builder.Services.AddScoped<IDbConnect, DbConnect>();
             builder.Services.AddScoped<IStudentService, StudentService>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IEventRepository, EventRepository>();
-            builder.Services.AddScoped<IPrivateMessageService, PrivateMessageService>();
-            builder.Services.AddScoped<IPrivateMessageRepository, PrivateMessageRepository>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IPostRepository, PostRepository>();
             builder.Services.AddScoped<IPartnerRepository, PartnerRepository>();
             builder.Services.AddScoped<IPartnerService, PartnerService>();
             builder.Services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             builder.Services.AddScoped<IUserAuthenticationRepository, UserAuthenticationRepository>();
-            builder.Services.AddScoped<IStudentJobService, StudentJobService>();
-            builder.Services.AddScoped<IStudentJobRepository, StudentJobRepository>();
+            builder.Services.AddScoped<IJobService, JobService>();
+            builder.Services.AddScoped<IJobRepository, JobRepository>();
 
             var app = builder.Build();
 
@@ -42,6 +47,8 @@ namespace SocialMediaApp
 
             app.UseRouting();
 
+            app.UseSession();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
