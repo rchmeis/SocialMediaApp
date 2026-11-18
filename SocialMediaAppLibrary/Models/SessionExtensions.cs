@@ -9,6 +9,6 @@ namespace SocialMediaAppLibrary.Models
 {
     public static class SessionExtensions
     {
-  
+        //vi skriver extension methods her, inklusive deres definerede string keys. 
     }
 }

@@ -9,7 +9,6 @@ namespace SocialMediaAppLibrary.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string FieldOfStudy { get; set; }
-        public List<Institute> Institutes { get; set; } = new List<Institute>();
+        public string FieldOfStudy { get; set; }        
     }
 }

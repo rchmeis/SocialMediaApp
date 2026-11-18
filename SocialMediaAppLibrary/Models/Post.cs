@@ -12,7 +12,8 @@ namespace SocialMediaAppLibrary.Models
         public string? Title { get; set; }
         public string Content { get; set; }        
         public List<Comment> Comments { get; set; } = new List<Comment>();
-        public int Likes { get; set; } = 0;
+        //public int Likes { get; set; } = 0;
+        public Dictionary<int, UserSummary> LikedBy { get; set; } = new Dictionary<int, UserSummary>();
         public List<Image>? Images { get; set; } = new List<Image>();
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
