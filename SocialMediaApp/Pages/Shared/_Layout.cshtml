@@ -33,6 +33,13 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            @if (Context.Request.Query["accessDenied"] == "true")
+            {
+                <div class="alert alert-warning alert-dismissible fade show rounded-0 mb-0 text-center" role="alert">
+                    <strong>Advarsel:</strong> Du har ikke tilladelse til at udføre denne handling eller tilgå den side.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
             @RenderBody()
         </main>
     </div>
