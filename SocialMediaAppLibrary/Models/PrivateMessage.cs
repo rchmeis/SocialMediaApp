@@ -6,8 +6,7 @@ namespace SocialMediaAppLibrary.Models
 {
     public class PrivateMessage
     {
-        public int Id { get; set; }
-        public string? Title { get; set; }
+        public int Id { get; set; }        
         public string Content { get; set; }
         public UserSummary Sender { get; set; }
         public UserSummary Receiver { get; set; }
