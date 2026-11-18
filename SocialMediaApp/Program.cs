@@ -13,7 +13,10 @@ namespace SocialMediaApp
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
+
+            // Add services to the container.
+
             // Session
             builder.Services.AddDistributedMemoryCache(); // In-memory(ram) store for session data.
             builder.Services.AddSession(options =>
@@ -25,8 +28,6 @@ namespace SocialMediaApp
                 options.Cookie.IsEssential = true; // required for GDPR. Marks the cookie as strictly necessary
             });
 
-            // Add services to the container.
-            builder.Services.AddSession();
 
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
