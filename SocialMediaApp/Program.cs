@@ -64,12 +64,12 @@ namespace SocialMediaApp
 
             builder.Services.AddRazorPages(options =>
             {                
-                options.Conventions.AuthorizeFolder("/");                  //everything requires login
+                options.Conventions.AuthorizeFolder("/");                       //The entire site except the following require login
 
-                options.Conventions.AllowAnonymousToPage("/Index");        //except for..
+                options.Conventions.AllowAnonymousToPage("/Index");             
                 options.Conventions.AllowAnonymousToPage("/Account/SignIn");
                 options.Conventions.AllowAnonymousToPage("/Account/SignUp");
-                //We will add policies directly to the relevant razor pages using eg: [Authorize(Policy = "PartnerPolicy")]
+                //further authorization is handled on specific sites eg [Authorize(Policy = "PartnerPolicy")]
 
             });
 
