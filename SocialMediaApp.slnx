@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Database/">
+    <File Path="schema.sql" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".env" />
     <File Path=".env.example" />
