@@ -13,7 +13,17 @@ namespace SocialMediaApp
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            
+            // Session
+            builder.Services.AddDistributedMemoryCache(); // In-memory(ram) store for session data.
+            builder.Services.AddSession(options =>
+            {
+                options.Cookie.Name = ".StudentHub.Session"; // session name
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // session idle time before deleting
+                options.Cookie.HttpOnly = true; // cookie can't be read by JavaScript
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Cookies are only sent over HTTPS (not HTTP!)
+                options.Cookie.IsEssential = true; // required for GDPR. Marks the cookie as strictly necessary
+            });
 
             // Add services to the container.
             builder.Services.AddSession(options =>
