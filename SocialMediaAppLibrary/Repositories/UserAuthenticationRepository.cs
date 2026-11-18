@@ -1,9 +1,9 @@
 ﻿using SocialMediaAppLibrary.Database;
-using SocialMediaAppLibrary.Repositories;
 using SocialMediaAppLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SocialMediaAppLibrary.Repositories.Interfaces;
 
 namespace SocialMediaAppLibrary.Repositories
 {

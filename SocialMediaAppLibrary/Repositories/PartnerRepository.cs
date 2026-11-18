@@ -1,6 +1,6 @@
 ﻿using SocialMediaAppLibrary.Database;
 using SocialMediaAppLibrary.Models;
-using SocialMediaAppLibrary.Repositories;
+using SocialMediaAppLibrary.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;

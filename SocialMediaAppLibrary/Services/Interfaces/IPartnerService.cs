@@ -1,10 +1,10 @@
 ﻿using SocialMediaAppLibrary.Models;
-using SocialMediaAppLibrary.Repositories;
+using SocialMediaAppLibrary.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Services
+namespace SocialMediaAppLibrary.Services.Interfaces
 {
     public interface IPartnerService: ICrud<Partner, int>
     {

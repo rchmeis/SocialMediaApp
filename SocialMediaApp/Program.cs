@@ -1,6 +1,8 @@
 using SocialMediaAppLibrary.Services;
 using SocialMediaAppLibrary.Repositories;
 using SocialMediaAppLibrary.Database;
+using SocialMediaAppLibrary.Repositories.Interfaces;
+using SocialMediaAppLibrary.Services.Interfaces;
 
 namespace SocialMediaApp
 {    

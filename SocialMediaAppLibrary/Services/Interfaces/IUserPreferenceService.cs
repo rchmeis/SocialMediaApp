@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Services
+namespace SocialMediaAppLibrary.Services.Interfaces
 {
     public interface IUserPreferenceService
     {

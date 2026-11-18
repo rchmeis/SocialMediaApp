@@ -1,11 +1,10 @@
 ﻿using SocialMediaAppLibrary.Database;
-using SocialMediaAppLibrary.Repositories;
 using SocialMediaAppLibrary.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repositories
+namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
     public class EventRepository: IEventRepository
     {

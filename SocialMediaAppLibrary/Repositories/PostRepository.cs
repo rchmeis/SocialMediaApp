@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SocialMediaAppLibrary.Models;
+using SocialMediaAppLibrary.Repositories.Interfaces;
 
 namespace SocialMediaAppLibrary.Repositories
 {

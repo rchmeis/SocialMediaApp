@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SocialMediaAppLibrary.Repositories
+namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
-    public interface IStudentRepository:ICrud<Student, int>
+    public interface IJobRepository:ICrud<StudentJob, int>
     {
     }
 }
