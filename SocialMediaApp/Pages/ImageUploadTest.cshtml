@@ -1,0 +1,19 @@
+﻿@page
+@model SocialMediaApp.Pages.ImageUploadTestModel
+@{
+}
+
+
+<form method="post" enctype="multipart/form-data">
+
+    <div>
+        <label asp-for="UploadedImage">Vælg billeder</label>
+
+        <input asp-for="UploadedImage" type="file" accept=".jpg, .jpeg, .png, .webp" required />
+
+        <span asp-validation-for="UploadedImage"></span>
+    </div>
+
+    <button type="submit">Upload</button>
+
+</form>
