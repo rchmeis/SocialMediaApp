@@ -50,6 +50,12 @@ namespace SocialMediaApp.Pages
                 return Page();
             }
 
+            if (UserProvidedAltText.Length > 255)
+            {
+                ModelState.AddModelError(nameof(UserProvidedAltText), "Alternativ tekst må højst være 255 tegn.");
+                return Page();
+            }
+
             await _imageService.SaveImageAsync(UploadedImage, UserProvidedAltText);
 
             return RedirectToPage("/ImageUploadTest");

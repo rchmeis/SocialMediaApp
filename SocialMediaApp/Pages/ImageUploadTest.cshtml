@@ -31,10 +31,14 @@
 
     <div>
         <label asp-for="UploadedImage">Vælg billeder</label>
-
         <input asp-for="UploadedImage" type="file" accept=".jpg, .jpeg, .png, .webp" required />
-
         <span asp-validation-for="UploadedImage"></span>
+    </div>
+
+    <div>
+        <label asp-for="UserProvidedAltText">Valgfri alt tekst</label>
+        <input asp-for="UserProvidedAltText" type="text" maxlength="255" />
+        <span asp-validation-for="UserProvidedAltText"></span>
     </div>
 
     <button type="submit">Upload</button>
