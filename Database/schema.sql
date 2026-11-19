@@ -53,6 +53,9 @@ CREATE TABLE `images` (
     `file_name`   VARCHAR(255) NOT NULL,
     `alt_text`    VARCHAR(255) NOT NULL DEFAULT '',
     `image_data`  BLOB         NOT NULL,
+    `height`      INT          NOT NULL,
+    `width`       INT          NOT NULL,
+    `file_size`   INT          NOT NULL,
     `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`image_id`)
