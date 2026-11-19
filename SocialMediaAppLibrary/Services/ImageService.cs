@@ -20,6 +20,11 @@ namespace SocialMediaAppLibrary.Services
             _imageRepository = imageRepository;
         }
 
+        public List<Image> GetAllImages()
+        {
+            return _imageRepository.ReadAll();
+        }
+
         public Task<Image> GetByIdAsync(int id)
         {
             throw new NotImplementedException();

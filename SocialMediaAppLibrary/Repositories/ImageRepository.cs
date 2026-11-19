@@ -24,7 +24,35 @@ namespace SocialMediaAppLibrary.Repositories
 
         public List<Image> ReadAll()
         {
-            throw new NotImplementedException();
+            const string sql = """
+            SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
+            FROM images;
+            """;
+
+            List<Image> images = new List<Image>();
+
+            using MySqlConnection connection = _dbConnect.Connect();
+
+            using MySqlCommand command = new MySqlCommand(sql, connection);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                images.Add(new Image
+                {
+                    Id = reader.GetInt32("image_id"),
+                    FileName = reader.GetString("file_name"),
+                    AltText = reader.GetString("alt_text"),
+                    ImageData = (byte[])reader["image_data"],
+                    Height = reader.GetInt32("height"),
+                    Width = reader.GetInt32("width"),
+                    FileSize = reader.GetInt32("file_size"),
+                    CreatedAt = reader.GetDateTime("created_at")
+                });
+            }
+
+            return images;
         }
 
         public Image? ReadById(int id)

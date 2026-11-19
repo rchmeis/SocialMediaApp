@@ -10,6 +10,8 @@ namespace SocialMediaApp.Pages
 
         private readonly IImageService _imageService;
 
+        public List<Image> Images { get; set; } = new List<Image>();
+
         [BindProperty]
         public IFormFile? UploadedImage { get; set; }
 
@@ -23,6 +25,7 @@ namespace SocialMediaApp.Pages
 
         public void OnGet()
         {
+            Images = _imageService.GetAllImages();
         }
 
         public async Task<IActionResult> OnPostAsync()
