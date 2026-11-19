@@ -9,7 +9,7 @@ namespace SocialMediaAppLibrary.Models
         public int Id { get; set; }
         public string DisplayName { get; set; }        
         public Image? image { get; set; }
-        public bool IsPartner { get;set; } = false; //IF we want a partner badge OR a separate profile URL
+        public Role role { get; set; }
     }
     
 }
