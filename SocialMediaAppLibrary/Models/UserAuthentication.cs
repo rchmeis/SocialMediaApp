@@ -6,11 +6,17 @@ namespace SocialMediaAppLibrary.Models
 {
     public class UserAuthentication
     {
+        public UserAuthentication()
+        {
+            CreatedAt = DateTime.UtcNow;
+        }
         public int Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
         public string PasswordHashed { get; set; }
         public bool IsVerified { get; set; } = false;
         public Role Role { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; } = null;
     }
 }

@@ -17,37 +17,27 @@ namespace SocialMediaAppLibrary.Services
             _studentRepository = studentRepository;
         }
 
-        public List<Interest> ReadAll()
+        public Student Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Interest ReadById(int id)
+        public List<Student> ReadAll()
         {
             throw new NotImplementedException();
         }
 
-        Student IWrite<Student, int>.Delete(int id)
+        public Student? ReadById(int id)
         {
             throw new NotImplementedException();
         }
 
-        List<Student> IRead<Student, int>.ReadAll()
+        public Student Update(int id, Student entity)
         {
             throw new NotImplementedException();
         }
 
-        Student? IRead<Student, int>.ReadById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        Student IWrite<Student, int>.Update(int id, Student entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        Student IWrite<Student, int>.Write(Student entity)
+        public Student Write(Student entity)
         {
             throw new NotImplementedException();
         }

@@ -9,9 +9,9 @@ namespace SocialMediaAppLibrary.Repositories
 {
     public class StudentRepository : IStudentRepository
     {
-        private readonly DbConnect _dbConnect;
+        private readonly IDbConnect _dbConnect;
 
-        public StudentRepository(DbConnect dbConnect)
+        public StudentRepository(IDbConnect dbConnect)
         {
             _dbConnect = dbConnect;
         }

@@ -10,9 +10,9 @@ namespace SocialMediaAppLibrary.Repositories
     public class PartnerRepository: IPartnerRepository
     {
 
-        private readonly DbConnect _dbConnect;
+        private readonly IDbConnect _dbConnect;
 
-        public PartnerRepository(DbConnect dbConnect)
+        public PartnerRepository(IDbConnect dbConnect)
         {
             _dbConnect = dbConnect;
         }

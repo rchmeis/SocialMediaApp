@@ -10,14 +10,24 @@ namespace SocialMediaAppLibrary.Repositories
     public class UserAuthenticationRepository : IUserAuthenticationRepository
     {
 
-        private readonly DbConnect _dbConnect;
+        private readonly IDbConnect _dbConnect;
 
-        public UserAuthenticationRepository(DbConnect dbConnect)
+        public UserAuthenticationRepository(IDbConnect dbConnect)
         {
             _dbConnect = dbConnect;
         }
 
         public UserAuthentication Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<UserAuthentication> GetByEmailAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<UserAuthentication> GetByUsernameAsync(string username)
         {
             throw new NotImplementedException();
         }

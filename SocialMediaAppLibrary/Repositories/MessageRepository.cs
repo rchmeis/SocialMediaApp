@@ -10,9 +10,9 @@ namespace SocialMediaAppLibrary.Repositories
     public class MessageRepository: IMessageRepository
     {
 
-        private readonly DbConnect _dbConnect;
+        private readonly IDbConnect _dbConnect;
 
-        public MessageRepository(DbConnect dbConnect)
+        public MessageRepository(IDbConnect dbConnect)
         {
             _dbConnect = dbConnect;
         }

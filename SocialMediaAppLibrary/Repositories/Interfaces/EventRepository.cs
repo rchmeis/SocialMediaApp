@@ -8,9 +8,9 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
     public class EventRepository: IEventRepository
     {
-        private readonly DbConnect _dbConnect;
+        private readonly IDbConnect _dbConnect;
 
-        public EventRepository(DbConnect dbConnect)
+        public EventRepository(IDbConnect dbConnect)
         {
             _dbConnect = dbConnect;
         }

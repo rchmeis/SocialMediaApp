@@ -10,9 +10,9 @@ namespace SocialMediaAppLibrary.Repositories
     public class PostRepository : IPostRepository
     {
 
-        private readonly DbConnect _dbConnect;
+        private readonly IDbConnect _dbConnect;
 
-        public PostRepository(DbConnect dbConnect)
+        public PostRepository(IDbConnect dbConnect)
         {
             _dbConnect = dbConnect;
         }

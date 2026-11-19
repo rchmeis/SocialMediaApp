@@ -11,5 +11,5 @@ namespace SocialMediaAppLibrary.Models
         public Image? image { get; set; }
         public bool IsPartner { get;set; } = false; //IF we want a partner badge OR a separate profile URL
     }
-    }
+    
 }
