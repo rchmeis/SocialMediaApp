@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SocialMediaAppLibrary.Models;
+using SocialMediaAppLibrary.Security;
 using SocialMediaAppLibrary.Services.Interfaces;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -48,10 +49,11 @@ namespace SocialMediaApp.Pages.Account
 
         /// <summary>
         /// Handles the HTTP POST request for user login. 
-        /// Validates credentials, redirects users who have not yet completed profile registration 
-        /// to <c>/Account/SignUpFlow/Step3</c>, or otherwise signs the user in with persistent or 
-        /// session-bound cookie authentication and redirects to <c>ReturnUrl</c> (if local) or a 
-        /// role-specific landing page.
+        /// Authenticates credentials via <see cref="IUserAuthenticationService.AuthenticateAsync"/>, 
+        /// adds any returned error message to <see cref="PageModel.ModelState"/> on failure, redirects 
+        /// users who have not yet completed profile registration to <c>/Account/SignUpFlow/Step3</c>, 
+        /// or otherwise signs the user in with persistent or session-bound cookie authentication and 
+        /// redirects to <c>ReturnUrl</c> (if local) or a role-specific landing page.
         /// </summary>
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains an 
@@ -62,20 +64,21 @@ namespace SocialMediaApp.Pages.Account
         {
             if (!ModelState.IsValid) return Page();
 
-            UserAuthentication userAuth = await _userAuthenticationService.AuthenticateAsync(Input.EmailOrUsername, Input.Password);
-            if (userAuth is null || userAuth.DeletedAt is not null)
+            LoginCheckResult result = await _userAuthenticationService.AuthenticateAsync(Input.EmailOrUsername, Input.Password);
+            
+            if (!result.Succeeded || result.User is null)
             {
-                ModelState.AddModelError(string.Empty, "Ugyldigt login.");
+                ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Ugyldigt login.");
                 return Page();
             }
 
-            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(userAuth.Id);
+            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.User.Id);
             if (userSummary is null) return RedirectToPage("/Account/SignUpFlow/Step3");  //if the user verified their account but did not complete registration
 
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, userAuth.Id.ToString()),
-                new Claim(ClaimTypes.Role, userAuth.Role.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, result.User.Id.ToString()),
+                new Claim(ClaimTypes.Role, result.User.Role.ToString()),
                 new Claim(ClaimTypes.Name, userSummary.DisplayName),
                 new Claim("ImageId", userSummary.Id.ToString())
             };
@@ -104,7 +107,7 @@ namespace SocialMediaApp.Pages.Account
                 return LocalRedirect(ReturnUrl); // Send the user back where they came from!
             }
 
-            if (userAuth.Role is Role.Student) return RedirectToPage("/Feed");
+            if (result.User.Role is Role.Student) return RedirectToPage("/Feed");
             return RedirectToPage("/Account/Profile/Index");
 
         }
