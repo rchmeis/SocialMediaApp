@@ -1,0 +1,18 @@
+@page
+@{
+    ViewData["Title"] = "Siden findes ikke";
+}
+
+<div class="text-center mt-5">
+    <h1 class="display-4">404</h1>
+    <p class="lead">Siden findes ikke</p>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a class="btn btn-primary" asp-page="/Index">Gå til feedet</a>
+    }
+    else
+    {
+        <a class="btn btn-primary" asp-page="/Index">Gå til forsiden</a>
+    }
+</div>
