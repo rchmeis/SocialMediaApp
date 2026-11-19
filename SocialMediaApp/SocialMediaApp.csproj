@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Security\ClaimsPrincipalExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SocialMediaAppLibrary\SocialMediaAppLibrary.csproj" />
   </ItemGroup>
 
