@@ -33,8 +33,8 @@ namespace SocialMediaAppLibrary.Services
             {
                 return null;
             }
-
-            UserAuthentication userAuth = (await GetByEmailAsync(emailOrUsername)) ?? (await GetByUsernameAsync(emailOrUsername));
+            string inputNormalised = emailOrUsername.Trim().ToLowerInvariant();     //no difference between capitalised og regular letters in username and password ie. us-04 og 01
+            UserAuthentication userAuth = (await GetByEmailAsync(inputNormalised)) ?? (await GetByUsernameAsync(inputNormalised));
             if (userAuth is null) return null;
 
             try
