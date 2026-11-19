@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -27,8 +28,51 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
+
+                    <ul class="navbar-nav align-items-center ms-auto">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            // 1. Retrieve data directly from cookie claims                            
+                            var displayName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity.Name;
+                            var imageId = User.FindFirst("ImageId")?.Value;
+
+                            // 2. WHEN USER IS LOGGED IN (Show image, name, and logout button)
+                            <li class="nav-item d-flex align-items-center me-3">
+                                @if (!string.IsNullOrEmpty(imageId))
+                                {
+                                    <!-- Calls our handler that fetches byte[] from the database -->
+                                    <img src="/Index?handler=UserImage&id=@imageId" 
+                                         alt="Profile picture" 
+                                         class="rounded-circle me-2" 
+                                         style="width: 35px; height: 35px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <img src="~/images/default-avatar.jpg" 
+                                         alt="Standard profile picture" 
+                                         class="rounded-circle me-2" 
+                                         style="width: 35px; height: 35px; object-fit: cover;" />
+                                }
+
+                                <span class="text-dark fw-medium me-3">Hello, @displayName</span>
+                            </li>
+
+                            <li class="nav-item">
+                                <form method="post" asp-page="/Account/Logout" class="form-inline m-0">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Log out</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            // 3. WHEN USER IS LOGGED OUT (Show login button only)
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm" asp-page="/Account/Login">Login</a>
+                            </li>
+                        }
+                    </ul>
                 </div>
-            </div>
+            </div>            
         </nav>
     </header>
     <div class="container">

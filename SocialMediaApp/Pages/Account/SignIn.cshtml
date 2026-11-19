@@ -1,4 +1,28 @@
-﻿@page
+﻿@* @page
 @model SocialMediaApp.Pages.Account.SignInModel
 @{
 }
+
+<div>
+    <form method="post">
+        <!-- Denne linje sikrer, at ReturnUrl følger med, når der klikkes på Log ind -->
+        <input type="hidden" asp-for="ReturnUrl" />
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div>
+            <label asp-for="Input.EmailOrUsername">Indtast Email</label>
+            <input asp-for="Input.EmailOrUsername" />
+            <span asp-validation-for="Input.EmailOrUsername" class="text-danger"></span>
+        </div>
+        <div>
+            <label asp-for="Input.Password">Indtast Password</label>
+            <input asp-for="Input.Password" />
+            <span asp-validation-for="Input.Password" class="text-danger"></span>
+        </div>       
+        <div class="mb-3 form-check">
+            <input asp-for="Input.RememberMe" class="form-check-input" />
+            <label asp-for="Input.RememberMe" class="form-check-label">Husk mig i 14 dage</label>
+        </div>
+        <button type="submit">Log ind</button>
+    </form>
+</div> *@
