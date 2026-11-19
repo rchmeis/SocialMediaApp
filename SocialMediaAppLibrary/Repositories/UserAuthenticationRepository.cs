@@ -22,15 +22,11 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<UserAuthentication> GetByEmailAsync(string email)
+        public async Task<UserAuthentication> GetByEmailOrUsernameAsync(string email)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<UserAuthentication> GetByUsernameAsync(string username)
-        {
-            throw new NotImplementedException();
-        }
 
         public List<UserAuthentication> ReadAll()
         {

@@ -34,13 +34,13 @@ namespace SocialMediaAppLibrary.Services
                 return null;
             }
             string inputNormalised = emailOrUsername.Trim().ToLowerInvariant();     //no difference between capitalised og regular letters in username and password ie. us-04 og 01
-            UserAuthentication userAuth = (await GetByEmailAsync(inputNormalised)) ?? (await GetByUsernameAsync(inputNormalised));
+            UserAuthentication? userAuth = (await _authenticationRepository.GetByEmailOrUsernameAsync(inputNormalised));
             if (userAuth is null) return null;
 
             try
             {
                 PasswordVerificationResult result = _passwordHasher.VerifyHashedPassword(userAuth, userAuth.PasswordHashed, password);
-                return result == PasswordVerificationResult.Success ? userAuth : null;
+                return result is PasswordVerificationResult.Success or PasswordVerificationResult.SuccessRehashNeeded? userAuth : null;
             }
             catch(FormatException)
             {
@@ -50,16 +50,6 @@ namespace SocialMediaAppLibrary.Services
         }
 
         public UserAuthentication Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<UserAuthentication> GetByEmailAsync(string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<UserAuthentication> GetByUsernameAsync(string username)
         {
             throw new NotImplementedException();
         }
