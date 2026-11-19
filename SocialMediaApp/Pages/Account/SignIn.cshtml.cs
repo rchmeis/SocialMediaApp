@@ -73,14 +73,43 @@ namespace SocialMediaApp.Pages.Account
             }
 
             UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.User.Id);
-            if (userSummary is null) return RedirectToPage("/Account/SignUpFlow/Step3");  //if the user verified their account but did not complete registration
+            if (userSummary is null)
+            {
+                
+                List<Claim> claimsNotOnboarded = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, result.User.Id.ToString()),
+                    new Claim(ClaimTypes.Role, result.User.Role.ToString()),
+                    new Claim(ClaimTypes.Name, result.User.Username??result.User.Email),
+                    new Claim("IsOnboarded", "false")
+                };
+                ClaimsIdentity claimsIdentityNotOnboarded = new ClaimsIdentity(claimsNotOnboarded, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                AuthenticationProperties authPropertiesNotOnboarded = new AuthenticationProperties
+                {
+                    // IsPersistent = true means that the cookie is saved in the harddisk and survives even if the browser is closed.
+                    // IsPersistent = false turns it into a "session cookie", that is deleted, when the browser is closed.
+                    IsPersistent = Input.RememberMe,
+
+                    // If "Remember me" is ticked the cookie will expire in 14 days. Otherwise it is set to null and will only survive the session.
+                    ExpiresUtc = Input.RememberMe ? DateTimeOffset.UtcNow.AddDays(14) : null
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentityNotOnboarded),
+                    authPropertiesNotOnboarded);  //NOTICE! authProperties added!
+
+                return RedirectToPage("/Account/SignupFlow/Step3");  //if the user verified their account but did not complete registration
+            }
+
 
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, result.User.Id.ToString()),
                 new Claim(ClaimTypes.Role, result.User.Role.ToString()),
                 new Claim(ClaimTypes.Name, userSummary.DisplayName),
-                new Claim("ImageId", userSummary.Id.ToString())
+                new Claim("ImageId", userSummary.image.Id.ToString())
             };
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

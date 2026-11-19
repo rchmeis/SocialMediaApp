@@ -1,10 +1,11 @@
-using SocialMediaAppLibrary.Services;
-using SocialMediaAppLibrary.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using SocialMediaAppLibrary.Database;
 using SocialMediaAppLibrary.Models;
+using SocialMediaAppLibrary.Repositories;
 using SocialMediaAppLibrary.Repositories.Interfaces;
+using SocialMediaAppLibrary.Services;
 using SocialMediaAppLibrary.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace SocialMediaApp
 {    
@@ -12,8 +13,7 @@ namespace SocialMediaApp
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
+            var builder = WebApplication.CreateBuilder(args);           
 
             // Add services to the container.
 
@@ -32,8 +32,8 @@ namespace SocialMediaApp
             builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/Account/Login";
-                    options.LogoutPath = "/Account/Logout";
+                    options.LoginPath = "/Account/SignIn";
+                    options.LogoutPath = "/Account/SignOut";
                     //options.AccessDeniedPath = "/Account/AccessDenied";   //Not necessary because we're doing a redirect with appended query parameter
                     options.ExpireTimeSpan = TimeSpan.FromDays(7);
                     options.SlidingExpiration = true;
@@ -69,6 +69,7 @@ namespace SocialMediaApp
 
             });
 
+            builder.Services.AddMemoryCache();
             builder.Services.AddScoped<IDbConnect, DbConnect>();
             builder.Services.AddScoped<IStudentService, StudentService>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
