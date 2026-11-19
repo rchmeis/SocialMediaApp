@@ -11,7 +11,7 @@ namespace SocialMediaAppLibrary.Services.Interfaces
     {
         public Task<UserAuthentication> GetByEmailAsync(string email);
         public Task<UserAuthentication> GetByUsernameAsync(string username);
-        public Task<UserAuthentication> AuthenticateAsync(string emailOrUsername, string password);
+        public Task<UserAuthentication> AuthenticateAsync(string emailOrUsername, string password);     
         
     }
 }

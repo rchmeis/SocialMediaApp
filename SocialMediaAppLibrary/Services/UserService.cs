@@ -8,7 +8,7 @@ namespace SocialMediaAppLibrary.Services
 {
     public class UserService : IUserService
     {
-        public UserSummary GetByUserAuthId(int id)
+        public Task<UserSummary> GetByUserAuthIdAsync(int id)
         {
             throw new NotImplementedException();
         }

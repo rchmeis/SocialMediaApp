@@ -8,7 +8,7 @@ namespace SocialMediaAppLibrary.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public UserSummary GetByUserAuthId(int id)
+        public Task<UserSummary> GetByUserAuthIdAsync(int id)
         {
             throw new NotImplementedException();
         }

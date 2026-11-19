@@ -7,6 +7,6 @@ namespace SocialMediaAppLibrary.Services.Interfaces
 {
     public interface IUserService
     {
-        public UserSummary GetByUserAuthId(int id);
+        public Task<UserSummary> GetByUserAuthIdAsync(int id);
     }
 }
