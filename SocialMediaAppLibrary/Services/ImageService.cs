@@ -51,7 +51,7 @@ namespace SocialMediaAppLibrary.Services
 
             Image optimizedImage = new Image()
             {
-                FileName = file.FileName,
+                FileName = Guid.NewGuid().ToString().Substring(0, 8), // Generate a unique filename and to obscure the user's original filename for privacy.
                 AltText = altText,
                 ImageData = imageData,
                 Width = image.Width,
