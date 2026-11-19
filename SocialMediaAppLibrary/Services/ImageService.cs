@@ -41,11 +41,14 @@ namespace SocialMediaAppLibrary.Services
             using ImageSharp.Image image = await ImageSharp.Image.LoadAsync(file.OpenReadStream());
 
             // Resize image if it exceeds maximum dimensions while maintaining aspect ratio.
-            image.Mutate(x => x.Resize(new ResizeOptions
+            if (image.Width > 1200 || image.Height > 1600)
             {
-                Size = new ImageSharp.Size(1200, 1600),
-                Mode = ResizeMode.Max
-            }));
+                image.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Size = new ImageSharp.Size(1200, 1600),
+                    Mode = ResizeMode.Max
+                }));
+            }
 
             byte[] imageData = await OptimizeImageAsync(image);
 
