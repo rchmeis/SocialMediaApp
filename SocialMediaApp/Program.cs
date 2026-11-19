@@ -85,6 +85,9 @@ namespace SocialMediaApp
             builder.Services.AddScoped<IJobRepository, JobRepository>();
             builder.Services.AddScoped<IUserPreferenceService, UserPreferenceService>();
             builder.Services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IImageService, ImageService>();
 
             var app = builder.Build();
 
