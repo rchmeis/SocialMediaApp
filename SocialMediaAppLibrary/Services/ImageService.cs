@@ -29,8 +29,9 @@ namespace SocialMediaAppLibrary.Services
         /// Saves an image file to the repository after optimizing it to meet the file size requirement of 64 KB or less.
         /// </summary>
         /// <param name="file">The image file to save.</param>
+        /// <param name="altText">The alternative text for the image.</param>
         /// <returns>The saved image.</returns>
-        public async Task<Image> SaveImageAsync(IFormFile file)
+        public async Task<Image> SaveImageAsync(IFormFile file, string altText)
         {
             using ImageSharp.Image image = await ImageSharp.Image.LoadAsync(file.OpenReadStream());
 
@@ -46,9 +47,11 @@ namespace SocialMediaAppLibrary.Services
             Image optimizedImage = new Image()
             {
                 FileName = file.FileName,
+                AltText = altText,
                 ImageData = imageData,
-                AltText = "Optimized image",
-                CreatedAt = DateTime.UtcNow
+                Width = image.Width,
+                Height = image.Height,
+                FileSize = imageData.Length
             };
 
             return _imageRepository.Write(optimizedImage);

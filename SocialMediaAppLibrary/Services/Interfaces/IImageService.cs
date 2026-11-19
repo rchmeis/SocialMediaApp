@@ -9,6 +9,6 @@ namespace SocialMediaAppLibrary.Services.Interfaces
     public interface IImageService
     {
         public Task<Image> GetByIdAsync(int id);
-        public Task<Image> SaveImageAsync(IFormFile file);
+        public Task<Image> SaveImageAsync(IFormFile file, string altText);
     }
 }

@@ -17,14 +17,29 @@ namespace SocialMediaAppLibrary.Models
         public string FileName { get; set; }
 
         /// <summary>
+        /// Gets or sets the alternative text for the image.
+        /// </summary>
+        public string AltText { get; set; }
+
+        /// <summary>
         /// Gets or sets the binary data of the image.
         /// </summary>
         public byte[] ImageData { get; set; }
 
         /// <summary>
-        /// Gets or sets the alternative text for the image.
+        /// Gets or sets the height of the image.
         /// </summary>
-        public string AltText { get; set; }
+        public int Height { get; set; }
+
+        /// <summary>
+        /// Gets or sets the width of the image.
+        /// </summary>
+        public int Width { get; set; }
+
+        /// <summary>
+        /// Gets or sets the file size of the image.
+        /// </summary>
+        public int FileSize { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time when the image was created.
@@ -38,7 +53,7 @@ namespace SocialMediaAppLibrary.Models
 
         public override string ToString()
         {
-            return $"Image [Id={Id}, FileName={FileName}, AltText={AltText}, CreatedAt={CreatedAt}]";
+            return $"Image [Id={Id}, FileName={FileName}, AltText={AltText}, CreatedAt={CreatedAt}, Height={Height}, Width={Width}, FileSize={FileSize}]";
         }
     }
 }
