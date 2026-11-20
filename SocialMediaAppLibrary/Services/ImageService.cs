@@ -43,6 +43,27 @@ namespace SocialMediaAppLibrary.Services
         /// <returns>The saved image.</returns>
         public async Task<Image> SaveImageAsync(IFormFile file, string altText)
         {
+            Image optimizedImage = await OptimizeImageAsync(file);
+
+            optimizedImage.AltText = altText; // Set the alt text for the image
+
+            return _imageRepository.Write(optimizedImage);
+        }
+
+        /// <summary>
+        /// Optimizes the image to ensure it meets the file size requirement of 64 KB or less.
+        /// It attempts to reduce the quality of the image optimization in steps until the file size is acceptable.
+        /// </summary>
+        /// <param name="file">The image file to optimize.</param>
+        /// <returns>The optimized image.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when the image cannot be optimized to meet the file size requirements.</exception>
+        public async Task<Image> OptimizeImageAsync(IFormFile file)
+        {
+            const int maxFileSize = 64 * 1024; // 64 KB
+            const int minQuality = 10;
+            const int maxQuality = 75;
+            const int qualityStep = 5;
+
             using ImageSharp.Image image = await ImageSharp.Image.LoadAsync(file.OpenReadStream());
 
             // Resize image if it exceeds maximum dimensions while maintaining aspect ratio.
@@ -54,35 +75,6 @@ namespace SocialMediaAppLibrary.Services
                     Mode = ResizeMode.Max
                 }));
             }
-
-            byte[] imageData = await OptimizeImageAsync(image);
-
-            Image optimizedImage = new Image()
-            {
-                FileName = Guid.NewGuid().ToString(), // Generate a unique filename and to obscure the user's original filename for privacy.
-                AltText = altText,
-                ImageData = imageData,
-                Width = image.Width,
-                Height = image.Height,
-                FileSize = imageData.Length
-            };
-
-            return _imageRepository.Write(optimizedImage);
-        }
-
-        /// <summary>
-        /// Optimizes the image to ensure it meets the file size requirement of 64 KB or less.
-        /// It attempts to reduce the quality of the image optimization in steps until the file size is acceptable.
-        /// </summary>
-        /// <param name="image">The image to optimize.</param>
-        /// <returns>The optimized image data.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when the image cannot be optimized to meet the file size requirements.</exception>
-        private async Task<byte[]> OptimizeImageAsync(ImageSharp.Image image)
-        {
-            const int maxFileSize = 64 * 1024; // 64 KB
-            const int minQuality = 10;
-            const int maxQuality = 75;
-            const int qualityStep = 5;
 
             using MemoryStream output = new MemoryStream();
 
@@ -102,7 +94,15 @@ namespace SocialMediaAppLibrary.Services
 
                 if (imageData.Length <= maxFileSize)
                 {
-                    return imageData;
+                    return new Image()
+                    {
+                        FileName = Guid.NewGuid().ToString(), // Generate a unique filename and to obscure the user's original filename for privacy.
+                        AltText = string.Empty, // Alt text can be set later when saving the image
+                        ImageData = imageData,
+                        Width = image.Width,
+                        Height = image.Height,
+                        FileSize = imageData.Length
+                    };
                 }
             }
 
