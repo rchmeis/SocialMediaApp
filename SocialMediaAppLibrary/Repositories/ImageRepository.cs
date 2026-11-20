@@ -22,6 +22,10 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Retrieves all images from the database and returns them as a list of <see cref="Image"/> objects.
+        /// </summary>
+        /// <returns>A list of Image objects.</returns>
         public List<Image> ReadAll()
         {
             const string sql = """
@@ -55,9 +59,42 @@ namespace SocialMediaAppLibrary.Repositories
             return images;
         }
 
+        /// <summary>
+        /// Retrieves an image from the database by its ID and returns it as an <see cref="Image"/> object. If no image is found with the given ID, returns null.
+        /// </summary>
+        /// <param name="id">The ID of the image to retrieve.</param>
+        /// <returns>The Image object if found, otherwise null.</returns>
         public Image? ReadById(int id)
         {
-            throw new NotImplementedException();
+            const string sql = """
+            SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
+            FROM images
+            WHERE image_id = @id;
+            """;
+
+            using MySqlConnection connection = _dbConnect.Connect();
+
+            using MySqlCommand command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@id", id);
+
+            using MySqlDataReader reader = command.ExecuteReader();
+
+            if (reader.Read())
+            {
+                return new Image
+                {
+                    Id = reader.GetInt32("image_id"),
+                    FileName = reader.GetString("file_name"),
+                    AltText = reader.GetString("alt_text"),
+                    ImageData = (byte[])reader["image_data"],
+                    Height = reader.GetInt32("height"),
+                    Width = reader.GetInt32("width"),
+                    FileSize = reader.GetInt32("file_size"),
+                    CreatedAt = reader.GetDateTime("created_at")
+                };
+            }
+
+            return null; // Return null if no image is found with the given ID
         }
 
         public Image Update(int id, Image entity)

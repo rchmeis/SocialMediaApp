@@ -51,7 +51,7 @@
     {
     <li>
         <picture>
-            <img src="data:image/webp;base64,@Convert.ToBase64String(image.ImageData)" alt="@image.AltText" />
+            <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" />
             <caption>Id: @image.Id | Filnavn: @image.FileName | Størrelse: @(Math.Round((double)image.FileSize / 1024, 2)) KB</caption>
         </picture>
     </li>
