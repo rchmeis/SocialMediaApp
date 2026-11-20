@@ -14,9 +14,9 @@ namespace SocialMediaAppLibrary.Services
         {
             _userRepository = userRepository;
         }
-        public async Task<UserSummary> GetByUserAuthIdAsync(int userAuthId)
+        public async Task<UserSummary> GetByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken)
         {
-            return await _userRepository.GetByUserAuthIdAsync(userAuthId);
+            return await _userRepository.GetByUserAuthIdAsync(userAuthId, cancellationToken);
         }
     }
 }

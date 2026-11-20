@@ -23,9 +23,9 @@ namespace SocialMediaApp.Pages
             _imageService = imageService;
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
-            Images = _imageService.GetAllImages();
+            Images = await _imageService.GetAllAsync();
         }
 
         public async Task<IActionResult> OnPostAsync()

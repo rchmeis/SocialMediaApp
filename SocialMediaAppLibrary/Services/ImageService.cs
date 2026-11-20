@@ -20,14 +20,19 @@ namespace SocialMediaAppLibrary.Services
             _imageRepository = imageRepository;
         }
 
-        public List<Image> GetAllImages()
+        public async Task<List<Image>> GetAllAsync()
         {
             return _imageRepository.ReadAll();
         }
 
-        public Task<Image> GetByIdAsync(int id)
+        /// <summary>
+        /// Retrieves an image by its ID from the repository.
+        /// </summary>
+        /// <param name="id">The ID of the image to retrieve.</param>
+        /// <returns>The image with the specified ID, or null if not found.</returns>
+        public async Task<Image?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return _imageRepository.ReadById(id);
         }
 
         /// <summary>
@@ -54,7 +59,7 @@ namespace SocialMediaAppLibrary.Services
 
             Image optimizedImage = new Image()
             {
-                FileName = Guid.NewGuid().ToString().Substring(0, 8), // Generate a unique filename and to obscure the user's original filename for privacy.
+                FileName = Guid.NewGuid().ToString(), // Generate a unique filename and to obscure the user's original filename for privacy.
                 AltText = altText,
                 ImageData = imageData,
                 Width = image.Width,

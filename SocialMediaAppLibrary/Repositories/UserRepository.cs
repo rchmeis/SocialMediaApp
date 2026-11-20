@@ -9,14 +9,32 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Repositories
 {
+    /// <summary>
+    /// Provides MySQL data access operations for retrieving user profile summary information.
+    /// </summary>
     public class UserRepository : IUserRepository
     {
         private readonly IDbConnect _db;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserRepository"/> class.
+        /// </summary>
+        /// <param name="dbconnect">The database connection provider used to open MySQL connections.</param>
         public UserRepository(IDbConnect dbconnect)
         {
             _db = dbconnect;
         }
-        public async Task<UserSummary> GetByUserAuthIdAsync(int userAuthId)
+
+        /// <summary>
+        /// Retrieves a <see cref="UserSummary"/>—including display name and optional profile image—for
+        /// the active user associated with the specified authentication account identifier.
+        /// </summary>
+        /// <param name="userAuthId">The unique identifier of the linked user authentication record.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// The matching non-deleted <see cref="UserSummary"/> if found; otherwise, <see langword="null"/>.
+        /// </returns>
+        public async Task<UserSummary?> GetByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken=default)
         {
             if (userAuthId <= 0)
             {
@@ -24,8 +42,7 @@ namespace SocialMediaAppLibrary.Repositories
             }
             using MySqlConnection connection = _db.Connect();
 
-            //COALESCE(value1, value2, ...) returns the first non-null value in the list, evaluating from left to right.
-            //CONCAT_WS stands for Concatenate With Separator. Its first argument is the separator string, followed by the values to join:
+            // COALESCE returns the first non-null value; CONCAT_WS joins non-null parts with a space.
             string query = """
                 SELECT
                     u.user_id AS id,
@@ -49,24 +66,30 @@ namespace SocialMediaAppLibrary.Repositories
 
             using MySqlCommand cmd = new MySqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@userAuthId", userAuthId);
-            using var reader = await cmd.ExecuteReaderAsync();
-            if (!await reader.ReadAsync())
+
+            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
             {
                 return null;
             }
 
             int displayNameOrdinal = reader.GetOrdinal("display_name");
             int imageIdOrdinal = reader.GetOrdinal("image_id");
+            int idOrdinal = reader.GetOrdinal("id");
+        
 
             Image? image = null;    
-            if (!reader.IsDBNull(imageIdOrdinal))
+            if (!await reader.IsDBNullAsync(imageIdOrdinal, cancellationToken))
             {
-                ////A user in users might not have a profile picture (u.image_id is NULL)
-                //Because we used LEFT JOIN images, i.image_id will be NULL in that case. If there's no image, we leave image as null and skip reading image columns.
-                int imageDataOrdinal = reader.GetOrdinal("image_data"); 
+                // A user may not have a profile image (u.image_id IS NULL), so i.image_id can be DBNull.
+                int fileNameOrdinal = reader.GetOrdinal("file_name");
+                int altTextOrdinal = reader.GetOrdinal("alt_text");
+                int imageDataOrdinal = reader.GetOrdinal("image_data");
+                int imageCreatedAtOrdinal = reader.GetOrdinal("image_created_at");
+
                 byte[] imageData = Array.Empty<byte>();
 
-                if (!reader.IsDBNull(imageDataOrdinal))
+                if (! await reader.IsDBNullAsync(imageDataOrdinal, cancellationToken))
                 {
                     long bytesLength = reader.GetBytes(imageDataOrdinal, 0, null, 0, 0); //first call: how many bytes are there? null->no destination array yet. 000, start reading at index 0, start writing at index 0, copy 0 bytes right now.
                     imageData = new byte[bytesLength]; //Allocate the array of that exact size
@@ -76,19 +99,19 @@ namespace SocialMediaAppLibrary.Repositories
                 image = new Image
                 {
                     Id = reader.GetInt32(imageIdOrdinal),
-                    FileName = reader.GetString("file_name"),
-                    AltText = reader.GetString("alt_text"),
+                    FileName = reader.GetString(fileNameOrdinal),
+                    AltText = reader.GetString(altTextOrdinal),
                     ImageData = imageData,
-                    CreatedAt = reader.GetDateTime("image_created_at")
+                    CreatedAt = reader.GetDateTime(imageCreatedAtOrdinal)
                 };
             }
 
             return new UserSummary
             {
-                Id = reader.GetInt32("userAuthId"),
-                DisplayName = reader.IsDBNull(displayNameOrdinal)
-                  ? string.Empty
-                  : reader.GetString(displayNameOrdinal),
+                Id = reader.GetInt32(idOrdinal),
+                DisplayName = await reader.IsDBNullAsync(displayNameOrdinal, cancellationToken)
+                    ? string.Empty
+                    : reader.GetString(displayNameOrdinal),
                 image = image
             };
 

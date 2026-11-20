@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using Org.BouncyCastle.Cms;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Repositories.Interfaces;
 using SocialMediaAppLibrary.Security;
 using SocialMediaAppLibrary.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace SocialMediaAppLibrary.Services
@@ -45,7 +47,7 @@ namespace SocialMediaAppLibrary.Services
         /// <see cref="LoginCheckResult"/> indicating whether authentication succeeded, the authenticated
         /// <see cref="UserAuthentication"/> record when successful, or a user-facing error message when denied.
         /// </returns>
-        public async Task<LoginCheckResult> AuthenticateAsync(string emailOrUsername, string password)
+        public async Task<LoginCheckResult> AuthenticateAsync(string emailOrUsername, string password, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(emailOrUsername) || string.IsNullOrWhiteSpace(password))
             {
@@ -89,7 +91,7 @@ namespace SocialMediaAppLibrary.Services
 
 
             //2. After checking cache and confirming that the user is not locked out:
-            UserAuthentication? userAuth = await _authenticationRepository.GetByEmailOrUsernameAsync(inputNormalised);         
+            UserAuthentication? userAuth = await _authenticationRepository.GetByEmailOrUsernameAsync(inputNormalised, cancellationToken);         
 
             var isValidUserAuth = userAuth is not null && userAuth.DeletedAt is null && VerifyPassword(userAuth, password);
 
@@ -180,6 +182,27 @@ namespace SocialMediaAppLibrary.Services
         public UserAuthentication Write(UserAuthentication entity)
         {
             throw new NotImplementedException();
+        }
+
+        public string HashPassword(UserAuthentication entity, string password)
+        {
+            
+            return _passwordHasher.HashPassword(entity,password);
+        }
+
+
+        /// <summary>
+        /// Checks whether an existing account already uses the specified email address or username.
+        /// </summary>
+        /// <param name="email">The email address candidate to check for duplicates.</param>
+        /// <param name="username">The username candidate to check for duplicates.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A <see cref="DuplicateAccountCheck"/> indicating whether the email and/or username is already taken.
+        /// </returns>
+        public async Task<DuplicateAccountCheck> CheckDuplicateAccountAsync(string email, string username, CancellationToken cancellationToken = default)
+        {
+            return await _authenticationRepository.CheckDuplicateAccountAsync(email, username, cancellationToken);
         }
     }
 }

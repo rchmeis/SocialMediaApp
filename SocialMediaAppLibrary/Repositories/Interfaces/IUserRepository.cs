@@ -7,6 +7,6 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
     public interface IUserRepository
     {
-        public Task<UserSummary> GetByUserAuthIdAsync(int id);        
+        public Task<UserSummary> GetByUserAuthIdAsync(int id, CancellationToken cancellationToken);        
     }
 }
