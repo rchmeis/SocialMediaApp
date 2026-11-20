@@ -40,7 +40,7 @@ namespace SocialMediaApp
 
                     options.Cookie.HttpOnly = true;                         // Mitigate XSS attacks (JS cants read or write to the cookie)
                     options.Cookie.SameSite = SameSiteMode.Lax;             // protects against CSRF attacks (cookie is only sent for same-site requests)
-                    //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;   ensures the cookie is only sent over encrypted HTTPS connections. (uncomment this line when deploying to production)
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;  //Cookie is only sent over encrypted HTTPS connections.
 
                     options.Events.OnRedirectToAccessDenied = context =>    //redirects the user and appends a query parameter. The UI  can then display an error message upon redirect without disrupting the user by moving them to an error page.
                     {
