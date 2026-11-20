@@ -40,7 +40,7 @@ namespace SocialMediaAppLibrary.Repositories
                 """;
 
             await using MySqlCommand cmd = new MySqlCommand(query, connection);
-            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
             int domainOrdinal = reader.GetOrdinal("domain_name");
 
@@ -79,11 +79,7 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<List<string>> ReadAllDomainsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
+      
         
     }
 }

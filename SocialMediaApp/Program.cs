@@ -63,7 +63,8 @@ namespace SocialMediaApp
 
                 options.Conventions.AllowAnonymousToPage("/Index");        //except for..
                 options.Conventions.AllowAnonymousToPage("/Account/SignIn");
-                options.Conventions.AllowAnonymousToPage("/Account/SignUp");
+                options.Conventions.AllowAnonymousToPage("/Account/SignupFlow/Step1");
+                options.Conventions.AllowAnonymousToPage("/Account/SignupFlow/Step2");
                 options.Conventions.AllowAnonymousToPage("/ImageUploadTest"); //! Temporary page for testing image upload functionality. Remove this line when the page is no longer needed.
                 //We will add policies directly to the relevant razor pages using eg: [Authorize(Policy = "PartnerPolicy")]
 
