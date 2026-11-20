@@ -51,20 +51,21 @@ namespace SocialMediaApp.Pages.Account
         /// Handles the HTTP POST request for user login. 
         /// Authenticates credentials via <see cref="IUserAuthenticationService.AuthenticateAsync"/>, 
         /// adds any returned error message to <see cref="PageModel.ModelState"/> on failure, redirects 
-        /// users who have not yet completed profile registration to <c>/Account/SignUpFlow/Step3</c>, 
+        /// users who have not yet completed profile registration to <c>/Account/SignupFlow/Step3</c>, 
         /// or otherwise signs the user in with persistent or session-bound cookie authentication and 
         /// redirects to <c>ReturnUrl</c> (if local) or a role-specific landing page.
         /// </summary>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>
         /// A task that represents the asynchronous operation. The task result contains an 
         /// <see cref="IActionResult"/> redirect to registration, <c>ReturnUrl</c>, or the home/profile 
         /// page, or re-renders the page with model state errors if validation or authentication fails.
         /// </returns>
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken = default)
         {
             if (!ModelState.IsValid) return Page();
 
-            LoginCheckResult result = await _userAuthenticationService.AuthenticateAsync(Input.EmailOrUsername, Input.Password);
+            LoginCheckResult result = await _userAuthenticationService.AuthenticateAsync(Input.EmailOrUsername, Input.Password, cancellationToken);
             
             if (!result.Succeeded || result.User is null)
             {
@@ -72,7 +73,7 @@ namespace SocialMediaApp.Pages.Account
                 return Page();
             }
 
-            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.User.Id);
+            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.User.Id, cancellationToken);
             if (userSummary is null)
             {
                 
