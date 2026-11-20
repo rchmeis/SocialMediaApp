@@ -79,7 +79,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
             /// <summary>
             /// Gets or sets the confirmation password that must match <see cref="Password"/>.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage ="Feltet 'gentag adgangskode' skal udfyldes")]
             [DataType(DataType.Password)]
             public string RepeatPassword { get; set; } = string.Empty;
       
