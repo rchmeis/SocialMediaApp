@@ -5,4 +5,31 @@
 <!--verify user (code sent to student email must be typed into the input field
 IF the code is valid, the session object (UserAuthentication) is saved in the database 
 and the student is redirected to the next step-->
-<!--message on the screen "do not leave the site before completing the verification. ">
+<!--message on the screen "do not leave the site before completing the verification. " -->
+
+
+
+<!-- Verification code and input field -->
+
+<div class="container">
+    
+    <h1>Trin 2 af 3</h1>
+    <p>Vi har sendt en kode til  @Model.userEmail</p>
+
+    <h2>Verifikations kode:</h2>
+    <p>@Model.codeToShow</p>
+
+    <form method="post" class="form">
+        <div class="form__field">
+            <label asp-for="input">Verifikations kode</label>
+            <input asp-for="input"/>
+        </div>
+
+        <div class="form_button">
+            <button type="submit" class="btn">Verificer</button>
+        </div>
+    </form>
+    
+    <p>Forlad ikke siden, før verificeringen er gennemført.</p>
+</div>
+
