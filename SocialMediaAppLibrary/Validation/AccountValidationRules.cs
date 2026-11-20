@@ -54,6 +54,15 @@ namespace SocialMediaAppLibrary.Validation
 
 
         /// <summary>
+        /// The localized error message shown when a student email address does not belong
+        /// to an approved educational institution domain.
+        /// </summary>
+        public const string StudentEmailDomainErrorMessage =
+       "Studiemailen skal tilhøre en godkendt uddannelsesinstitution.";
+
+
+
+        /// <summary>
         /// The maximum allowed character length for an email address.
         /// </summary>
         public const int EmailMaxLength = 254;
@@ -61,6 +70,8 @@ namespace SocialMediaAppLibrary.Validation
         /// The localized error message shown when an email address format is invalid.
         /// </summary>
         public const string EmailInvalidMessage = "Indtast en gyldig e-mailadresse.";
+
+
 
         /// <summary>
         /// Gets a source-generated <see cref="Regex"/> instance for validating usernames
@@ -77,6 +88,7 @@ namespace SocialMediaAppLibrary.Validation
         /// <returns>A compiled/generated <see cref="Regex"/> matching <see cref="PasswordPattern"/>.</returns>
         [GeneratedRegex(PasswordPattern, RegexOptions.CultureInvariant, matchTimeoutMilliseconds: 100)]
         public static partial Regex PasswordRegex();
+
 
 
         /// <summary>
@@ -124,6 +136,8 @@ namespace SocialMediaAppLibrary.Validation
                 return false;
             }
         }
+
+       
 
         /// <summary>
         /// Checks whether an email address belongs to—or is a subdomain of—any allowed institution domain.
