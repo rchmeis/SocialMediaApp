@@ -8,8 +8,8 @@ namespace SocialMediaAppLibrary.Services.Interfaces
 {
     public interface IImageService
     {
-        public Task<Image> GetByIdAsync(int id);
-        public List<Image> GetAllImages();
+        public Task<Image?> GetByIdAsync(int id);
+        public Task<List<Image>> GetAllAsync();
         public Task<Image> SaveImageAsync(IFormFile file, string altText);
     }
 }
