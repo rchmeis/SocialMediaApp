@@ -5,3 +5,28 @@
 <!-- Step 1: student inputs email, password -->
 <!--the authentication object is created and saved in the session-->
 <!-- button somewhere on the page for partners "are you a partner? sign up here!-->
+
+<div>
+    <form method="post">
+        <div>
+            <label asp-for="Input.Email"> Indtast din studiemail</label>
+            <input asp-for="Input.Email" />
+            <span asp-validation-for="Input.Email"></span>
+        </div>
+       <div>
+            <label asp-for="Input.Username"> Indtast din studiemail</label>
+            <input asp-for="Input.Username" />
+            <span asp-validation-for="Input.Username"></span>
+       </div>
+        <div>
+            <label asp-for="Input.Password"> Indtast din studiemail</label>
+            <input asp-for="Input.Password" />
+            <span asp-validation-for="Input.Password"></span>
+        </div>
+        <button type="submit">Opret bruger</button>
+    </form>
+</div>
+
+@* <div>
+    <p>Er du Partner? <a ="/SignUpFlow/Partner1"Opret dig her!</p>
+</div> *@
