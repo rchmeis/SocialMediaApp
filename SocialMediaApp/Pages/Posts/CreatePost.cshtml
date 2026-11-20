@@ -2,3 +2,22 @@
 @model SocialMediaApp.Pages.Posts.CreatePostModel
 @{
 }
+
+<form method="post" enctype="multipart/form-data">
+    <div>
+        <label asp-for="PostTitle">Valgfri titel</label>
+        <input asp-for="PostTitle" type="text" maxlength="63"/>
+        <span asp-validation-for="PostTitle"></span>
+    </div>
+    <div>
+        <label asp-for="PostContent">Indhold</label>
+        <textarea asp-for="PostContent" placeholder="@Model.RandomizedPlaceholder" maxlength="2000" required></textarea>
+        <span asp-validation-for="PostContent"></span>
+    </div>
+    <div>
+        <label asp-for="PostImages">Vedhæft billeder</label>
+        <input asp-for="PostImages" type="file" accept=".jpg, .jpeg, .png, .webp" multiple />
+        <span asp-validation-for="PostImages"></span>
+    </div>
+    <button type="submit">Opret indlæg</button>
+</form>
