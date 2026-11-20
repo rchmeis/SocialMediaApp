@@ -20,21 +20,27 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Retrieves all distinct, non-empty institution email domain names from the database.
+        /// </summary>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A list of trimmed institution domain names; returns an empty list if none are configured.
+        /// </returns>
         public async Task<List<string>> ReadAllDomainsAsync(CancellationToken cancellationToken = default)
         {
             List<string> domains = new List<string>();
 
-            using MySqlConnection connection = _db.Connect();
-            await connection.OpenAsync(cancellationToken);
+            await using MySqlConnection connection = _db.Connect();           
 
-            string query = """
+            const string query = """
                 SELECT DISTINCT domain_name
                 FROM institutes
                 WHERE domain_name IS NOT NULL;
                 """;
 
-            using MySqlCommand cmd = new MySqlCommand(query, connection);
-            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
             int domainOrdinal = reader.GetOrdinal("domain_name");
 
@@ -52,10 +58,11 @@ namespace SocialMediaAppLibrary.Repositories
 
             return domains;
         }
+
         public List<Institute> ReadAll()
         {
             throw new NotImplementedException();
-        };
+        }
 
         public Institute? ReadById(int id)
         {
@@ -71,5 +78,12 @@ namespace SocialMediaAppLibrary.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Task<List<string>> ReadAllDomainsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        
     }
 }

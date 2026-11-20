@@ -7,6 +7,6 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
     public interface IInstitutionRepository:ICrud<Institute, int>
     {
-        public Task<List<string>> ReadAllDomainsAsync();
+        public Task<List<string>> ReadAllDomainsAsync(CancellationToken cancellationToken);
     }
 }
