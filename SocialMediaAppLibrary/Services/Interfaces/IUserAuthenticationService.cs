@@ -10,7 +10,10 @@ namespace SocialMediaAppLibrary.Services.Interfaces
 {
     public interface IUserAuthenticationService :ICrud<UserAuthentication, int>
     {
-        public Task<LoginCheckResult> AuthenticateAsync(string emailOrUsername, string password);
-     
+        public Task<LoginCheckResult> AuthenticateAsync(string emailOrUsername, string password, CancellationToken cancellationtoken);
+        public string HashPassword(UserAuthentication entity, string password);
+        public Task<DuplicateAccountCheck> CheckDuplicateAccountAsync(string email, string username, CancellationToken cancellationToken);
+
+
     }
 }

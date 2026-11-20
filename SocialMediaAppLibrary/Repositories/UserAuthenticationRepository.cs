@@ -5,14 +5,22 @@ using System.Collections.Generic;
 using System.Text;
 using SocialMediaAppLibrary.Repositories.Interfaces;
 using MySql.Data.MySqlClient;
+using System.Threading;
 
 namespace SocialMediaAppLibrary.Repositories
 {
+    /// <summary>
+    /// Provides MySQL data access operations for <see cref="UserAuthentication"/> records.
+    /// </summary>
     public class UserAuthenticationRepository : IUserAuthenticationRepository
     {
 
         private readonly IDbConnect _db;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserAuthenticationRepository"/> class.
+        /// </summary>
+        /// <param name="dbConnect">The database connection provider used to open MySQL connections.</param>
         public UserAuthenticationRepository(IDbConnect dbConnect)
         {
             _db = dbConnect;
@@ -23,7 +31,68 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<UserAuthentication> GetByEmailOrUsernameAsync(string input)
+        /// <summary>
+        /// Checks whether an account already exists with the specified email address or username
+        /// in a single database query.
+        /// </summary>
+        /// <param name="email">The email address candidate to check for duplicates.</param>
+        /// <param name="username">The username candidate to check for duplicates.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A <see cref="DuplicateAccountCheck"/> indicating whether the email and/or username
+        /// already exists in the <c>user_authentications</c> table.
+        /// </returns>
+        public async Task<DuplicateAccountCheck> CheckDuplicateAccountAsync(string email, string username, CancellationToken cancellationToken=default)
+        {
+            using MySqlConnection connection = _db.Connect();
+
+            string query = """
+                SELECT
+                    EXISTS(
+                        SELECT 1
+                        FROM user_authentications
+                        WHERE LOWER(email) = LOWER(@Email)
+                    ) AS email_exists,
+                    EXISTS(
+                        SELECT 1
+                        FROM user_authentications
+                        WHERE LOWER(username) = LOWER(@Username)
+                    ) AS username_exists;
+                """;
+
+            using MySqlCommand cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@Email", email.Trim().ToLowerInvariant());
+            cmd.Parameters.AddWithValue("@Username", username.Trim());
+
+            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return new DuplicateAccountCheck(false, false);
+            }
+
+            int emailOrdinal = reader.GetOrdinal("email_exists");
+            int usernameOrdinal = reader.GetOrdinal("username_exists");
+
+            bool emailExists = !await reader.IsDBNullAsync(emailOrdinal)
+                && reader.GetBoolean(emailOrdinal);
+
+            bool usernameExists = !await reader.IsDBNullAsync(usernameOrdinal)
+                && reader.GetBoolean(usernameOrdinal);
+
+            return new DuplicateAccountCheck(emailExists, usernameExists);
+        }
+
+
+        /// <summary>
+        /// Retrieves a <see cref="UserAuthentication"/> record matching either the given email address or username.
+        /// </summary>
+        /// <param name="input">The email address or username to look up.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// The matching <see cref="UserAuthentication"/> instance if found; otherwise, <see langword="null"/>.
+        /// </returns>
+        public async Task<UserAuthentication?> GetByEmailOrUsernameAsync(string input, CancellationToken cancellationToken=default)
         {
             if (string.IsNullOrWhiteSpace(input))
             {
@@ -48,29 +117,39 @@ namespace SocialMediaAppLibrary.Repositories
 
             using MySqlCommand cmd = new MySqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@input", input);
-            using MySqlDataReader reader = cmd.ExecuteReader();
-            if (!await reader.ReadAsync())
+            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
             {
                 return null;
             }
 
+            //because we use await cmd.ExecuteReaderAsync, the type of reader changes to DbDataReader which only takes an int column index! thats why we cant use GetString(string) as we do with cmd.ExecuteReader();
             int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
-            string roleValue = reader.GetString("role");
+            int idOrdinal = reader.GetOrdinal("user_authentication_id");
+            int usernameOrdinal = reader.GetOrdinal("username");
+            int emailOrdinal = reader.GetOrdinal("email");
+            int passwordHashOrdinal = reader.GetOrdinal("password_hash");
+            int isVerifiedOrdinal = reader.GetOrdinal("is_verified");
+            int roleOrdinal = reader.GetOrdinal("role");
+            int createdAtOrdinal = reader.GetOrdinal("created_at");
+           
+
+            string roleValue = reader.GetString(roleOrdinal);
 
             return new UserAuthentication
             {
-                Id = reader.GetInt32("user_authentication_id"),
-                Username = reader.GetString("username"),
-                Email = reader.GetString("email"),
-                PasswordHashed = reader.GetString("password_hash"),
-                IsVerified = reader.GetBoolean("is_verified"),
+                Id = reader.GetInt32(idOrdinal),
+                Username = reader.GetString(usernameOrdinal),
+                Email = reader.GetString(emailOrdinal),
+                PasswordHashed = reader.GetString(passwordHashOrdinal),
+                IsVerified = reader.GetBoolean(isVerifiedOrdinal),
                 Role = Enum.Parse<Role>(roleValue, ignoreCase: true),
-                CreatedAt = reader.GetDateTime("created_at"),
+                CreatedAt = reader.GetDateTime(createdAtOrdinal),
                 DeletedAt = reader.IsDBNull(deletedAtOrdinal)
-                ? null
-                : reader.GetDateTime(deletedAtOrdinal)
+                    ? null
+                    : reader.GetDateTime(deletedAtOrdinal)
             };
-           
+
         }
 
 
