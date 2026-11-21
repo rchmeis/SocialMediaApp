@@ -15,14 +15,27 @@ and the student is redirected to the next step-->
     
     <h1>Trin 2 af 3</h1>
     <p>Vi har sendt en kode til  @Model.userEmail</p>
+    
+    @if (@Model.ErrorMessage != null)
+    {
+        <div class="error-box">
+            <span>Fejl: @Model.ErrorMessage</span>
+        </div>
+    }
 
     <h2>Verifikations kode:</h2>
     <p>@Model.codeToShow</p>
+    
+    <form method="post" class="form" asp-page-handler="Resend">
+        <div class="form_button">
+            <button type="submit" class="btn">Send ny kode</button>
+        </div>
+    </form>
 
     <form method="post" class="form">
         <div class="form__field">
             <label asp-for="input">Verifikations kode</label>
-            <input asp-for="input"/>
+            <input asp-for="input" maxlength="6" inputmode="numeric" pattern="\d{6}"/>
         </div>
 
         <div class="form_button">

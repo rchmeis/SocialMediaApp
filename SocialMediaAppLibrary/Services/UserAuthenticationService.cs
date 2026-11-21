@@ -181,7 +181,7 @@ namespace SocialMediaAppLibrary.Services
 
         public UserAuthentication Write(UserAuthentication entity)
         {
-            throw new NotImplementedException();
+            return _authenticationRepository.Write(entity);
         }
 
         public string HashPassword(UserAuthentication entity, string password)
