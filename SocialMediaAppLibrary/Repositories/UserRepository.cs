@@ -40,7 +40,7 @@ namespace SocialMediaAppLibrary.Repositories
             {
                 return null;
             }
-            using MySqlConnection connection = _db.Connect();
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
 
             // COALESCE returns the first non-null value; CONCAT_WS joins non-null parts with a space.
             string query = """
@@ -64,10 +64,10 @@ namespace SocialMediaAppLibrary.Repositories
                 LIMIT 1;
                 """;
 
-            using MySqlCommand cmd = new MySqlCommand(query, connection);
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@userAuthId", userAuthId);
 
-            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
             if (!await reader.ReadAsync(cancellationToken))
             {
                 return null;

@@ -44,27 +44,32 @@ namespace SocialMediaAppLibrary.Repositories
         /// </returns>
         public async Task<DuplicateAccountCheck> CheckDuplicateAccountAsync(string email, string username, CancellationToken cancellationToken=default)
         {
-            using MySqlConnection connection = _db.Connect();
+            string normalizedEmail = (email ?? string.Empty).Trim().ToLowerInvariant();
+            string normalizedUsername = (username ?? string.Empty).Trim().ToLowerInvariant();
+
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
 
             string query = """
                 SELECT
                     EXISTS(
                         SELECT 1
                         FROM user_authentications
-                        WHERE LOWER(email) = LOWER(@Email)
+                        WHERE LOWER(email) = (@Email)
+                        AND deleted_at IS NULL
                     ) AS email_exists,
                     EXISTS(
                         SELECT 1
                         FROM user_authentications
-                        WHERE LOWER(username) = LOWER(@Username)
+                        WHERE LOWER(username) = (@Username)
+                        AND deleted_at IS NULL
                     ) AS username_exists;
                 """;
 
-            using MySqlCommand cmd = new MySqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@Email", email.Trim().ToLowerInvariant());
-            cmd.Parameters.AddWithValue("@Username", username.Trim());
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@Email", normalizedEmail);
+            cmd.Parameters.AddWithValue("@Username", normalizedUsername);
 
-            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
             if (!await reader.ReadAsync(cancellationToken))
             {
@@ -99,7 +104,7 @@ namespace SocialMediaAppLibrary.Repositories
                 return null;
             }
 
-            using MySqlConnection connection = _db.Connect();
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
             const string query = """
                 SELECT
                         user_authentication_id,
@@ -111,13 +116,13 @@ namespace SocialMediaAppLibrary.Repositories
                         created_at,
                         deleted_at
                 FROM user_authentications
-                WHERE email = @input OR username = @input
+                WHERE email = @input OR username = @input AND deleted_at IS NULL
                 LIMIT 1;
                 """;
 
             using MySqlCommand cmd = new MySqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@input", input);
-            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            cmd.Parameters.AddWithValue("@input", input.Trim());
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
             if (!await reader.ReadAsync(cancellationToken))
             {
                 return null;

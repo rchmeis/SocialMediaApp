@@ -31,7 +31,7 @@ namespace SocialMediaAppLibrary.Repositories
         {
             List<string> domains = new List<string>();
 
-            await using MySqlConnection connection = _db.Connect();           
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);           
 
             const string query = """
                 SELECT DISTINCT domain_name
@@ -40,7 +40,7 @@ namespace SocialMediaAppLibrary.Repositories
                 """;
 
             await using MySqlCommand cmd = new MySqlCommand(query, connection);
-            using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
 
             int domainOrdinal = reader.GetOrdinal("domain_name");
 
