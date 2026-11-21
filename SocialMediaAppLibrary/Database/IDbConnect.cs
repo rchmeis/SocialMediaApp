@@ -8,5 +8,6 @@ namespace SocialMediaAppLibrary.Database
     public interface IDbConnect
     {
         public MySqlConnection Connect();
+        Task<MySqlConnection> ConnectAsync(CancellationToken cancellationToken = default);
     }
 }

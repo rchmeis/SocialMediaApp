@@ -24,5 +24,12 @@ namespace SocialMediaAppLibrary.Database
             return connection;
         }
 
+        public async Task<MySqlConnection> ConnectAsync(CancellationToken cancellationstoken=default)     // brug denne uden properties - den returnerer en MySqlCOnnection automatisk når metoden kaldes, så den gemmes bare i en variabel
+        {
+            var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync(cancellationstoken);
+            return connection;
+        }
+
     }
 }
