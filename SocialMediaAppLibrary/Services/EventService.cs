@@ -14,17 +14,13 @@ namespace SocialMediaAppLibrary.Services
         {
             _eventRepository = eventRepository;
         }
-        public Event Delete(int id)
+       
+        public Task<Event> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<Event> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Event? ReadById(int id)
+        public Task<List<Event>> ReadAllAsync()
         {
             throw new NotImplementedException();
         }
@@ -34,17 +30,37 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
 
-        public Event Update(int id, Event entity)
+        public Task<Event> UpdateAsync(int id, Event entity)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Event> WriteAsync(Event entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
+
+
+
+
+        //DONT USE SYNC METHODS FOR DB CALLS
+        public Event? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
+        public Event Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
         public Event Write(Event entity)
         {
             throw new NotImplementedException();
         }
-
-        public Task<Event> WriteAsync(Event entity, CancellationToken cancellationToken)
+        public Event Update(int id, Event entity)
+        {
+            throw new NotImplementedException();
+        }
+        public List<Event> ReadAll()
         {
             throw new NotImplementedException();
         }

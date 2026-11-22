@@ -100,6 +100,29 @@ namespace SocialMediaAppLibrary.Repositories
 
             return student;
         }
+       
+        public Task<Student?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Student>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Student> UpdateAsync(int id, Student entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Student> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        //BRUG IKKE SYNKRONE METODER - slettes fra ICRUD når alle repos har skiftet til task
         public Student Delete(int id)
         {
             throw new NotImplementedException();
@@ -121,11 +144,6 @@ namespace SocialMediaAppLibrary.Repositories
         }
 
         public Student Write(Student entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Student?> ReadByIdAsync(int id)
         {
             throw new NotImplementedException();
         }

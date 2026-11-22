@@ -10,5 +10,7 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
         public T Update(TKey id, T entity);
         public T Delete(TKey id);
         public Task<T> WriteAsync(T entity, CancellationToken cancellationToken);
+        public Task<T> UpdateAsync(TKey id, T entity);
+        public Task<T> DeleteAsync(TKey id);
     }
 }

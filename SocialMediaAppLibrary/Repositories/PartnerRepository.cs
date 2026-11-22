@@ -17,37 +17,48 @@ namespace SocialMediaAppLibrary.Repositories
             _dbConnect = dbConnect;
         }
 
-        public Partner Delete(int id)
+        public Task<Partner> WriteAsync(Partner entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public List<Partner> ReadAll()
+        public Task<Partner> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Partner? ReadById(int id)
+        public Task<List<Partner>> ReadAllAsync()
         {
             throw new NotImplementedException();
         }
-
         public Task<Partner?> ReadByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
+        public Task<Partner> UpdateAsync(int id, Partner entity)
+        {
+            throw new NotImplementedException();
+        }
 
+        //BRUG IKKE SYNKRONE METODER - slettes npr alle repos har flyttet metoder til task
+        public Partner? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
         public Partner Update(int id, Partner entity)
         {
             throw new NotImplementedException();
         }
-
+        public List<Partner> ReadAll()
+        {
+            throw new NotImplementedException();
+        }
         public Partner Write(Partner entity)
         {
             throw new NotImplementedException();
         }
-
-        public Task<Partner> WriteAsync(Partner entity, CancellationToken cancellationToken)
+       
+        public Partner Delete(int id)
         {
             throw new NotImplementedException();
         }

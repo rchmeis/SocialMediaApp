@@ -22,6 +22,11 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<Image> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Retrieves all images from the database and returns them as a list of <see cref="Image"/> objects.
         /// </summary>
@@ -57,6 +62,11 @@ namespace SocialMediaAppLibrary.Repositories
             }
 
             return images;
+        }
+
+        public Task<List<Image>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -103,6 +113,11 @@ namespace SocialMediaAppLibrary.Repositories
         }
 
         public Image Update(int id, Image entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Image> UpdateAsync(int id, Image entity)
         {
             throw new NotImplementedException();
         }

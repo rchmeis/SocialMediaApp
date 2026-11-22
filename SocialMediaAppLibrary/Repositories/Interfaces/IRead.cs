@@ -9,5 +9,6 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
         public T? ReadById(TKey id);
         public Task<T?> ReadByIdAsync(TKey id);
         public List<T> ReadAll();
+        public Task<List<T>> ReadAllAsync();
     }
 }
