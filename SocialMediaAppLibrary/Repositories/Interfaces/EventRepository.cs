@@ -20,6 +20,27 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
             throw new NotImplementedException();
         }
 
+        public Task<Event?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Event>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Event> UpdateAsync(int id, Event entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Event> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        //BRUG IKKE SYNKRONE METODER, slettes fra ICRUD når alle repos er skiftet til async
         public Event Delete(int id)
         {
             throw new NotImplementedException();
@@ -42,11 +63,9 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
 
         public Event Write(Event entity)
         {
-            throw new NotImplementedException();        }
-
-        public Task<Event?> ReadByIdAsync(int id)
-        {
             throw new NotImplementedException();
         }
+
+
     }
 }

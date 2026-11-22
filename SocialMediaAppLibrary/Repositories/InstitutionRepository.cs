@@ -10,19 +10,22 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Repositories
 {
+    /// <summary>
+    /// Repository responsible for asynchronous MySQL data access operations for educational institutions.
+    /// </summary>
     public class InstitutionRepository : IInstitutionRepository
     {
         private readonly IDbConnect _db;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstitutionRepository"/> class with the specified database connection provider.
+        /// </summary>
+        /// <param name="db">The database connection provider used to open asynchronous MySQL connections.</param>
         public InstitutionRepository(IDbConnect db)
         {
             _db = db;
         }
         public Task<Institute> WriteAsync(Institute entity, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Institute Delete(int id)
         {
             throw new NotImplementedException();
         }
@@ -65,6 +68,16 @@ namespace SocialMediaAppLibrary.Repositories
 
             return domains;
         }
+
+        /// <summary>
+        /// Asynchronously retrieves all institutes matching the specified domain name along with their associated city details.
+        /// </summary>
+        /// <param name="domain_name">The email or institution domain name used to filter matching institutes.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests while connecting to and querying the database.</param>
+        /// <returns>
+        /// A <see cref="List{T}"/> of <see cref="Institute"/> objects populated with <see cref="City"/> details for each matching record,
+        /// or an empty list when <paramref name="domain_name"/> is null or empty or no matching institutes are found.
+        /// </returns>
         public async Task<List<Institute>> GetByDomainAsync(string domain_name, CancellationToken cancellationToken)
         {
             if (domain_name.IsNullOrEmpty())
@@ -121,6 +134,16 @@ namespace SocialMediaAppLibrary.Repositories
             return institutes;
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a course along with its field of study if it is associated with the specified institute.
+        /// </summary>
+        /// <param name="courseId">The unique identifier of the course to retrieve. Must be greater than zero.</param>
+        /// <param name="instituteId">The unique identifier of the institute to verify association against. Must be greater than zero.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests while connecting to and querying the database.</param>
+        /// <returns>
+        /// A <see cref="Course"/> instance populated with the course's ID, name, and field of study if a matching record is found;
+        /// otherwise, <see langword="null"/> when either identifier is invalid or no matching association exists.
+        /// </returns>
         public async Task<List<Course>> GetCoursesByInstituteIdAsync(int instituteId, CancellationToken cancellationToken)
         {
             List<Course> courses = new List<Course>();
@@ -205,7 +228,28 @@ namespace SocialMediaAppLibrary.Repositories
 
             return null;
         }
+        public Task<Institute?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
 
+        public Task<List<Institute>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Institute> UpdateAsync(int id, Institute entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Institute> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        //BRUG IKKE NEDENSTÅENDE - FJERNES NÅR ALLE REPOS ER LFYTTET TIL TASK
         public List<Institute> ReadAll()
         {
             throw new NotImplementedException();
@@ -226,7 +270,8 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Institute?> ReadByIdAsync(int id)
+
+        public Institute Delete(int id)
         {
             throw new NotImplementedException();
         }

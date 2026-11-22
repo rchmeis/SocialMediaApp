@@ -14,17 +14,21 @@ namespace SocialMediaAppLibrary.Services
         {
             _postRepository = postRepository;
         }
-        public Post Delete(int id)
+       
+        public Task<Post> WriteAsync(Post entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Post> UpdateAsync(int id, Post entity)
         {
             throw new NotImplementedException();
         }
 
-        public List<Post> ReadAll()
+        public Task<Post> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
-
-        public Post? ReadById(int id)
+        public Task<List<Post>> ReadAllAsync()
         {
             throw new NotImplementedException();
         }
@@ -34,17 +38,35 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
 
+
+
+
+        //NEDENSTÅENDE SLETTES NÅR ALLE RPEOS ER OVERGÅET TIL TASK
+
+        public Post? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public Post Update(int id, Post entity)
         {
             throw new NotImplementedException();
         }
+
+      
 
         public Post Write(Post entity)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Post> WriteAsync(Post entity, CancellationToken cancellationToken)
+        
+        public Post Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+        public List<Post> ReadAll()
         {
             throw new NotImplementedException();
         }
