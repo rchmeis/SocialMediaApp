@@ -24,7 +24,9 @@ namespace SocialMediaApp
                 options.Cookie.Name = ".StudentHub.Session"; // session name
                 options.IdleTimeout = TimeSpan.FromMinutes(30); // session idle time before deleting
                 options.Cookie.HttpOnly = true; // cookie can't be read by JavaScript
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Cookies are only sent over HTTPS (not HTTP!)
+                options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+                    ? CookieSecurePolicy.SameAsRequest
+                    : CookieSecurePolicy.Always;
                 options.Cookie.IsEssential = true; // required for GDPR. Marks the cookie as strictly necessary
             });
 
@@ -94,6 +96,7 @@ namespace SocialMediaApp
             builder.Services.AddScoped<IImageService, ImageService>();
             builder.Services.AddScoped<IInstitutionRepository, InstitutionRepository>();
             builder.Services.AddScoped<IInstitutionService, InstitutionService>();
+            builder.Services.AddScoped<IVerificationService, VerificationService>();
 
             var app = builder.Build();
 
