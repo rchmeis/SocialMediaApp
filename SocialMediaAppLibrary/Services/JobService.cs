@@ -23,12 +23,22 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
 
+        public Task<StudentJob?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public StudentJob Update(int id, StudentJob entity)
         {
             throw new NotImplementedException();
         }
 
         public StudentJob Write(StudentJob entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<StudentJob> WriteAsync(StudentJob entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

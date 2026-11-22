@@ -32,6 +32,11 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
 
+        public Task<Student?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Student Update(int id, Student entity)
         {
             throw new NotImplementedException();
@@ -40,6 +45,11 @@ namespace SocialMediaAppLibrary.Services
         public Student Write(Student entity)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Student> WriteAsync(Student entity, CancellationToken cancellationToken)
+        {
+            return await _studentRepository.WriteAsync(entity, cancellationToken);
         }
     }
 }

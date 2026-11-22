@@ -1,9 +1,11 @@
 ﻿using MySql.Data.MySqlClient;
+using ServiceStack;
 using SocialMediaAppLibrary.Database;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace SocialMediaAppLibrary.Repositories
@@ -15,6 +17,11 @@ namespace SocialMediaAppLibrary.Repositories
         {
             _db = db;
         }
+        public Task<Institute> WriteAsync(Institute entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public Institute Delete(int id)
         {
             throw new NotImplementedException();
@@ -58,6 +65,146 @@ namespace SocialMediaAppLibrary.Repositories
 
             return domains;
         }
+        public async Task<List<Institute>> GetByDomainAsync(string domain_name, CancellationToken cancellationToken)
+        {
+            if (domain_name.IsNullOrEmpty())
+            {
+                return new List<Institute>();
+            }
+
+            List<Institute> institutes = new List<Institute>();
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+            string query = """
+                SELECT 
+                    i.institute_id, 
+                    i.name AS institute_name,
+                    i.domain_name,                     
+                    c.city_id,
+                    c.name AS city_name,
+                    c.postal_code                    
+                FROM institutes i 
+                JOIN cities c ON i.city_id = c.city_id
+                WHERE i.domain_name = @domain_name
+                """;
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@domain_name", domain_name.Trim());
+
+            await using DbDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+            int instituteIdOrdinal = reader.GetOrdinal("institute_id");
+            int instituteNameOrdinal = reader.GetOrdinal("institute_name");
+            int domainNameOrdinal = reader.GetOrdinal("domain_name");
+            int cityIdOrdinal = reader.GetOrdinal("city_id");
+            int cityNameOrdinal = reader.GetOrdinal("city_name");
+            int postalCodeOrdinal = reader.GetOrdinal("postal_code");
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                City city = new City
+                {
+                    Id = reader.GetInt32(cityIdOrdinal),
+                    Name = reader.GetString(cityNameOrdinal),
+                    PostalCode = reader.GetString(postalCodeOrdinal)
+                };
+
+                Institute institute = new Institute
+                {
+                    Id = reader.GetInt32(instituteIdOrdinal),
+                    Name = reader.GetString(instituteNameOrdinal),
+                    DomainName = reader.GetString(domainNameOrdinal),
+                    City = city
+                };
+
+                institutes.Add(institute);
+            }
+
+            return institutes;
+        }
+
+        public async Task<List<Course>> GetCoursesByInstituteIdAsync(int instituteId, CancellationToken cancellationToken)
+        {
+            List<Course> courses = new List<Course>();
+            if (instituteId <= 0)
+            {
+                return courses;
+            }
+
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+            string query = """
+                SELECT
+                    c.course_id,
+                    c.name AS course_name,                   
+                    fos.name AS field_of_study_name
+                FROM courses c
+                INNER JOIN institute_courses ic ON c.course_id = ic.course_id
+                INNER JOIN fields_of_study fos ON c.field_of_study_id = fos.field_of_study_id
+                WHERE ic.institute_id = @institute_id;
+                """;
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@institute_id", instituteId);
+            await using DbDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+            int courseIdOrdinal = reader.GetOrdinal("course_id");
+            int courseNameOrdinal = reader.GetOrdinal("course_name");
+            int fieldOfStudyNameOrdinal = reader.GetOrdinal("field_of_study_name");
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                var course = new Course
+                {
+                    Id = reader.GetInt32(courseIdOrdinal),
+                    Name = reader.GetString(courseNameOrdinal),
+                    FieldOfStudy = reader.GetString(fieldOfStudyNameOrdinal)
+                };
+
+                courses.Add(course);
+            }
+
+            return courses;
+        }
+        public async Task<Course?> GetCourseForInstituteAsync(int courseId, int instituteId, CancellationToken cancellationToken)
+        {
+            if (courseId <= 0 || instituteId <= 0)
+            {
+                return null;
+            }
+
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+
+            const string query = """
+                SELECT
+                    c.course_id,
+                    c.name AS course_name,
+                    fos.name AS field_of_study_name
+                FROM courses c
+                INNER JOIN institute_courses ic ON c.course_id = ic.course_id
+                INNER JOIN fields_of_study fos ON c.field_of_study_id = fos.field_of_study_id
+                WHERE c.course_id = @course_id
+                AND ic.institute_id = @institute_id;
+                """;
+
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
+            cmd.Parameters.AddWithValue("@course_id", courseId);
+            cmd.Parameters.AddWithValue("@institute_id", instituteId);
+
+            await using DbDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+            int courseIdOrdinal = reader.GetOrdinal("course_id");
+            int courseNameOrdinal = reader.GetOrdinal("course_name");
+            int fieldOfStudyNameOrdinal = reader.GetOrdinal("field_of_study_name");
+
+            if (await reader.ReadAsync(cancellationToken))
+            {
+                return new Course
+                {
+                    Id = reader.GetInt32(courseIdOrdinal),
+                    Name = reader.GetString(courseNameOrdinal),
+                    FieldOfStudy = reader.GetString(fieldOfStudyNameOrdinal)
+                };
+            }
+
+            return null;
+        }
 
         public List<Institute> ReadAll()
         {
@@ -79,7 +226,9 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-      
-        
+        public Task<Institute?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -133,7 +133,7 @@ namespace SocialMediaAppLibrary.Services
             return new LoginCheckResult
             {
                 Succeeded = true,
-                User = userAuth
+                UserAuthentication = userAuth
             };
         }
 
@@ -170,7 +170,7 @@ namespace SocialMediaAppLibrary.Services
 
         public UserAuthentication? ReadById(int id)
         {
-            throw new NotImplementedException();
+            return _authenticationRepository.ReadById(id);
         }
 
         public UserAuthentication Update(int id, UserAuthentication entity)
@@ -203,6 +203,16 @@ namespace SocialMediaAppLibrary.Services
         public async Task<DuplicateAccountCheck> CheckDuplicateAccountAsync(string email, string username, CancellationToken cancellationToken = default)
         {
             return await _authenticationRepository.CheckDuplicateAccountAsync(email, username, cancellationToken);
+        }
+
+        public Task<UserAuthentication> WriteAsync(UserAuthentication entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserAuthentication?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

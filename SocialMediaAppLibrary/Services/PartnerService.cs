@@ -29,12 +29,22 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
 
+        public Task<Partner?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Partner Update(int id, Partner entity)
         {
             throw new NotImplementedException();
         }
 
         public Partner Write(Partner entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Partner> WriteAsync(Partner entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
