@@ -15,6 +15,11 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
             _dbConnect = dbConnect;
         }
 
+        public Task<Event> WriteAsync(Event entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public Event Delete(int id)
         {
             throw new NotImplementedException();
@@ -39,6 +44,9 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
         {
             throw new NotImplementedException();        }
 
-      
+        public Task<Event?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

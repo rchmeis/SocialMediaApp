@@ -32,12 +32,22 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<PrivateMessage?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public PrivateMessage Update(int id, PrivateMessage entity)
         {
             throw new NotImplementedException();
         }
 
         public PrivateMessage Write(PrivateMessage entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PrivateMessage> WriteAsync(PrivateMessage entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

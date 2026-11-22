@@ -203,5 +203,15 @@ namespace SocialMediaAppLibrary.Repositories
 
             return entity;
         }
+
+        public Task<UserAuthentication> WriteAsync(UserAuthentication entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserAuthentication?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -32,12 +32,22 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<Post?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Post Update(int id, Post entity)
         {
             throw new NotImplementedException();
         }
 
         public Post Write(Post entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Post> WriteAsync(Post entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

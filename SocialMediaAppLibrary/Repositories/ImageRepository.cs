@@ -97,6 +97,11 @@ namespace SocialMediaAppLibrary.Repositories
             return null; // Return null if no image is found with the given ID
         }
 
+        public Task<Image?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Image Update(int id, Image entity)
         {
             throw new NotImplementedException();
@@ -139,6 +144,11 @@ namespace SocialMediaAppLibrary.Repositories
             }
 
             return image;
+        }
+
+        public Task<Image> WriteAsync(Image entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 }
