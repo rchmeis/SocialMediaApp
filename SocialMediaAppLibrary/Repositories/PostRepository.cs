@@ -99,14 +99,14 @@ namespace SocialMediaAppLibrary.Repositories
 
                     using MySqlCommand command2 = new MySqlCommand(sql2, connection);
 
-                    command.Parameters.AddWithValue("@file_name", image.FileName);
-                    command.Parameters.AddWithValue("@image_data", image.ImageData);
-                    command.Parameters.AddWithValue("@alt_text", image.AltText);
-                    command.Parameters.AddWithValue("@height", image.Height);
-                    command.Parameters.AddWithValue("@width", image.Width);
-                    command.Parameters.AddWithValue("@file_size", image.FileSize);
+                    command2.Parameters.AddWithValue("@file_name", image.FileName);
+                    command2.Parameters.AddWithValue("@image_data", image.ImageData);
+                    command2.Parameters.AddWithValue("@alt_text", image.AltText);
+                    command2.Parameters.AddWithValue("@height", image.Height);
+                    command2.Parameters.AddWithValue("@width", image.Width);
+                    command2.Parameters.AddWithValue("@file_size", image.FileSize);
 
-                    using MySqlDataReader reader2 = command.ExecuteReader();
+                    using MySqlDataReader reader2 = command2.ExecuteReader();
 
                     // Check if the reader has rows before reading
                     if (!reader2.Read())
