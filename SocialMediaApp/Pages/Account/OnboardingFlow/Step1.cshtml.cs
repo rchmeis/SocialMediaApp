@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Services.Interfaces;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace SocialMediaApp.Pages.Account.OnboardingFlow
 {
@@ -18,10 +20,14 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         public UserAuthentication userAuth { get; set; }
         public List<Interest> allInterests { get; set; }
         
-        [BindProperty] public string? inputBio { get; set; }
-        [BindProperty] public List<String> inputInterests { get; set; }
+        [BindProperty]
+        [StringLength(255, ErrorMessage = "Din bio må højst være 255 tegn.")]
+        public string? InputBio { get; set; }
         
-        public void OnGet()
+        [BindProperty]
+        public List<int> SelectedInterestIds { get; set; } = new();
+        
+        public IActionResult OnGet()
         {
             userAuth = HttpContext.Session.GetUserAuthentication();
             
@@ -30,7 +36,24 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 TempData["Error"] = "Kunne ikke fortsætte med onboarding, prøv igen";
                 RedirectToPage("/SignupFlow/step1");
             }
+            LoadInterests();
+            return Page();
+        }
 
+        public IActionResult OnPost()
+        {
+            if (!ModelState.IsValid)
+            {
+                userAuth = HttpContext.Session.GetUserAuthentication();
+                LoadInterests();
+                return Page();
+            }
+            
+            return RedirectToPage("/Account/OnboardingFlow/Step2");
+        }
+
+        public void LoadInterests()
+        {
             try
             {
                 allInterests = _interestService.ReadAll();

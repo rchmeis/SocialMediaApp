@@ -42,8 +42,16 @@ namespace SocialMediaApp
 
                     options.Cookie.HttpOnly = true;                         // Mitigate XSS attacks (JS cants read or write to the cookie)
                     options.Cookie.SameSite = SameSiteMode.Lax;             // protects against CSRF attacks (cookie is only sent for same-site requests)
-                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;  //Cookie is only sent over encrypted HTTPS connections.
+                    
+                    // options.Cookie.SecurePolicy = CookieSecurePolicy.Always;  //Cookie is only sent over encrypted HTTPS connections.
 
+                    // Delete 3 lines of code below once in production.
+                    // This code ensures that we can test cookies in HTTP while in development
+                    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+                        ? CookieSecurePolicy.SameAsRequest   // http is fine while developing
+                        : CookieSecurePolicy.Always;         // HTTPS-only once deployed
+                    
+                    
                     options.Events.OnRedirectToAccessDenied = context =>    //redirects the user and appends a query parameter. The UI  can then display an error message upon redirect without disrupting the user by moving them to an error page.
                     {
                         context.Response.Redirect("/Account/Profile/Index?accessDenied=true");
@@ -97,7 +105,9 @@ namespace SocialMediaApp
             builder.Services.AddScoped<IInstitutionRepository, InstitutionRepository>();
             builder.Services.AddScoped<IInstitutionService, InstitutionService>();
             builder.Services.AddScoped<IVerificationService, VerificationService>();
-
+            builder.Services.AddScoped<IInterestService, InterestService>();
+            builder.Services.AddScoped<IInterestRepository, InterestRepository>();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -13,19 +13,42 @@
     <form method="post">
         
         <div>
-            <label asp-for="inputBio">Skriv en kort bio eller dit yndlingscitat</label>
-            <input asp-for="inputBio" type="text"></input>
+            <label asp-for="InputBio">Skriv en kort bio eller dit yndlingscitat (valgfri)</label>
+            <textarea asp-for="InputBio" maxlength="255" rows="3"></textarea>
+            <small id="bio-counter">0/255</small>
+            <span asp-validation-for="InputBio" class="text-danger"></span>
         </div>
         
-        @foreach (Interest interest in @Model.allInterests)
+        <h2>Dine interesser</h2>
+        @foreach (Interest interest in Model.allInterests)
         {
             <div>
-                <label asp-for="inputInterests">@interest.Name</label>
-                <input asp-for="inputInterests" type="checkbox"></input>
-            </div>   
+                <input type="checkbox" name="SelectedInterestIds" value="@interest.Id" id="interest-@interest.Id"
+                       checked="@Model.SelectedInterestIds.Contains(interest.Id)" />
+                <label for="interest-@interest.Id">@interest.Name</label>
+            </div>
         }
+
+        <button type="submit">Fortsæt</button>
+        
     </form>
 </div>
 <!--write a short bio or favorite quote-->
 <!--if student: Choose interests-->
 <!--on confirm, bio (and interest) are saved in the session-->
+
+
+<!-- Script for count how many symbols left in bio-->
+@section Scripts {
+    <script>
+        const bio = document.getElementById("InputBio");
+        const counter = document.getElementById("bio-counter");
+
+        function updateCounter() {
+            counter.textContent = `${bio.value.length}/${bio.maxLength}`;
+        }
+
+        bio.addEventListener("input", updateCounter);
+        updateCounter(); // show the correct count if the field already has text (e.g. after a validation error)
+    </script>
+}
