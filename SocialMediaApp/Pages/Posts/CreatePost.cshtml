@@ -3,21 +3,96 @@
 @{
 }
 
-<form method="post" enctype="multipart/form-data">
-    <div>
+<style>
+    .create-post-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .post-content {
+        min-height: 8rem;
+        padding: 0.5rem;
+        resize: vertical;
+    }
+
+    .character-counter {
+        display: block;
+        font-family: monospace;
+        text-align: right;
+        font-size: 0.875rem;
+    }
+
+    .image-preview-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0;
+        margin: 1rem 0;
+        list-style: none;
+    }
+
+    .image-preview-list li {
+        position: relative;
+    }
+
+    .image-preview-list img {
+        display: block;
+        width: 8rem;
+        height: 8rem;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+
+    .remove-image {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-size: 1.25rem;
+        line-height: 1.25rem;
+        cursor: pointer;
+    }
+</style>
+@* ^ Temporary styling so it doesn't look ugly ^ *@
+
+<form method="post" class="create-post-form" enctype="multipart/form-data">
+    <div class="form-group">
         <label asp-for="PostTitle">Valgfri titel</label>
         <input asp-for="PostTitle" type="text" maxlength="63"/>
+        <span class="character-counter"></span>
         <span asp-validation-for="PostTitle"></span>
     </div>
-    <div>
+    <div class="form-group">
         <label asp-for="PostContent">Indhold</label>
-        <textarea asp-for="PostContent" placeholder="@Model.RandomizedPlaceholder" maxlength="2000" required></textarea>
+        <textarea asp-for="PostContent" class="post-content" placeholder="@Model.RandomizedPlaceholder" maxlength="2000" required></textarea>
+        <span class="character-counter"></span>
         <span asp-validation-for="PostContent"></span>
     </div>
-    <div>
-        <label asp-for="PostImages">Vedhæft billeder</label>
-        <input asp-for="PostImages" type="file" accept=".jpg, .jpeg, .png, .webp" multiple />
+    <div class="form-group">
+        <label asp-for="PostImages">Vedhæft billeder (maks 4)</label>
+        <input asp-for="PostImages" class="image-files" type="file" accept=".jpg, .jpeg, .png, .webp" multiple />
+        <ul class="image-preview-list"></ul>
         <span asp-validation-for="PostImages"></span>
     </div>
     <button type="submit">Opret indlæg</button>
 </form>
+
+<template id="image-preview-template">
+    <li>
+        <img src="" alt="" />
+        <button type="button" class="remove-image" aria-label="Fjern billede">&times;</button>
+    </li>
+</template>
