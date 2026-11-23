@@ -16,16 +16,21 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
     {
         private readonly IUserAuthenticationService _userAuthenticationService;
         private readonly IInstitutionService _institutionService;
+        private readonly ILogger<Step1Model> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Step1Model"/> class.
         /// </summary>
         /// <param name="userAuthenticationService">Service used for duplicate checks and password hashing.</param>
         /// <param name="institutionService">Service used to retrieve allowed student email domains.</param>
-        public Step1Model(IUserAuthenticationService userAuthenticationService, IInstitutionService institutionService)
+        /// <param name="logger">Logger used to record diagnostic and error messages during registration.</param>
+        public Step1Model(IUserAuthenticationService userAuthenticationService, 
+            IInstitutionService institutionService,
+            ILogger<Step1Model> logger)
         {
             _userAuthenticationService = userAuthenticationService;
             _institutionService = institutionService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -137,8 +142,25 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
             }
 
             // Fetch the allowed institution domains from the database on POST
-            List<string> allowedDomains = await _institutionService.ReadAllDomainsAsync(cancellationToken);
-
+            List<string> allowedDomains = new List<string>();
+            try
+            {
+                allowedDomains = await _institutionService.ReadAllDomainsAsync(cancellationToken);
+            }
+            catch(OperationCanceledException)
+            {
+                ModelState.AddModelError(string.Empty, "Handling blev annulleret");
+                return Page();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load allowed student domains during Step 1 registration.");
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Kunne ikke bekræfte din studiemail lige nu. Prøv igen eller kontakt systemadministratoren.");
+                return Page();
+            }
+            
             if (!AccountValidationRules.HasAllowedStudentDomain(Input.Email, allowedDomains))
             {
                 ModelState.AddModelError(
@@ -152,10 +174,31 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
             string normalizedEmail = Input.Email.Trim().ToLowerInvariant();
             string normalizedUsername = Input.Username.Trim();
 
-
+            DuplicateAccountCheck duplicates;
             //Check if the account already exists (checks by email AND username)
-            DuplicateAccountCheck duplicates = await _userAuthenticationService.CheckDuplicateAccountAsync(normalizedEmail,
+            try
+            {
+                duplicates = await _userAuthenticationService.CheckDuplicateAccountAsync(normalizedEmail,
                     normalizedUsername, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                ModelState.AddModelError(string.Empty, "Handling blev annulleret");
+                return Page();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to check duplicate account for email {Email} or username {Username} during Step 1.",
+                    normalizedEmail,
+                    normalizedUsername);
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Kunne ikke kontrollere om kontoen allerede findes. Prøv igen eller kontakt systemadministratoren.");
+                return Page();
+            }
+            
 
             if (duplicates.EmailExists)
             {

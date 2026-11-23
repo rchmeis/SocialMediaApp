@@ -8,82 +8,86 @@
 
 <div asp-validation-summary="All"></div>
 
-@if (isSelectingCourse)
+@* Different HTML will be rendered for students and partners. Below is the form for students *@
+@if (User.IsInRole("Student"))
 {
-    @* Course selection form posts to SelectCourse *@
-    <form method="post" asp-page-handler="SelectCourse">
-        <fieldset>
-            <legend>Vælg uddannelsesforløb</legend>
+    @if (isSelectingCourse)
+    {
+        @* Course selection form posts to SelectCourse *@
+        <form method="post" asp-page-handler="SelectCourse">
+            <fieldset>
+                <legend>Vælg uddannelsesforløb</legend>
 
-            @for (int i = 0; i < Model.Courses.Count; i++)
-            {
-                var course = Model.Courses[i];
-                var radioId = $"course_{course.Id}";
+                @for (int i = 0; i < Model.Courses.Count; i++)
+                    {
+                        var course = Model.Courses[i];
+                        var radioId = $"course_{course.Id}";
 
-                <div>
-                    <input type="radio"
-                           id="@radioId"
-                           name="Input.CourseId"
-                           value="@course.Id"
-                           checked="@(Model.Input?.CourseId == course.Id)" />
-                    <label for="@radioId">
-                        @course.Name (@course.FieldOfStudy)
-                    </label>
-                </div>
-            }
+                        <div>
+                            <input type="radio"
+                            id="@radioId"
+                            name="Input.CourseId"
+                            value="@course.Id"
+                            checked="@(Model.Input?.CourseId == course.Id)" />
+                            <label for="@radioId">
+                                @course.Name (@course.FieldOfStudy)
+                            </label>
+                        </div>
+                    }
 
-            <span asp-validation-for="Input.CourseId"></span>
-        </fieldset>
+                    <span asp-validation-for="Input.CourseId"></span>
+                </fieldset>
 
-        <button type="submit">Bekræft</button>
-    </form>
+                <button type="submit">Bekræft</button>
+            </form>
 
-    @* Separate small form so the student can go back without triggering CourseId validation *@
-    <form method="post" asp-page-handler="ChangeInstitute">
-        <button type="submit">Skift campus / institut</button>
-    </form>
-}
-else
-{
-    @* Name + institute selection form posts to SelectInstitute *@
-    <form method="post" asp-page-handler="SelectInstitute">
-        <div>
-            <label asp-for="Input.Name">Fornavn</label>
-            <input asp-for="Input.Name" />
-            <span asp-validation-for="Input.Name"></span>
-        </div>
+            @* Separate small form so the student can go back without triggering CourseId validation *@
+            <form method="post" asp-page-handler="ChangeInstitute">
+                <button type="submit">Skift campus / institut</button>
+            </form>
+    }
+    else
+    {
+        @* Name + institute selection form posts to SelectInstitute *@
+        <form method="post" asp-page-handler="SelectInstitute">
+            <div>
+                <label asp-for="Input.Name">Fornavn</label>
+                <input asp-for="Input.Name" />
+                <span asp-validation-for="Input.Name"></span>
+            </div>
 
-        <div>
-            <label asp-for="Input.LastName">Efternavn</label>
-            <input asp-for="Input.LastName" />
-            <span asp-validation-for="Input.LastName"></span>
-        </div>
+            <div>
+                <label asp-for="Input.LastName">Efternavn</label>
+                <input asp-for="Input.LastName" />
+                <span asp-validation-for="Input.LastName"></span>
+            </div>
 
-        <fieldset>
-            <legend>Vælg campus / institut</legend>
+            <fieldset>
+                <legend>Vælg campus / institut</legend>
 
-            @for (int i = 0; i < Model.Institutes.Count; i++)
-            {
-                var institute = Model.Institutes[i];
-                var radioId = $"institute_{institute.Id}";
-                @* Null-safe city display in case City is not populated *@
-                var cityText = institute.City is not null ? $" ({institute.City.Name})" : string.Empty;
+                @for (int i = 0; i < Model.Institutes.Count; i++)
+                    {
+                        var institute = Model.Institutes[i];
+                        var radioId = $"institute_{institute.Id}";
+                        @* Null-safe city display in case City is not populated *@
+                        var cityText = institute.City is not null ? $" ({institute.City.Name})" : string.Empty;
 
-                <div>
-                    <input type="radio"
-                           id="@radioId"
-                           name="Input.InstituteId"
-                           value="@institute.Id"
-                           checked="@(Model.Input?.InstituteId == institute.Id)" />
-                    <label for="@radioId">
-                        @institute.Name@cityText
-                    </label>
-                </div>
-            }
+                        <div>
+                            <input type="radio"
+                            id="@radioId"
+                            name="Input.InstituteId"
+                            value="@institute.Id"
+                            checked="@(Model.Input?.InstituteId == institute.Id)" />
+                            <label for="@radioId">
+                                @institute.Name@cityText
+                            </label>
+                        </div>
+                    }
 
-            <span asp-validation-for="Input.InstituteId"></span>
-        </fieldset>
+                    <span asp-validation-for="Input.InstituteId"></span>
+                </fieldset>
 
-        <button type="submit">Næste</button>
-    </form>
+                <button type="submit">Næste</button>
+            </form>
+    }
 }
