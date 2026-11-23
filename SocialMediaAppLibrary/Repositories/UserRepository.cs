@@ -210,7 +210,7 @@ namespace SocialMediaAppLibrary.Repositories
                 DisplayName = await reader.IsDBNullAsync(displayNameOrdinal, cancellationToken)
                     ? string.Empty
                     : reader.GetString(displayNameOrdinal),
-                image = image
+                ProfileImage = image
             };
 
         }
