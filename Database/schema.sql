@@ -206,7 +206,7 @@ CREATE TABLE `partners` (
 CREATE TABLE `posts` (
     `post_id`    INT         NOT NULL AUTO_INCREMENT,
     `author_id`  INT         NOT NULL,
-    `title`      VARCHAR(63) NOT NULL,
+    `title`      VARCHAR(63) NULL,
     `content`    TEXT        NOT NULL,
     `created_at` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME    NULL ON UPDATE CURRENT_TIMESTAMP,

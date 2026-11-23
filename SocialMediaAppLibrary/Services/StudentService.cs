@@ -17,27 +17,54 @@ namespace SocialMediaAppLibrary.Services
             _studentRepository = studentRepository;
         }
 
+        public Task<Student> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<Student>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Student?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Student> UpdateAsync(int id, Student entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Student> WriteAsync(Student entity, CancellationToken cancellationToken)
+        {
+            return await _studentRepository.WriteAsync(entity, cancellationToken);
+        }
+
+
+
+
+        //SLET NEDENSTÅENDE NÅR ALLE REPOS ER SKIFTET TIL TASK
         public Student Delete(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<Student> ReadAll()
+        public Student Write(Student entity)
         {
             throw new NotImplementedException();
         }
-
+        public Student Update(int id, Student entity)
+        {
+            throw new NotImplementedException();
+        }
         public Student? ReadById(int id)
         {
             throw new NotImplementedException();
         }
 
-        public Student Update(int id, Student entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Student Write(Student entity)
+        public List<Student> ReadAll()
         {
             throw new NotImplementedException();
         }

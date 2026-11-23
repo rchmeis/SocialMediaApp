@@ -14,21 +14,34 @@ namespace SocialMediaAppLibrary.Services
         {
             _privateMessageRepository = privateMessageRepository;
         }
-        public PrivateMessage Delete(int id)
+
+        public Task<PrivateMessage> WriteAsync(PrivateMessage entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<PrivateMessage> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<PrivateMessage> UpdateAsync(int id, PrivateMessage entity)
         {
             throw new NotImplementedException();
         }
 
-        public List<PrivateMessage> ReadAll()
+        public Task<List<PrivateMessage>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+        public Task<PrivateMessage?> ReadByIdAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public PrivateMessage? ReadById(int id)
-        {
-            throw new NotImplementedException();
-        }
 
+
+
+
+        //NEDENSTÅENDE SLETTES NÅR ALLE REPOS ER OVERGÅET TIL TASK
         public PrivateMessage Update(int id, PrivateMessage entity)
         {
             throw new NotImplementedException();
@@ -38,5 +51,19 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
+        public PrivateMessage? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PrivateMessage Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+        public List<PrivateMessage> ReadAll()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

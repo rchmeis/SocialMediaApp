@@ -26,11 +26,6 @@ namespace SocialMediaAppLibrary.Repositories
             _db = dbConnect;
         }
 
-        public UserAuthentication Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Checks whether an account already exists with the specified email address or username
         /// in a single database query.
@@ -50,20 +45,20 @@ namespace SocialMediaAppLibrary.Repositories
             await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
 
             string query = """
-                SELECT
-                    EXISTS(
-                        SELECT 1
-                        FROM user_authentications
-                        WHERE LOWER(email) = (@Email)
-                        AND deleted_at IS NULL
-                    ) AS email_exists,
-                    EXISTS(
-                        SELECT 1
-                        FROM user_authentications
-                        WHERE LOWER(username) = (@Username)
-                        AND deleted_at IS NULL
-                    ) AS username_exists;
-                """;
+                            SELECT
+                                EXISTS(
+                                    SELECT 1
+                                    FROM user_authentications
+                                    WHERE LOWER(email) = (@Email)
+                                    AND deleted_at IS NULL
+                                ) AS email_exists,
+                                EXISTS(
+                                    SELECT 1
+                                    FROM user_authentications
+                                    WHERE LOWER(username) = (@Username)
+                                    AND deleted_at IS NULL
+                                ) AS username_exists;
+                            """;
 
             await using MySqlCommand cmd = new MySqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@Email", normalizedEmail);
@@ -158,21 +153,7 @@ namespace SocialMediaAppLibrary.Repositories
         }
 
 
-        public List<UserAuthentication> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public UserAuthentication? ReadById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public UserAuthentication Update(int id, UserAuthentication entity)
-        {
-            throw new NotImplementedException();
-        }
-
+        //IMPLEMENTER DEN ASYNKRONE METHODE OG SLET DENNE
         public UserAuthentication Write(UserAuthentication entity)
         {
             try
@@ -202,6 +183,88 @@ namespace SocialMediaAppLibrary.Repositories
             }
 
             return entity;
+        }
+
+        /// <summary>
+        /// Asynchronously inserts a new <see cref="UserAuthentication"/> record into the <c>user_authentications</c> table.
+        /// </summary>
+        /// <param name="entity">The <see cref="UserAuthentication"/> entity containing authentication credentials and metadata to insert.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests while connecting to and executing the insert command against the database.</param>
+        /// <returns>The inserted <see cref="UserAuthentication"/> entity upon successful completion.</returns>
+        /// <exception cref="Exception">Thrown when an error occurs while opening the connection or executing the SQL insert command.</exception>
+        public async Task<UserAuthentication> WriteAsync(UserAuthentication entity, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                const string sql =  """
+                                    INSERT INTO user_authentications (user_authentication_id, username, email, password_hash, is_verified, role, created_at, deleted_at) 
+                                    VALUES (@user_authentication_id, @username, @email, @password_hash, @is_verified, @role, @created_at, @deleted_at)
+                                    """;
+
+                await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+
+                await using MySqlCommand cmd = new MySqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@user_authentication_id", entity.Id);
+                cmd.Parameters.AddWithValue("@username", entity.Username);
+                cmd.Parameters.AddWithValue("@email", entity.Email);
+                cmd.Parameters.AddWithValue("@password_hash", entity.PasswordHashed);
+                cmd.Parameters.AddWithValue("@is_verified", entity.IsVerified);
+                cmd.Parameters.AddWithValue("@role", entity.Role.ToString());
+                cmd.Parameters.AddWithValue("@created_at", entity.CreatedAt);
+                cmd.Parameters.AddWithValue("@deleted_at", (object?)entity.DeletedAt ?? DBNull.Value);
+
+                await cmd.ExecuteNonQueryAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Something went wrong writing user authentication into DB:", ex);
+            }
+
+            return entity;
+        }
+        
+
+        public Task<UserAuthentication?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<UserAuthentication>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserAuthentication> UpdateAsync(int id, UserAuthentication entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserAuthentication> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
+        //nedenstående skal slettes
+        public List<UserAuthentication> ReadAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserAuthentication? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public UserAuthentication Update(int id, UserAuthentication entity)
+        {
+            throw new NotImplementedException();
+        }
+        public UserAuthentication Delete(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -11,38 +11,69 @@ using System.Security.Claims;
 
 namespace SocialMediaApp.Pages.Account
 {
+
+    /// <summary>
+    /// Razor PageModel responsible for authenticating existing users and routing them
+    /// either to profile registration (<c>/Account/SignupFlow/Step3</c>) or to their post-login destination.
+    /// </summary>
     public class SignInModel : PageModel
     {
         private readonly IUserAuthenticationService _userAuthenticationService;
         private readonly IUserService _userService;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignInModel"/> class.
+        /// </summary>
+        /// <param name="userAuthenticationservice">Service used to verify user credentials.</param>
+        /// <param name="userService">Service used to look up an existing user profile by authentication ID.</param>
         public SignInModel(IUserAuthenticationService userAuthenticationservice, IUserService userService)
         {
             _userAuthenticationService = userAuthenticationservice;
             _userService = userService;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignInModel"/> class.
+        /// </summary>
+        /// <param name="userAuthenticationservice">Service used to verify user credentials.</param>
+        /// <param name="userService">Service used to look up an existing user profile by authentication ID.</param>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        // Modtag returnUrl som en parameter fra URL'en via [BindProperty(SupportsGet = true)]
-        [BindProperty(SupportsGet = true)]
+        /// <summary>
+        /// Gets or sets an optional local URL to redirect to after a successful sign-in.
+        /// </summary>
+        [BindProperty(SupportsGet = true)]// Modtag returnUrl som en parameter fra URL'en via [BindProperty(SupportsGet = true)]
         public string? ReturnUrl { get; set; }
 
-
+        /// <summary>
+        /// Represents the credentials and persistence preferences submitted on the sign-in form.
+        /// </summary>
         public class InputModel
         {
+            /// <summary>
+            /// Gets or sets the user's email address or username.
+            /// </summary>
             [Required]
             public string EmailOrUsername { get; set; }
 
+            /// <summary>
+            /// Gets or sets the user's plain-text password for authentication.
+            /// </summary>
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
+            /// <summary>
+            /// Gets or sets a value indicating whether the authentication cookie should persist across browser sessions.
+            /// </summary>
             public bool RememberMe { get; set; }
         }
 
-
+        /// <summary>
+        /// Handles HTTP GET requests for the sign-in page.
+        /// </summary>
         public void OnGet()
         {
         }
@@ -67,39 +98,25 @@ namespace SocialMediaApp.Pages.Account
 
             LoginCheckResult result = await _userAuthenticationService.AuthenticateAsync(Input.EmailOrUsername, Input.Password, cancellationToken);
             
-            if (!result.Succeeded || result.User is null)
+            if (!result.Succeeded || result.UserAuthentication is null)
             {
                 ModelState.AddModelError(string.Empty, result.ErrorMessage ?? "Ugyldigt login.");
                 return Page();
             }
 
-            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.User.Id, cancellationToken);
+            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.UserAuthentication.Id, cancellationToken);
             if (userSummary is null)
             {
                 
                 List<Claim> claimsNotOnboarded = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, result.User.Id.ToString()),
-                    new Claim(ClaimTypes.Role, result.User.Role.ToString()),
-                    new Claim(ClaimTypes.Name, result.User.Username??result.User.Email),
+                    new Claim(ClaimTypes.NameIdentifier, result.UserAuthentication.Id.ToString()), //note that the NameIdentifier is userAuthId because at this stage, the account isn't associated with a user yet!
+                    new Claim(ClaimTypes.Role, result.UserAuthentication.Role.ToString()),
+                    new Claim(ClaimTypes.Email, result.UserAuthentication.Email??result.UserAuthentication.Username),
                     new Claim("IsOnboarded", "false")
                 };
-                ClaimsIdentity claimsIdentityNotOnboarded = new ClaimsIdentity(claimsNotOnboarded, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                AuthenticationProperties authPropertiesNotOnboarded = new AuthenticationProperties
-                {
-                    // IsPersistent = true means that the cookie is saved in the harddisk and survives even if the browser is closed.
-                    // IsPersistent = false turns it into a "session cookie", that is deleted, when the browser is closed.
-                    IsPersistent = Input.RememberMe,
-
-                    // If "Remember me" is ticked the cookie will expire in 14 days. Otherwise it is set to null and will only survive the session.
-                    ExpiresUtc = Input.RememberMe ? DateTimeOffset.UtcNow.AddDays(14) : null
-                };
-
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentityNotOnboarded),
-                    authPropertiesNotOnboarded);  //NOTICE! authProperties added!
+                await SetClaimsAndSignIn(claimsNotOnboarded);
 
                 return RedirectToPage("/Account/SignupFlow/Step3");  //if the user verified their account but did not complete registration
             }
@@ -107,30 +124,14 @@ namespace SocialMediaApp.Pages.Account
 
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, result.User.Id.ToString()),
-                new Claim(ClaimTypes.Role, result.User.Role.ToString()),
+                new Claim(ClaimTypes.NameIdentifier,userSummary.Id.ToString()),  //note that we are using the user ID as nameIdentifier here, because this user has completed registration. 
+                new Claim(ClaimTypes.Role, result.UserAuthentication.Role.ToString()),
                 new Claim(ClaimTypes.Name, userSummary.DisplayName),
-                new Claim("ImageId", userSummary.image.Id.ToString()),
-                new Claim("IsOnboarded", userSummary.isOnboarded ? "true" : "false")   
-
+                new Claim("IsOnboarded", userSummary.isOnboarded ? "true" : "false"),   
+                new Claim("ImageId", userSummary.image?.Id.ToString()??string.Empty)
             };
 
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            AuthenticationProperties authProperties = new AuthenticationProperties
-            {
-                // IsPersistent = true means that the cookie is saved in the harddisk and survives even if the browser is closed.
-                // IsPersistent = false turns it into a "session cookie", that is deleted, when the browser is closed.
-                IsPersistent = Input.RememberMe,
-
-                // If "Remember me" is ticked the cookie will expire in 14 days. Otherwise it is set to null and will only survive the session.
-                ExpiresUtc = Input.RememberMe ? DateTimeOffset.UtcNow.AddDays(14) : null
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);  //NOTICE! authProperties added!
+            await SetClaimsAndSignIn(claims);           
 
 
             // Security check: Url.IsLocalUrl(ReturnUrl) prevents Open Redirect-attacks (ensures that it is local)
@@ -139,9 +140,32 @@ namespace SocialMediaApp.Pages.Account
                 return LocalRedirect(ReturnUrl); // Send the user back where they came from!
             }
 
-            if (result.User.Role is Role.Student) return RedirectToPage("/Feed");
-            return RedirectToPage("/Account/Profile/Index");
+            if (result.UserAuthentication.Role is Role.Student) return RedirectToPage("/Feed");
+            return RedirectToPage("/Account/Profile/Index");            
 
+        }
+
+        /// <summary>
+        /// Creates a cookie authentication identity from the supplied claims and signs the user in
+        /// using <see cref="InputModel.RememberMe"/> to control cookie persistence.
+        /// </summary>
+        /// <param name="claims">The claims to include in the user's <see cref="ClaimsIdentity"/>.</param>
+        /// <returns>A task representing the asynchronous sign-in operation.</returns>
+        private async Task SetClaimsAndSignIn(List<Claim> claims)
+        {
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            AuthenticationProperties authProperties = new AuthenticationProperties
+            {
+                // IsPersistent = false turns it into a "session cookie", that is deleted, when the browser is closed.
+                IsPersistent = Input.RememberMe,                
+                ExpiresUtc = Input.RememberMe ? DateTimeOffset.UtcNow.AddDays(14) : null
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties); 
         }
     }
 }

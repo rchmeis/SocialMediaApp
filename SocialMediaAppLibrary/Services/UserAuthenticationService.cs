@@ -133,7 +133,7 @@ namespace SocialMediaAppLibrary.Services
             return new LoginCheckResult
             {
                 Succeeded = true,
-                User = userAuth
+                UserAuthentication = userAuth
             };
         }
 
@@ -158,30 +158,26 @@ namespace SocialMediaAppLibrary.Services
             }
         }
 
-        public UserAuthentication Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<UserAuthentication> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
-
+       
         public UserAuthentication? ReadById(int id)
         {
-            throw new NotImplementedException();
+            return _authenticationRepository.ReadById(id);
         }
-
-        public UserAuthentication Update(int id, UserAuthentication entity)
-        {
-            throw new NotImplementedException();
-        }
-
-
+        //indfør async metoden , slet derefter denne:
         public UserAuthentication Write(UserAuthentication entity)
         {
             return _authenticationRepository.Write(entity);
+        }
+
+        /// <summary>
+        /// Asynchronously writes a <see cref="UserAuthentication"/> record in the DBMS using the underlying authentication repository.
+        /// </summary>
+        /// <param name="entity">The <see cref="UserAuthentication"/> entity to persist.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests during the asynchronous operation.</param>
+        /// <returns>The persisted <see cref="UserAuthentication"/> entity returned by the repository.</returns>
+        public async Task<UserAuthentication> WriteAsync(UserAuthentication entity, CancellationToken cancellationToken)
+        {
+            return await _authenticationRepository.WriteAsync(entity, cancellationToken);
         }
 
         public string HashPassword(UserAuthentication entity, string password)
@@ -204,5 +200,39 @@ namespace SocialMediaAppLibrary.Services
         {
             return await _authenticationRepository.CheckDuplicateAccountAsync(email, username, cancellationToken);
         }
+
+        public Task<UserAuthentication?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<UserAuthentication>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserAuthentication> UpdateAsync(int id, UserAuthentication entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserAuthentication> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+        public UserAuthentication Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<UserAuthentication> ReadAll()
+        {
+            throw new NotImplementedException();
+        }
+        public UserAuthentication Update(int id, UserAuthentication entity)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

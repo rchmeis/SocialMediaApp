@@ -1,12 +1,93 @@
 ﻿@page
 @model SocialMediaApp.Pages.Account.SignupFlow.Step3Model
 @{
+    bool isSelectingCourse = Model.Courses is { Count: > 0 };
 }
-<!--Step 3: student OR partner fills out User form (the shown form depends on usertype.-->
-<!--NOTE, the bio and interests will be filled out later-->
-<!--on "confirm" the User object is saved in the session, 
-and the user is logged in and sent to /OnboardingFlow/Step1-->
 
+<h1>Trin 3 af 3</h1>
 
-<!-- DELETE THIS, JUST FOR TEST-->
-<h1>step 3</h1>
+<div asp-validation-summary="All"></div>
+
+@* Different HTML will be rendered for students and partners. Below is the form for students *@
+@if (User.IsInRole("Student"))
+{
+    @if (isSelectingCourse)
+    {
+        @* Course selection form posts to SelectCourse *@
+        <form method="post" asp-page-handler="SelectCourse">
+            <fieldset>
+                <legend>Vælg uddannelsesforløb</legend>
+
+                @for (int i = 0; i < Model.Courses.Count; i++)
+                    {
+                        var course = Model.Courses[i];
+                        var radioId = $"course_{course.Id}";
+
+                        <div>
+                            <input type="radio"
+                            id="@radioId"
+                            name="Input.CourseId"
+                            value="@course.Id"
+                            checked="@(Model.Input?.CourseId == course.Id)" />
+                            <label for="@radioId">
+                                @course.Name (@course.FieldOfStudy)
+                            </label>
+                        </div>
+                    }
+
+                    <span asp-validation-for="Input.CourseId"></span>
+                </fieldset>
+
+                <button type="submit">Bekræft</button>
+            </form>
+
+            @* Separate small form so the student can go back without triggering CourseId validation *@
+            <form method="post" asp-page-handler="ChangeInstitute">
+                <button type="submit">Skift campus / institut</button>
+            </form>
+    }
+    else
+    {
+        @* Name + institute selection form posts to SelectInstitute *@
+        <form method="post" asp-page-handler="SelectInstitute">
+            <div>
+                <label asp-for="Input.Name">Fornavn</label>
+                <input asp-for="Input.Name" />
+                <span asp-validation-for="Input.Name"></span>
+            </div>
+
+            <div>
+                <label asp-for="Input.LastName">Efternavn</label>
+                <input asp-for="Input.LastName" />
+                <span asp-validation-for="Input.LastName"></span>
+            </div>
+
+            <fieldset>
+                <legend>Vælg campus / institut</legend>
+
+                @for (int i = 0; i < Model.Institutes.Count; i++)
+                    {
+                        var institute = Model.Institutes[i];
+                        var radioId = $"institute_{institute.Id}";
+                        @* Null-safe city display in case City is not populated *@
+                        var cityText = institute.City is not null ? $" ({institute.City.Name})" : string.Empty;
+
+                        <div>
+                            <input type="radio"
+                            id="@radioId"
+                            name="Input.InstituteId"
+                            value="@institute.Id"
+                            checked="@(Model.Input?.InstituteId == institute.Id)" />
+                            <label for="@radioId">
+                                @institute.Name@cityText
+                            </label>
+                        </div>
+                    }
+
+                    <span asp-validation-for="Input.InstituteId"></span>
+                </fieldset>
+
+                <button type="submit">Næste</button>
+            </form>
+    }
+}

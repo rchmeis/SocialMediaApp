@@ -8,12 +8,39 @@ namespace SocialMediaAppLibrary.Repositories
 {
     public class JobRepository : IJobRepository
     {
-        public StudentJob Delete(int id)
+
+        public Task<StudentJob> WriteAsync(StudentJob entity, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<StudentJob> DeleteAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public List<StudentJob> ReadAll()
+        public Task<List<StudentJob>> ReadAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<StudentJob?> ReadByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<StudentJob> UpdateAsync(int id, StudentJob entity)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        //BRUG IKKE SYNKRONE METODER - slettes når alle repos er flyttet til task
+
+        public StudentJob Update(int id, StudentJob entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public StudentJob Write(StudentJob entity)
         {
             throw new NotImplementedException();
         }
@@ -22,13 +49,11 @@ namespace SocialMediaAppLibrary.Repositories
         {
             throw new NotImplementedException();
         }
-
-        public StudentJob Update(int id, StudentJob entity)
+        public StudentJob Delete(int id)
         {
             throw new NotImplementedException();
         }
-
-        public StudentJob Write(StudentJob entity)
+        public List<StudentJob> ReadAll()
         {
             throw new NotImplementedException();
         }

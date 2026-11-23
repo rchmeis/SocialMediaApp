@@ -4,6 +4,7 @@ using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace SocialMediaAppLibrary.Repositories
@@ -22,11 +23,21 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<Image> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Image> ReadAll()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Retrieves all images from the database and returns them as a list of <see cref="Image"/> objects.
         /// </summary>
         /// <returns>A list of Image objects.</returns>
-        public List<Image> ReadAll()
+        public async Task<List<Image>> ReadAllAsync()
         {
             const string sql = """
             SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
@@ -35,28 +46,33 @@ namespace SocialMediaAppLibrary.Repositories
 
             List<Image> images = new List<Image>();
 
-            using MySqlConnection connection = _dbConnect.Connect();
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync();
 
-            using MySqlCommand command = new MySqlCommand(sql, connection);
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
 
-            using MySqlDataReader reader = command.ExecuteReader();
+            await using DbDataReader reader = await command.ExecuteReaderAsync();
 
             while (reader.Read())
             {
                 images.Add(new Image
                 {
-                    Id = reader.GetInt32("image_id"),
-                    FileName = reader.GetString("file_name"),
-                    AltText = reader.GetString("alt_text"),
-                    ImageData = (byte[])reader["image_data"],
-                    Height = reader.GetInt32("height"),
-                    Width = reader.GetInt32("width"),
-                    FileSize = reader.GetInt32("file_size"),
-                    CreatedAt = reader.GetDateTime("created_at")
+                    Id = reader.GetInt32(reader.GetOrdinal("image_id")),
+                    FileName = reader.GetString(reader.GetOrdinal("file_name")),
+                    AltText = reader.GetString(reader.GetOrdinal("alt_text")),
+                    ImageData = (byte[])reader[reader.GetOrdinal("image_data")],
+                    Height = reader.GetInt32(reader.GetOrdinal("height")),
+                    Width = reader.GetInt32(reader.GetOrdinal("width")),
+                    FileSize = reader.GetInt32(reader.GetOrdinal("file_size")),
+                    CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at"))
                 });
             }
 
             return images;
+        }
+
+        public Image? ReadById(int id)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -64,7 +80,7 @@ namespace SocialMediaAppLibrary.Repositories
         /// </summary>
         /// <param name="id">The ID of the image to retrieve.</param>
         /// <returns>The Image object if found, otherwise null.</returns>
-        public Image? ReadById(int id)
+        public async Task<Image?> ReadByIdAsync(int id)
         {
             const string sql = """
             SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
@@ -72,25 +88,25 @@ namespace SocialMediaAppLibrary.Repositories
             WHERE image_id = @id;
             """;
 
-            using MySqlConnection connection = _dbConnect.Connect();
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync();
 
-            using MySqlCommand command = new MySqlCommand(sql, connection);
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
             command.Parameters.AddWithValue("@id", id);
 
-            using MySqlDataReader reader = command.ExecuteReader();
+            await using DbDataReader reader = await command.ExecuteReaderAsync();
 
             if (reader.Read())
             {
                 return new Image
                 {
-                    Id = reader.GetInt32("image_id"),
-                    FileName = reader.GetString("file_name"),
-                    AltText = reader.GetString("alt_text"),
-                    ImageData = (byte[])reader["image_data"],
-                    Height = reader.GetInt32("height"),
-                    Width = reader.GetInt32("width"),
-                    FileSize = reader.GetInt32("file_size"),
-                    CreatedAt = reader.GetDateTime("created_at")
+                    Id = reader.GetInt32(reader.GetOrdinal("image_id")),
+                    FileName = reader.GetString(reader.GetOrdinal("file_name")),
+                    AltText = reader.GetString(reader.GetOrdinal("alt_text")),
+                    ImageData = (byte[])reader[reader.GetOrdinal("image_data")],
+                    Height = reader.GetInt32(reader.GetOrdinal("height")),
+                    Width = reader.GetInt32(reader.GetOrdinal("width")),
+                    FileSize = reader.GetInt32(reader.GetOrdinal("file_size")),
+                    CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at"))
                 };
             }
 
@@ -102,12 +118,23 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<Image> UpdateAsync(int id, Image entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Image Write(Image entity)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Saves an image to the database and returns the saved image with its generated ID and creation timestamp.
         /// </summary>
         /// <param name="image">The image to save.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The saved image with its generated ID and creation timestamp.</returns>
-        public Image Write(Image image)
+        public async Task<Image> WriteAsync(Image image, CancellationToken cancellationToken)
         {
             const string sql = """
             INSERT INTO images (file_name, alt_text, image_data, height, width, file_size)
@@ -118,9 +145,9 @@ namespace SocialMediaAppLibrary.Repositories
             WHERE image_id = LAST_INSERT_ID();
             """;
 
-            using MySqlConnection connection = _dbConnect.Connect();
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync();
 
-            using MySqlCommand command = new MySqlCommand(sql, connection);
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
 
             command.Parameters.AddWithValue("@file_name", image.FileName);
             command.Parameters.AddWithValue("@image_data", image.ImageData);
@@ -129,13 +156,13 @@ namespace SocialMediaAppLibrary.Repositories
             command.Parameters.AddWithValue("@width", image.Width);
             command.Parameters.AddWithValue("@file_size", image.FileSize);
 
-            using MySqlDataReader reader = command.ExecuteReader();
+            await using DbDataReader reader = await command.ExecuteReaderAsync();
 
             // Populate with values generated by the database (image_id and created_at)
             if (reader.Read())
             {
-                image.Id = reader.GetInt32("image_id");
-                image.CreatedAt = reader.GetDateTime("created_at");
+                image.Id = reader.GetInt32(reader.GetOrdinal("image_id"));
+                image.CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at"));
             }
 
             return image;
