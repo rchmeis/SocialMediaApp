@@ -18,7 +18,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         }
         
         public UserAuthentication userAuth { get; set; }
-        public List<Interest> allInterests { get; set; }
+        public List<Interest>? allInterests { get; set; }
         
         [BindProperty]
         [StringLength(255, ErrorMessage = "Din bio må højst være 255 tegn.")]
@@ -48,6 +48,19 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 LoadInterests();
                 return Page();
             }
+
+            if (SelectedInterestIds.Count == 0 || SelectedInterestIds == null)
+            {
+                TempData["Error"] = "Du skal vælge mindst 1 interesse!";
+                return Page();
+            }
+
+            if (SelectedInterestIds.Count > 10)
+            {
+                TempData["Error"] = "Du må maks vælge 10 interesser!";
+            }
+            
+            HttpContext.Session.SetStudent(userAuth);
             
             return RedirectToPage("/Account/OnboardingFlow/Step2");
         }
