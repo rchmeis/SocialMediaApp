@@ -10,7 +10,7 @@ namespace SocialMediaAppLibrary.Services.Interfaces
     {
         public Task<Image?> GetByIdAsync(int id);
         public Task<List<Image>> GetAllAsync();
-        public Task<Image> SaveImageAsync(IFormFile file, string altText);
+        public Task<Image> SaveImageAsync(IFormFile file, string altText, CancellationToken cancellationToken);
         public Task<Image> OptimizeImageAsync(IFormFile file);
     }
 }

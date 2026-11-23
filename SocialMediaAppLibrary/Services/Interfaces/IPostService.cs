@@ -9,6 +9,6 @@ namespace SocialMediaAppLibrary.Services.Interfaces
 {
     public interface IPostService
     {
-        public Task<Post> CreateAsync(Post entity, List<IFormFile> formFiles);
+        public Task<Post> CreateAsync(Post entity, List<IFormFile> formFiles, CancellationToken cancellationToken);
     }
 }
