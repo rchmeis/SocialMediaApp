@@ -181,10 +181,22 @@ namespace SocialMediaAppLibrary.Repositories
                 };
 
                 courses.Add(course);
-            }
+            }           
 
             return courses;
         }
+
+        /// <summary>
+        /// Retrieves a <see cref="Course"/> by its identifier only if it is associated with the specified institute.
+        /// </summary>
+        /// <param name="courseId">The unique identifier of the course.</param>
+        /// <param name="instituteId">The unique identifier of the institute to verify association against.</param>
+        /// <param name="cancellationToken">Token used to cancel asynchronous database operations.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation, returning the matching <see cref="Course"/>
+        /// with its field of study populated, or <see langword="null"/> if the IDs are non-positive or no matching
+        /// course is offered by the specified institute.
+        /// </returns>
         public async Task<Course?> GetCourseForInstituteAsync(int courseId, int instituteId, CancellationToken cancellationToken)
         {
             if (courseId <= 0 || instituteId <= 0)
