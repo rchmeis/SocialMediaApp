@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Services.Interfaces;
+using SocialMediaAppLibrary.Validation;
 
 namespace SocialMediaApp.Pages.Posts
 {
@@ -19,12 +20,18 @@ namespace SocialMediaApp.Pages.Posts
         public string RandomizedPlaceholder { get; set; } = string.Empty;
 
         [BindProperty]
+        [MaxLength(63, ErrorMessage = "Titlen må højst være 63 tegn.")]
         public string? PostTitle { get; set; }
 
         [BindProperty]
+        [Required(ErrorMessage = "Indholdet må ikke være tomt.")]
+        [MaxLength(2000, ErrorMessage = "Indholdet må ikke overstige 2000 tegn.")]
         public string? PostContent { get; set; }
 
         [BindProperty]
+        [ListCount(0, 4, ErrorMessage = "Du kan højst vedhæfte 4 billeder pr. opslag.")]
+        [AllowedContentTypes(["image/jpg", "image/jpeg", "image/png", "image/webp"], ErrorMessage = "Alle billeder skal være i JPG, PNG eller WebP format.")]
+        [MaxFileSize(5 * 1024 * 1024, ErrorMessage = "Alle billeder må højst være 5 MB.")]
         public List<IFormFile> PostImages { get; set; } = new List<IFormFile>();
 
         public CreatePostModel(IPostService postService, IUserAuthenticationService userAuthenticationService, IUserService userService)
@@ -41,22 +48,20 @@ namespace SocialMediaApp.Pages.Posts
 
         public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
         {
-            if (!ValidatePostTitleAndContent())
+            if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            if (!ValidatePostImages())
+            UserSummary author = new UserSummary
             {
-                return Page();
-            }
-
-            UserSummary student = await _userService.GetByUserAuthIdAsync(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), cancellationToken);
+                Id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!)
+            };
 
             Post postToCreate = new Post
             {
                 Title = PostTitle,
-                Author = student,
+                Author = author,
                 Content = PostContent!
             };
 
@@ -84,57 +89,6 @@ namespace SocialMediaApp.Pages.Posts
             };
 
             return placeholders[RandomGenerator.Next(placeholders.Count)];
-        }
-
-        private bool ValidatePostTitleAndContent()
-        {
-            if (PostTitle != null && PostTitle.Length > 63)
-            {
-                ModelState.AddModelError(nameof(PostTitle), "Titlen må højst være 63 tegn.");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(PostContent))
-            {
-                ModelState.AddModelError(nameof(PostContent), "Indholdet må ikke være tomt.");
-                return false;
-            }
-
-            if (PostContent.Length > 2000)
-            {
-                ModelState.AddModelError(nameof(PostContent), "Indholdet må ikke overstige 2000 tegn.");
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool ValidatePostImages()
-        {
-            string[] acceptedContentTypes = [ "image/jpg", "image/jpeg", "image/png", "image/webp" ];
-
-            if (PostImages.Count > 4)
-            {
-                ModelState.AddModelError(nameof(PostImages), "Du kan højst vedhæfte 4 billeder pr. opslag.");
-                return false;
-            }
-
-            foreach (IFormFile image in PostImages)
-            {
-                if (!acceptedContentTypes.Contains(image.ContentType))
-                {
-                    ModelState.AddModelError(nameof(PostImages), "Alle billeder skal være i JPG, PNG eller WebP format.");
-                    return false;
-                }
-
-                if (image.Length > 5 * 1024 * 1024) // Max 5 MB image size
-                {
-                    ModelState.AddModelError(nameof(PostImages), "Alle billeder må højst være 5 MB.");
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }
