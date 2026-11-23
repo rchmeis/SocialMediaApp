@@ -63,5 +63,14 @@ namespace SocialMediaAppLibrary.Models
         /// Initializes a new instance of the <see cref="Post"/> class.
         /// </summary>
         public Post() { }
+
+        /// <summary>
+        /// Return a human-readable string representing the relative time since the post was created.
+        /// </summary>
+        /// <returns>A string representing the relative time elapsed.</returns>
+        public string TimeAgo()
+        {
+            return TimeFormatter.FormatRelativeTime(CreatedAt);
+        }
     }
 }
