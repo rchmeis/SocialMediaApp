@@ -65,13 +65,11 @@ namespace SocialMediaApp.Pages.Posts
                 await _postService.CreateAsync(postToCreate, PostImages);
                 return RedirectToPage("/Feed");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ModelState.AddModelError(string.Empty, $"Der opstod en fejl under oprettelsen af opslaget: {ex.Message}");
+                ModelState.AddModelError(string.Empty, "Dit opslag kunne ikke gemmes. Prøv igen.");
                 return Page();
             }
-
-
         }
 
         private string GenerateRandomPlaceholder()
