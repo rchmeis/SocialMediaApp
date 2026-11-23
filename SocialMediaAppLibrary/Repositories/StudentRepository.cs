@@ -4,8 +4,10 @@ using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Transactions;
 
 namespace SocialMediaAppLibrary.Repositories
 {
@@ -38,11 +40,15 @@ namespace SocialMediaAppLibrary.Repositories
         /// with <see cref="Student.Id"/> populated from the newly inserted <c>users</c> row.
         /// </returns>
         public async Task<Student> WriteAsync(Student student, CancellationToken cancellationToken)
-        {            
-            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
-            await using MySqlTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+        {
+            MySqlTransaction? transaction = null;
 
-            const string insertUserQuery = """
+            try
+            {
+                await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+                transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+                const string insertUserQuery = """
                 INSERT INTO users (
                     user_auth_id,
                     bio,
@@ -55,19 +61,19 @@ namespace SocialMediaAppLibrary.Repositories
                 );
                 """;
 
-            await using MySqlCommand userCmd = new MySqlCommand(insertUserQuery, connection, transaction);
-            userCmd.Parameters.AddWithValue("@user_auth_id", student.UserAuthenticationId);
-            userCmd.Parameters.AddWithValue("@bio", student.Bio ?? string.Empty);
-            userCmd.Parameters.AddWithValue(
-                "@image_id",
-                (object?)student.Image?.Id ?? DBNull.Value);
+                await using MySqlCommand userCmd = new MySqlCommand(insertUserQuery, connection, transaction);
+                userCmd.Parameters.AddWithValue("@user_auth_id", student.UserAuthenticationId);
+                userCmd.Parameters.AddWithValue("@bio", student.Bio ?? string.Empty);
+                userCmd.Parameters.AddWithValue(
+                    "@image_id",
+                    (object?)student.Image?.Id ?? DBNull.Value);
 
-            await userCmd.ExecuteNonQueryAsync(cancellationToken);
+                await userCmd.ExecuteNonQueryAsync(cancellationToken);
 
-            int generatedUserId = Convert.ToInt32(userCmd.LastInsertedId);
-            student.Id = generatedUserId;
+                int generatedUserId = Convert.ToInt32(userCmd.LastInsertedId);
+                student.Id = generatedUserId;
 
-            const string insertStudentQuery = """
+                const string insertStudentQuery = """
                 INSERT INTO students (
                     user_id,
                     first_name,
@@ -86,21 +92,31 @@ namespace SocialMediaAppLibrary.Repositories
                 );
                 """;
 
-            await using MySqlCommand studentCmd = new MySqlCommand(insertStudentQuery, connection, transaction);
-            studentCmd.Parameters.AddWithValue("@user_id", generatedUserId);
-            studentCmd.Parameters.AddWithValue("@first_name", student.FirstName);
-            studentCmd.Parameters.AddWithValue("@last_name", student.LastName);
-            studentCmd.Parameters.AddWithValue("@is_onboarded", student.IsOnboarded);
-            studentCmd.Parameters.AddWithValue("@institute_id", student.Institute.Id);
-            studentCmd.Parameters.AddWithValue("@course_id", student.Course.Id);
+                await using MySqlCommand studentCmd = new MySqlCommand(insertStudentQuery, connection, transaction);
+                studentCmd.Parameters.AddWithValue("@user_id", generatedUserId);
+                studentCmd.Parameters.AddWithValue("@first_name", student.FirstName);
+                studentCmd.Parameters.AddWithValue("@last_name", student.LastName);
+                studentCmd.Parameters.AddWithValue("@is_onboarded", student.IsOnboarded);
+                studentCmd.Parameters.AddWithValue("@institute_id", student.Institute.Id);
+                studentCmd.Parameters.AddWithValue("@course_id", student.Course.Id);
 
-            await studentCmd.ExecuteNonQueryAsync(cancellationToken);
+                await studentCmd.ExecuteNonQueryAsync(cancellationToken);
 
-            await transaction.CommitAsync(cancellationToken);
-
+                await transaction.CommitAsync(cancellationToken);
+                await transaction.DisposeAsync();
+            }
+            catch (Exception ex)
+            {
+                if (transaction is not null)
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                    await transaction.DisposeAsync();
+                }
+                throw; // rethrows the original exception with its stack trace intact
+            }
             return student;
         }
-       
+
         public Task<Student?> ReadByIdAsync(int id)
         {
             throw new NotImplementedException();
