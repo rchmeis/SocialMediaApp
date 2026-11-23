@@ -62,7 +62,7 @@ namespace SocialMediaApp.Pages.Posts
 
             try
             {
-                await _postService.CreateAsync(postToCreate, PostImages);
+                await _postService.CreateAsync(postToCreate, PostImages, cancellationToken);
                 return RedirectToPage("/Feed");
             }
             catch (Exception)

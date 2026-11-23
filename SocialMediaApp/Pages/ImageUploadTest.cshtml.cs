@@ -28,7 +28,7 @@ namespace SocialMediaApp.Pages
             Images = await _imageService.GetAllAsync();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
         {
             string[] acceptedContentTypes = ["image/jpg", "image/jpeg", "image/png", "image/webp"];
 
@@ -56,7 +56,7 @@ namespace SocialMediaApp.Pages
                 return Page();
             }
 
-            await _imageService.SaveImageAsync(UploadedImage, UserProvidedAltText);
+            await _imageService.SaveImageAsync(UploadedImage, UserProvidedAltText, cancellationToken);
 
             return RedirectToPage("/ImageUploadTest");
         }

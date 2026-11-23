@@ -26,8 +26,9 @@ namespace SocialMediaAppLibrary.Services
         /// </summary>
         /// <param name="post">The post to create.</param>
         /// <param name="formFiles">The image files to process.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The created post.</returns>
-        public async Task<Post> CreateAsync(Post post, List<IFormFile> formFiles)
+        public async Task<Post> CreateAsync(Post post, List<IFormFile> formFiles, CancellationToken cancellationToken)
         {
             // Process each image file, optimize it, and add it to the post's Images collection
             foreach (IFormFile formFile in formFiles)
@@ -37,7 +38,7 @@ namespace SocialMediaAppLibrary.Services
                 post.Images.Add(optimizedImage);
             }
 
-            return _postRepository.Write(post);
+            return await _postRepository.WriteAsync(post, cancellationToken);
         }
 
         

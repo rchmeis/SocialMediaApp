@@ -22,7 +22,7 @@ namespace SocialMediaAppLibrary.Services
 
         public async Task<List<Image>> GetAllAsync()
         {
-            return _imageRepository.ReadAll();
+            return await _imageRepository.ReadAllAsync();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace SocialMediaAppLibrary.Services
         /// <returns>The image with the specified ID, or null if not found.</returns>
         public async Task<Image?> GetByIdAsync(int id)
         {
-            return _imageRepository.ReadById(id);
+            return await _imageRepository.ReadByIdAsync(id);
         }
 
         /// <summary>
@@ -40,14 +40,15 @@ namespace SocialMediaAppLibrary.Services
         /// </summary>
         /// <param name="file">The image file to save.</param>
         /// <param name="altText">The alternative text for the image.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The saved image.</returns>
-        public async Task<Image> SaveImageAsync(IFormFile file, string altText)
+        public async Task<Image> SaveImageAsync(IFormFile file, string altText, CancellationToken cancellationToken)
         {
             Image optimizedImage = await OptimizeImageAsync(file);
 
             optimizedImage.AltText = altText; // Set the alt text for the image
 
-            return _imageRepository.Write(optimizedImage);
+            return await _imageRepository.WriteAsync(optimizedImage, cancellationToken);
         }
 
         /// <summary>
