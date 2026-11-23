@@ -68,4 +68,29 @@ public class InterestRepository : IInterestRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<Interest> WriteAsync(Interest entity, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Interest> DeleteAsync(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Interest>> ReadAllAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Interest?> ReadByIdAsync(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Interest> UpdateAsync(int id, Interest entity)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
-
+using System.Security.Claims;
 
 namespace SocialMediaApp.Pages.Account.OnboardingFlow
 {
@@ -11,14 +11,16 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
     {
 
         private readonly IInterestService _interestService;
+        private readonly IStudentService _studentService;
 
-        public Step1Model(IInterestService interestService)
+        public Step1Model(IInterestService interestService, IStudentService studentService)
         {
             _interestService = interestService;
+            _studentService = studentService;
         }
         
         public Student student { get; set; }
-        public List<Interest>? allInterests { get; set; }
+        public List<Interest>? allInterests { get; set; } = new(); 
         
         [BindProperty]
         [StringLength(255, ErrorMessage = "Din bio må højst være 255 tegn.")]
@@ -29,18 +31,15 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         
         public IActionResult OnGet()
         {
-            student = HttpContext.Session.GetStudent();
-            
-            if (student.IsOnboarded)
-            {
-                TempData["Error"] = "Du har allerede været igennem OnBoarding!";
+            if (User.FindFirstValue("IsOnboarded") == "true")
                 return RedirectToPage("/Feed");
-            }
+
+            student = GetOnboardingStudent();
             
-            if (string.IsNullOrEmpty(student.FirstName))
+            if (student == null)
             {
                 TempData["Error"] = "Kunne ikke fortsætte med onboarding, prøv igen";
-                RedirectToPage("/Account/SignupFlow/Step1.");
+                return RedirectToPage("/Account/SignupFlow/Step3");
             }
             
             LoadInterests();
@@ -57,31 +56,30 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
 
         public IActionResult OnPost()
         {
-            student = HttpContext.Session.GetStudent();
+            if (User.FindFirstValue("IsOnboarded") == "true")
+                return RedirectToPage("/Feed");
+
+            student = GetOnboardingStudent();
             LoadInterests();  
             
             if (!ModelState.IsValid)
             {
-                student = HttpContext.Session.GetStudent();
-                LoadInterests();
                 return Page();
             }
 
             if (SelectedInterestIds == null || SelectedInterestIds.Count == 0)
             {
                 TempData["Error"] = "Du skal vælge mindst 1 interesse!";
-                LoadInterests();  
                 return Page();
             }
 
             if (SelectedInterestIds.Count > 10)
             {
                 TempData["Error"] = "Du må maks vælge 10 interesser!";
-                LoadInterests();  
                 return Page();  
             }
             
-            student.Bio = InputBio;
+            student.Bio = InputBio?.Trim() ?? string.Empty;
             student.Interests = allInterests
                 .Where(i => SelectedInterestIds.Contains(i.Id))
                 .Select(i => i.Name)
@@ -90,6 +88,19 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
             HttpContext.Session.SetStudent(student);
             
             return RedirectToPage("/Account/OnboardingFlow/Step2");
+        }
+        
+        // Session holds the onboarding answers; the id comes from the login cookie.
+        private Student GetOnboardingStudent()
+        {
+            Student student = HttpContext.Session.GetStudent();
+
+            if (student.Id == 0 && int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int id))
+            {
+                student.Id = id;
+            }
+
+            return student;
         }
 
         public void LoadInterests()

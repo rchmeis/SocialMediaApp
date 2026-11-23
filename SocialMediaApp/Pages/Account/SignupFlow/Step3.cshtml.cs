@@ -405,6 +405,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
                 new Claim(ClaimTypes.NameIdentifier, student.Id.ToString()), // now Domain user ID instead UserAuth ID
                 new Claim(ClaimTypes.Name, fullName),
                 new Claim(ClaimTypes.Role, role),    
+                new Claim("IsOnboarded", student.IsOnboarded ? "true" : "false")
             };
 
             var updatedIdentity = new ClaimsIdentity(
