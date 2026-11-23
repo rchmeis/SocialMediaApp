@@ -110,7 +110,9 @@ namespace SocialMediaApp.Pages.Account
                 new Claim(ClaimTypes.NameIdentifier, result.User.Id.ToString()),
                 new Claim(ClaimTypes.Role, result.User.Role.ToString()),
                 new Claim(ClaimTypes.Name, userSummary.DisplayName),
-                new Claim("ImageId", userSummary.image.Id.ToString())
+                new Claim("ImageId", userSummary.image.Id.ToString()),
+                new Claim("IsOnboarded", userSummary.isOnboarded ? "true" : "false")   
+
             };
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

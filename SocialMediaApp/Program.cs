@@ -70,6 +70,8 @@ namespace SocialMediaApp
             builder.Services.AddRazorPages(options =>
             {                
                 options.Conventions.AuthorizeFolder("/");                  //everything requires login
+                options.Conventions.AuthorizeFolder("/Account/OnboardingFlow", "StudentPolicy"); // Only logged in students can access
+
 
                 options.Conventions.AllowAnonymousToPage("/Index");        //except for..
                 options.Conventions.AllowAnonymousToPage("/Account/SignIn");

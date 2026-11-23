@@ -50,6 +50,7 @@ namespace SocialMediaAppLibrary.Repositories
                         p.name_of_organization,
                         CONCAT_WS(' ', s.first_name, s.last_name)
                     ) AS display_name,
+                    COALESCE(s.is_onboarded, 1) AS is_onboarded,   -- new: partners/admins have no student row → treat as onboarded
                     i.image_id,
                     i.file_name,
                     i.alt_text,
