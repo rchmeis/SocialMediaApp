@@ -15,7 +15,7 @@ public sealed class TrimmedStringLengthAttribute : ValidationAttribute
     /// </summary>
     /// <param name="maxLength">The maximum allowed length of the trimmed string.</param>
     /// <param name="minLength">The minimum allowed length of the trimmed string. Defaults to <c>1</c>.</param>
-    public TrimmedStringLengthAttribute(int maxLength, int minLength = 1)
+    public TrimmedStringLengthAttribute(int minLength, int maxLength)
         : base($"Feltet skal være mellem {minLength} og {maxLength} tegn efter fjernelse af mellemrum.")
     {
         _minLength = minLength;
