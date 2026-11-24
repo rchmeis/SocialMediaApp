@@ -15,9 +15,9 @@ namespace SocialMediaApp.Pages.Images
             _imageService = imageService;
         }
 
-        public async Task<IActionResult> OnGet(int id, string filename)
+        public async Task<IActionResult> OnGet(int id, string filename, CancellationToken cancellationToken)
         {
-            Image? image = await _imageService.GetByIdAsync(id);
+            Image? image = await _imageService.GetByIdAsync(id, cancellationToken);
 
             if (image == null || image.FileName != filename)
             {

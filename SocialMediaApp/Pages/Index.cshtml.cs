@@ -26,9 +26,9 @@ namespace SocialMediaApp.Pages
         /// An <see cref="IActionResult"/> containing the image file (JPEG) if found; 
         /// otherwise, a <see cref="NotFoundResult"/> if the image record or its byte data is missing.
         /// </returns>
-        public async Task<IActionResult> OnGetUsertypeImageAsync(int id)
+        public async Task<IActionResult> OnGetUsertypeImageAsync(int id, CancellationToken cancellationToken)
         {
-            var imageRecord = await _imageService.GetByIdAsync(id);
+            var imageRecord = await _imageService.GetByIdAsync(id, cancellationToken);
 
             if (imageRecord == null || imageRecord.ImageData == null)
             {

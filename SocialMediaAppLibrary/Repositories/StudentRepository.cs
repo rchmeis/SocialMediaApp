@@ -117,22 +117,22 @@ namespace SocialMediaAppLibrary.Repositories
             return student;
         }
 
-        public Task<Student?> ReadByIdAsync(int id)
+        public Task<Student?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Student>> ReadAllAsync()
+        public Task<List<Student>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Student> UpdateAsync(int id, Student entity)
+        public Task<Student> UpdateAsync(int id, Student entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Student> DeleteAsync(int id)
+        public Task<Student> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

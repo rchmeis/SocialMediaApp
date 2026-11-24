@@ -21,22 +21,22 @@ namespace SocialMediaAppLibrary.Repositories
         {
             throw new NotImplementedException();
         }
-        public Task<PrivateMessage> DeleteAsync(int id)
+        public Task<PrivateMessage> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<PrivateMessage>> ReadAllAsync()
+        public Task<List<PrivateMessage>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
        
-        public Task<PrivateMessage?> ReadByIdAsync(int id)
+        public Task<PrivateMessage?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }       
 
-        public Task<PrivateMessage> UpdateAsync(int id, PrivateMessage entity)
+        public Task<PrivateMessage> UpdateAsync(int id, PrivateMessage entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

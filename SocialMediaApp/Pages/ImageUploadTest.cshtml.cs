@@ -23,9 +23,9 @@ namespace SocialMediaApp.Pages
             _imageService = imageService;
         }
 
-        public async Task OnGet()
+        public async Task OnGet(CancellationToken cancellationToken)
         {
-            Images = await _imageService.GetAllAsync();
+            Images = await _imageService.GetAllAsync(cancellationToken);
         }
 
         public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)

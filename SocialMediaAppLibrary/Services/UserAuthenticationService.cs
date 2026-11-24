@@ -201,22 +201,22 @@ namespace SocialMediaAppLibrary.Services
             return await _authenticationRepository.CheckDuplicateAccountAsync(email, username, cancellationToken);
         }
 
-        public Task<UserAuthentication?> ReadByIdAsync(int id)
+        public Task<UserAuthentication?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<UserAuthentication>> ReadAllAsync()
+        public Task<List<UserAuthentication>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UserAuthentication> UpdateAsync(int id, UserAuthentication entity)
+        public Task<UserAuthentication> UpdateAsync(int id, UserAuthentication entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UserAuthentication> DeleteAsync(int id)
+        public Task<UserAuthentication> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

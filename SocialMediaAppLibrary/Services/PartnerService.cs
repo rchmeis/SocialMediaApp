@@ -15,26 +15,21 @@ namespace SocialMediaAppLibrary.Services
             _partnerRepository = partnerRepository;
         }
        
-        public Task<Partner> DeleteAsync(int id)
+        public Task<Partner> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }       
+
+        public Task<List<Partner>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public List<Partner> ReadAll()
+        public Task<Partner?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
-
-        public Task<List<Partner>> ReadAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Partner?> ReadByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Partner> UpdateAsync(int id, Partner entity)
+        public Task<Partner> UpdateAsync(int id, Partner entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -62,6 +57,11 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
         public Partner? ReadById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Partner> ReadAll()
         {
             throw new NotImplementedException();
         }

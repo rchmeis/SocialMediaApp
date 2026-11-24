@@ -5,6 +5,7 @@ using SocialMediaAppLibrary.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ZstdSharp.Unsafe;
 
 namespace SocialMediaAppLibrary.Services
 {    
@@ -17,24 +18,24 @@ namespace SocialMediaAppLibrary.Services
             _studentRepository = studentRepository;
         }
 
-        public Task<Student> DeleteAsync(int id)
+        public Task<Student> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Student>> ReadAllAsync()
+        public Task<List<Student>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Student?> ReadByIdAsync(int id)
+        public Task<Student?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Student> UpdateAsync(int id, Student entity)
+        public Task<Student> UpdateAsync(int id, Student entity, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _studentRepository.UpdateAsync(id, entity, cancellationToken);
         }
 
         public async Task<Student> WriteAsync(Student entity, CancellationToken cancellationToken)
@@ -66,7 +67,8 @@ namespace SocialMediaAppLibrary.Services
 
         public List<Student> ReadAll()
         {
-            throw new NotImplementedException();
-        }
+            throw new NotImplementedException();        }
+
+    
     }
 }

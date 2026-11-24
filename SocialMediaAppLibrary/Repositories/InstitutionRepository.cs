@@ -240,22 +240,22 @@ namespace SocialMediaAppLibrary.Repositories
 
             return null;
         }
-        public Task<Institute?> ReadByIdAsync(int id)
+        public Task<Institute?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Institute>> ReadAllAsync()
+        public Task<List<Institute>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Institute> UpdateAsync(int id, Institute entity)
+        public Task<Institute> UpdateAsync(int id, Institute entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Institute> DeleteAsync(int id)
+        public Task<Institute> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

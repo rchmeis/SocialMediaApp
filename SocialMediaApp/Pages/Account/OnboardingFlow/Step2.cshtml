@@ -1,8 +1,59 @@
 ﻿@page
 @model SocialMediaApp.Pages.Account.OnboardingFlow.Step2Model
 @{
+    ViewData["Title"] = "Profilbillede - Trin 2";
 }
 
-<!--When the user clicks on the profile image, they are prompted to upload a new image-->
-<!--When the user clicks "next" add img to the User Object (Student) retrieved from the session and save in database.
-Redirect user to Step3-->
+<form method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <div>
+        <label asp-for="UploadedImage">Vælg billede</label>
+        <input asp-for="UploadedImage" type="file" accept=".jpg, .jpeg, .png, .webp" />
+        <span asp-validation-for="UploadedImage"></span>
+    </div>
+
+    <div>
+        <label asp-for="UserProvidedAltText">Valgfri alt tekst</label>
+        <input asp-for="UserProvidedAltText" type="text" maxlength="255" />
+        <span asp-validation-for="UserProvidedAltText"></span>
+    </div>
+
+    <div>
+        <button asp-page-handler="Upload" type="submit">Upload</button>
+        <button asp-page-handler="Save" type="submit">Gem og næste</button>
+    </div>
+</form>
+
+@if (Model.PreviewImage is not null)
+{
+    <hr />
+    <h1>Forhåndsvisning</h1>
+    <picture>
+        @if (Model.PreviewImage.Id > 0)
+        {
+            <img src="/images/@Model.PreviewImage.Id/@Model.PreviewImage.FileName"
+                 alt="@(Model.PreviewImage.AltText ?? "Profilbillede")"
+                 width="@Model.PreviewImage.Width"
+                 height="@Model.PreviewImage.Height" />
+        }
+        else if (Model.PreviewImage.ImageData is { Length: > 0 })
+        {
+            var base64 = Convert.ToBase64String(Model.PreviewImage.ImageData);
+            <img src="data:image/webp;base64,@base64"
+                 alt="@(Model.PreviewImage.AltText ?? "Profilbillede")"
+                 width="@Model.PreviewImage.Width"
+                 height="@Model.PreviewImage.Height" />
+        }
+        <caption>
+            Filnavn: @Model.PreviewImage.FileName |
+            Størrelse: @(Math.Round(Model.PreviewImage.FileSize / 1024.0, 2)) KB
+        </caption>
+    </picture>
+}
+
+
+@* It loads jQuery Validation in the browser so standard attributes (like [MaxLength] or [Required]) can block form submission before a round-trip to the server. *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
