@@ -1,7 +1,43 @@
 ﻿@page
 @model SocialMediaApp.Pages.Account.OnboardingFlow.Step3Model
+@using SocialMediaAppLibrary.Models
 @{
 }
+
+<div class="container">
+    
+    <h1>Onboarding: Trin 3/3</h1>
+    
+    <!-- Input image here once step 2 is done to see how the image is handled!-->
+    <div class="image">
+        <img >
+    </div>
+    <!-- ......................... -->
+    
+    <p>Din profil er klar! Udforsk feedet og find nye forbindelser, eller tjek events for at se, om der sker noget sjovt.</p>
+    
+    <button class="button" asp-page="/Feed">Gå til feed</button>
+    <button class="button" asp-page="/Events/Index">Se Events</button>
+
+    <div>
+        <h3>Studenter info:</h3>
+        
+        <span>Fornavn: @Model.student.FirstName</span>
+        <span>Efternavn: @Model.student.LastName</span>
+        <span>Brugernavn: @Model.userAuth.Username</span>
+        <span>Institut: @Model.student.FirstName</span>
+        <span>Uddanelse: @Model.student.FirstName</span>
+        <span>Bio: @Model.student.Bio</span>
+
+        <span>Interesser:</span>
+        @foreach (String interest in @Model.student.Interests)
+        {
+            <span>@interest</span>
+        }
+        
+        <button class="button" asp-page="/Account/Profile/EditProfile">Rediger profil</button>
+    </div>
+</div>
 <!--A preview of the profile is shown-->
 <!--WELCOME MESSAGE SHOWN: (TEXT SHOWN DEPENDS ON PARTNER/STUDENT) Your profile setup is complete! Explore the feed for new connections or check out the events to see if there is something fun to do!-->
 <!--here the user can edit their profile or press any tab to explore-->
