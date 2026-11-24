@@ -29,6 +29,7 @@ namespace SocialMediaAppLibrary.Services
         /// Retrieves an image by its ID from the repository.
         /// </summary>
         /// <param name="id">The ID of the image to retrieve.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The image with the specified ID, or null if not found.</returns>
         public async Task<Image?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {

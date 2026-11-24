@@ -79,8 +79,9 @@ namespace SocialMediaAppLibrary.Repositories
         /// Retrieves an image from the database by its ID and returns it as an <see cref="Image"/> object. If no image is found with the given ID, returns null.
         /// </summary>
         /// <param name="id">The ID of the image to retrieve.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The Image object if found, otherwise null.</returns>
-        public async Task<Image?> ReadByIdAsync(int id)
+        public async Task<Image?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             const string sql = """
             SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
@@ -111,11 +112,6 @@ namespace SocialMediaAppLibrary.Repositories
             }
 
             return null; // Return null if no image is found with the given ID
-        }
-
-        public Task<Image?> ReadByIdAsync(int id, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
         }
 
         public Image Update(int id, Image entity)
