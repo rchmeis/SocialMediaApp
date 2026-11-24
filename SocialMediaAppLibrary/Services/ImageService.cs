@@ -88,7 +88,8 @@ namespace SocialMediaAppLibrary.Services
 
                 await image.SaveAsync(output, new WebpEncoder
                 {
-                    Quality = quality
+                    Quality = quality,
+                    FileFormat = WebpFileFormatType.Lossy
                 });
 
                 imageData = output.ToArray();
