@@ -21,6 +21,7 @@ namespace SocialMediaAppLibrary.Models
         public const string SignupPartner = "SignupPartner";
         public const string Onboarding = "Onboarding";
         public const string VerificationCode = "VerificationCode";
+        public const string ImageSessionKey = "ImageSessionKey";
     }
 
     public static class SessionExtensions
@@ -54,6 +55,9 @@ namespace SocialMediaAppLibrary.Models
 
         public static void SetStudent(this ISession session, Student student) => session.Set(SessionKeys.SignupStudent, student);
         public static Student GetStudent(this ISession session) => session.Get<Student>(SessionKeys.SignupStudent) ?? new Student();
+
+        public static void SetImage(this ISession session, Image image) => session.Set(SessionKeys.ImageSessionKey, image);
+        public static Image GetImage(this ISession session) => session.Get<Image>(SessionKeys.ImageSessionKey)??new Image();
 
         public static void SetPartner(this ISession session, Partner partner) =>
             session.Set(SessionKeys.SignupPartner, partner);
