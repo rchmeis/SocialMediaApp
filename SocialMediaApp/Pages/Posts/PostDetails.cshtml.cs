@@ -16,9 +16,9 @@ namespace SocialMediaApp.Pages.Posts
             _postService = postService;
         }
 
-        public async Task<IActionResult> OnGetAsync(int postId)
+        public async Task<IActionResult> OnGetAsync(int postId, CancellationToken cancellationToken)
         {
-            Post? post = await _postService.ReadByIdAsync(postId);
+            Post? post = await _postService.ReadByIdAsync(postId, cancellationToken);
 
             if (post == null)
             {

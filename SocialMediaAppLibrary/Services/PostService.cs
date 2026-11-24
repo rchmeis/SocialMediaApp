@@ -55,10 +55,11 @@ namespace SocialMediaAppLibrary.Services
         /// Retrieves a post by its unique identifier from the database, including its associated author and images.
         /// </summary>
         /// <param name="id">The unique identifier of the post to retrieve.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         /// <returns>The retrieved post, or null if not found.</returns>
-        public async Task<Post?> ReadByIdAsync(int id)
+        public async Task<Post?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return await _postRepository.ReadByIdAsync(id);
+            return await _postRepository.ReadByIdAsync(id, cancellationToken);
         }
     }
 }
