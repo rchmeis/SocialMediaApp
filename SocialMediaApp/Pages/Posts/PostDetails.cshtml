@@ -9,7 +9,7 @@
     .post {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1rem;
         max-width: 40rem;
         margin: 0 auto;
         padding: 1.5rem;
@@ -50,6 +50,12 @@
         color: hsl(0 0% 33%);
     }
 
+    .post-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
     .post-title {
         font-size: 1.5rem;
         font-weight: 700;
@@ -58,6 +64,7 @@
 
     .post-content {
         white-space: pre-wrap;
+        margin-bottom: 0;
     }
 
     .modal-nav {
@@ -190,6 +197,15 @@
         text-align: center;
         font-size: 0.875rem;
     }
+
+    .post-footer {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: hsl(0 0% 33%);
+    }
 </style>
 
 <article class="post">
@@ -218,36 +234,45 @@
         </div>
     </div>
 
-    @if (Model.PostDetails.Title != null)
-    {
-    <p class="post-title">@Model.PostDetails.Title</p>
-    }
+    <div class="post-body">
+        @if (Model.PostDetails.Title != null)
+        {
+        <p class="post-title">@Model.PostDetails.Title</p>
+        }
 
-    <p class="post-content">@Model.PostDetails.Content</p>
+        <p class="post-content">@Model.PostDetails.Content</p>
+    </div>
 
     @* Only render the image gallery if the post has images to display *@
     @if (Model.PostDetails.Images.Count > 0)
     {
+    <div class="post-gallery-container">
+        <div class="post-image-gallery" id="post-image-gallery">
+            @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
+            {
 
-    <div class="post-image-gallery" id="post-image-gallery">
-        @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
-        {
+            Image image = Model.PostDetails.Images[i];
 
-        Image image = Model.PostDetails.Images[i];
-
-        <button type="button" class="post-image-card" data-index="@i" command="show-modal" commandfor="image-dialog">
-            <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
-        </button>
-        }
-    </div>
-
-    <dialog id="image-dialog" class="lightbox">
-        <div class="modal-content">
-            <button type="button" class="modal-nav prev" id="modal-prev" aria-label="Previous image">&#10094;</button>
-            <img id="modal-image" src="" alt="" />
-            <button type="button" class="modal-nav next" id="modal-next" aria-label="Next image">&#10095;</button>
-            <p id="image-caption"></p>
+            <button type="button" class="post-image-card" data-index="@i" command="show-modal" commandfor="image-dialog">
+                <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
+            </button>
+            }
         </div>
-    </dialog>
+
+        <dialog id="image-dialog" class="lightbox">
+            <div class="modal-content">
+                <button type="button" class="modal-nav prev" id="modal-prev" aria-label="Previous image">&#10094;</button>
+                <img id="modal-image" src="" alt="" />
+                <button type="button" class="modal-nav next" id="modal-next" aria-label="Next image">&#10095;</button>
+                <p id="image-caption"></p>
+            </div>
+        </dialog>
+    </div>
     }
+
+    @* TODO: Add functionality for liking and commenting on posts *@
+    <div class="post-footer">
+        <p>@Model.PostDetails.LikesCount like@(Model.PostDetails.LikesCount != 1 ? "s" : "")</p>
+        <p>@Model.PostDetails.Comments.Count kommentar@(Model.PostDetails.Comments.Count != 1 ? "er" : "")</p>
+    </div>
 </article>
