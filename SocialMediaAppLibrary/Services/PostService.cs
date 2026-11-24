@@ -46,6 +46,19 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Retrieves a list of posts for the news feed, paginated based on the provided query options.
+        /// The method fetches posts along with their associated author and images, ordered by creation date
+        /// </summary>
+        /// <param name="paginationOptions">The pagination options</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>A list of posts for the news feed</returns>
+        public async Task<List<Post>> GetNewsFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
+        {
+            return await _postRepository.ReadNewsFeedAsync(paginationOptions, cancellationToken);
+        }
+
         public List<Post> ReadAll()
         {
             throw new NotImplementedException();

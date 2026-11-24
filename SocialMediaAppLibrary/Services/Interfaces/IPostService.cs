@@ -11,5 +11,6 @@ namespace SocialMediaAppLibrary.Services.Interfaces
     {
         public Task<Post> CreateAsync(Post entity, List<IFormFile> formFiles, CancellationToken cancellationToken);
         public Task<Post?> ReadByIdAsync(int id, CancellationToken cancellationToken);
+        public Task<List<Post>> GetNewsFeedAsync(PaginationOptions queryOptions, CancellationToken cancellationToken);
     }
 }
