@@ -4,6 +4,8 @@
     ViewData["Title"] = "Profilbillede - Trin 2";
 }
 
+
+
 <form method="post" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly"></div>
 
@@ -20,11 +22,18 @@
     </div>
 
     <div>
-        <button asp-page-handler="Upload" type="submit">Upload</button>
-        <button asp-page-handler="Save" type="submit">Gem og næste</button>
+        <button asp-page-handler="Upload" type="submit">Preview</button>
+        @if(Model.PreviewImage is not null)
+            {
+            <button asp-page-handler="Save" type="submit">Gem og næste</button>
+            }            
     </div>
 </form>
 
+@if (Model.PreviewImage is null)
+{
+    <img src="/images/default-avatar.jpg"/>
+}
 @if (Model.PreviewImage is not null)
 {
     <hr />
