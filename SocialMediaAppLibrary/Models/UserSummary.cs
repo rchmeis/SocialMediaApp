@@ -8,7 +8,7 @@ namespace SocialMediaAppLibrary.Models
     {
         public int Id { get; set; }
         public string DisplayName { get; set; }        
-        public Image? image { get; set; }    
+        public Image? ProfileImage { get; set; }    
         public bool isOnboarded { get; set; }
     }
     

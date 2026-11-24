@@ -50,5 +50,15 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Retrieves a post by its unique identifier from the database, including its associated author and images.
+        /// </summary>
+        /// <param name="id">The unique identifier of the post to retrieve.</param>
+        /// <returns>The retrieved post, or null if not found.</returns>
+        public async Task<Post?> ReadByIdAsync(int id)
+        {
+            return await _postRepository.ReadByIdAsync(id);
+        }
     }
 }

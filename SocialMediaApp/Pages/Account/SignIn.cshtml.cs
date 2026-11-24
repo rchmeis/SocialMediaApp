@@ -128,7 +128,7 @@ namespace SocialMediaApp.Pages.Account
                 new Claim(ClaimTypes.Role, result.UserAuthentication.Role.ToString()),
                 new Claim(ClaimTypes.Name, userSummary.DisplayName),
                 new Claim("IsOnboarded", userSummary.isOnboarded ? "true" : "false"),   
-                new Claim("ImageId", userSummary.image?.Id.ToString()??string.Empty)
+                new Claim("ImageId", userSummary.ProfileImage?.Id.ToString()??string.Empty)
             };
 
             await SetClaimsAndSignIn(claims);
