@@ -121,7 +121,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                     Image optimized = await _imageService.OptimizeImageAsync(UploadedImage);
                     optimized.AltText = altText;
 
-                    await SaveImageAndStudentAsync(Student, optimized, cancellationToken); //saves both in DB and saves student in session
+                    await SaveImageAndStudentAsync(Student, optimized, cancellationToken); //saves both in DB and saves Student in session
                     HttpContext.Session.Remove(SessionKeys.ImageSessionKey);
                     return RedirectToPage("/Account/OnboardingFlow/Step3");
                 }

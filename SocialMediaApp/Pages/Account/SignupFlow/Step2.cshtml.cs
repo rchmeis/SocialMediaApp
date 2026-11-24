@@ -10,7 +10,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
 {
     
     /// <summary>
-    /// PageModel for the second step of student account registration. Generates a six-digit verification
+    /// PageModel for the second step of Student account registration. Generates a six-digit verification
     /// code stored in session, validates the code entered by the user (with attempt limit and resend
     /// cooldown), and saves the verified <see cref="UserAuthentication"/> to the database.
     /// </summary>

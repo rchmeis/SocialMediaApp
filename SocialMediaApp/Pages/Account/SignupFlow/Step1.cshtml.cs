@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace SocialMediaApp.Pages.Account.SignupFlow
 {
     /// <summary>
-    /// PageModel for the first step of student account registration, handling credential input,
+    /// PageModel for the first step of Student account registration, handling credential input,
     /// institution domain validation, duplicate account checks, password hashing, and session handoff.
     /// </summary>
     public class Step1Model : PageModel
@@ -22,7 +22,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
         /// Initializes a new instance of the <see cref="Step1Model"/> class.
         /// </summary>
         /// <param name="userAuthenticationService">Service used for duplicate checks and password hashing.</param>
-        /// <param name="institutionService">Service used to retrieve allowed student email domains.</param>
+        /// <param name="institutionService">Service used to retrieve allowed Student email domains.</param>
         /// <param name="logger">Logger used to record diagnostic and error messages during registration.</param>
         public Step1Model(IUserAuthenticationService userAuthenticationService, 
             IInstitutionService institutionService,
@@ -45,7 +45,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
         public class InputModel
         {
             /// <summary>
-            /// Gets or sets the student's institutional email address.
+            /// Gets or sets the Student's institutional email address.
             /// </summary>
             [Required(ErrorMessage = "Indtast din studiemail")]
             [EmailAddress(ErrorMessage = AccountValidationRules.EmailInvalidMessage)]
@@ -99,7 +99,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
 
         /// <summary>
         /// Handles HTTP POST requests for Step 1 registration by validating inputs, checking
-        /// allowed student email domains and existing accounts, hashing the password, storing the
+        /// allowed Student email domains and existing accounts, hashing the password, storing the
         /// pending <see cref="UserAuthentication"/> in session, and redirecting to Step 2.
         /// </summary>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
@@ -154,7 +154,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "Failed to load allowed student domains during Step 1 registration.");
+                _logger.LogError(ex, "Failed to load allowed Student domains during Step 1 registration.");
                 ModelState.AddModelError(
                     string.Empty,
                     "Kunne ikke bekræfte din studiemail lige nu. Prøv igen eller kontakt systemadministratoren.");

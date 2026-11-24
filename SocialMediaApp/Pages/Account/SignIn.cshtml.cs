@@ -121,7 +121,7 @@ namespace SocialMediaApp.Pages.Account
                 return RedirectToPage("/Account/SignupFlow/Step3");  //if the user verified their account but did not complete registration
             }
 
-
+            
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier,userSummary.Id.ToString()),  //note that we are using the user ID as nameIdentifier here, because this user has completed registration. 
@@ -131,14 +131,16 @@ namespace SocialMediaApp.Pages.Account
                 new Claim("ImageId", userSummary.image?.Id.ToString()??string.Empty)
             };
 
-            await SetClaimsAndSignIn(claims);           
-
+            await SetClaimsAndSignIn(claims);
 
             // Security check: Url.IsLocalUrl(ReturnUrl) prevents Open Redirect-attacks (ensures that it is local)
             if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
             {
                 return LocalRedirect(ReturnUrl); // Send the user back where they came from!
             }
+
+            if (result.UserAuthentication.Role is Role.Student && !userSummary.isOnboarded) 
+            return RedirectToPage("/Account/OnboardingFlow/Step1");
 
             if (result.UserAuthentication.Role is Role.Student) return RedirectToPage("/Feed");
             return RedirectToPage("/Account/Profile/Index");            
