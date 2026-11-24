@@ -15,22 +15,22 @@ namespace SocialMediaAppLibrary.Services
             _eventRepository = eventRepository;
         }
        
-        public Task<Event> DeleteAsync(int id)
+        public Task<Event> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Event>> ReadAllAsync()
+        public Task<List<Event>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Event?> ReadByIdAsync(int id)
+        public Task<Event?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Event> UpdateAsync(int id, Event entity)
+        public Task<Event> UpdateAsync(int id, Event entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

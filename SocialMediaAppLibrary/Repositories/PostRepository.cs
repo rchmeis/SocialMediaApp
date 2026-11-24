@@ -19,22 +19,22 @@ namespace SocialMediaAppLibrary.Repositories
             _dbConnect = dbConnect;
         }
 
-        public Task<Post> DeleteAsync(int id)
+        public Task<Post> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Post>> ReadAllAsync()
+        public Task<List<Post>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
        
-        public Task<Post?> ReadByIdAsync(int id)
+        public Task<Post?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Post> UpdateAsync(int id, Post entity)
+        public Task<Post> UpdateAsync(int id, Post entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

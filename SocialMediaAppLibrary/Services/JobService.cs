@@ -13,16 +13,20 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
-        public Task<StudentJob> DeleteAsync(int id)
+        public Task<StudentJob> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<StudentJob>> ReadAllAsync()
+        public Task<List<StudentJob>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
-        public Task<StudentJob?> ReadByIdAsync(int id)
+        public Task<StudentJob?> ReadByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<StudentJob> UpdateAsync(int id, StudentJob entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -40,10 +44,7 @@ namespace SocialMediaAppLibrary.Services
         }
 
 
-        public Task<StudentJob> UpdateAsync(int id, StudentJob entity)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public StudentJob Update(int id, StudentJob entity)
         {

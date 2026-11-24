@@ -5,8 +5,9 @@ using System.Text;
 
 namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository : ICrud<User, int>
     {
-        public Task<UserSummary> GetByUserAuthIdAsync(int id, CancellationToken cancellationToken);        
+        public Task<UserSummary> GetByUserAuthIdAsync(int id, CancellationToken cancellationToken);
+        
     }
 }

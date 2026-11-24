@@ -20,9 +20,9 @@ namespace SocialMediaAppLibrary.Services
             _imageRepository = imageRepository;
         }
 
-        public async Task<List<Image>> GetAllAsync()
+        public async Task<List<Image>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await _imageRepository.ReadAllAsync();
+            return await _imageRepository.ReadAllAsync(cancellationToken);
         }
 
         /// <summary>
@@ -30,9 +30,9 @@ namespace SocialMediaAppLibrary.Services
         /// </summary>
         /// <param name="id">The ID of the image to retrieve.</param>
         /// <returns>The image with the specified ID, or null if not found.</returns>
-        public async Task<Image?> GetByIdAsync(int id)
+        public async Task<Image?> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return await _imageRepository.ReadByIdAsync(id);
+            return await _imageRepository.ReadByIdAsync(id, cancellationToken);
         }
 
         /// <summary>
@@ -109,5 +109,11 @@ namespace SocialMediaAppLibrary.Services
 
             throw new InvalidOperationException("Could not optimize image to meet file size requirements.");
         }
+
+        public Task<Image> WriteImageAsync(Image image, CancellationToken cancellationToken)
+        {
+            return _imageRepository.WriteAsync(image, cancellationToken);
+        }
+
     }
 }

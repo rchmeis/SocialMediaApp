@@ -23,7 +23,7 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Image> DeleteAsync(int id)
+        public Task<Image> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -37,7 +37,7 @@ namespace SocialMediaAppLibrary.Repositories
         /// Retrieves all images from the database and returns them as a list of <see cref="Image"/> objects.
         /// </summary>
         /// <returns>A list of Image objects.</returns>
-        public async Task<List<Image>> ReadAllAsync()
+        public async Task<List<Image>> ReadAllAsync(CancellationToken cancellationToken)
         {
             const string sql = """
             SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
@@ -113,12 +113,22 @@ namespace SocialMediaAppLibrary.Repositories
             return null; // Return null if no image is found with the given ID
         }
 
+        public Task<Image?> ReadByIdAsync(int id, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
         public Image Update(int id, Image entity)
         {
             throw new NotImplementedException();
         }
 
         public Task<Image> UpdateAsync(int id, Image entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Image> UpdateAsync(int id, Image entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

@@ -6,6 +6,7 @@ using System.Text;
 using SocialMediaAppLibrary.Repositories.Interfaces;
 using MySql.Data.MySqlClient;
 using System.Threading;
+using System.Security.Cryptography;
 
 namespace SocialMediaAppLibrary.Repositories
 {
@@ -224,22 +225,22 @@ namespace SocialMediaAppLibrary.Repositories
         }
         
 
-        public Task<UserAuthentication?> ReadByIdAsync(int id)
+        public Task<UserAuthentication?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<UserAuthentication>> ReadAllAsync()
+        public Task<List<UserAuthentication>> ReadAllAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UserAuthentication> UpdateAsync(int id, UserAuthentication entity)
+        public Task<UserAuthentication> UpdateAsync(int id, UserAuthentication entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UserAuthentication> DeleteAsync(int id)
+        public Task<UserAuthentication> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
