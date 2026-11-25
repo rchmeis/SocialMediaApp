@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SocialMediaApp</title>
+    <title>@ViewData["Title"] - StudentHub</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -16,7 +16,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">SocialMediaApp</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index">StudentHub</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -56,7 +56,7 @@
                                          style="width: 35px; height: 35px; object-fit: cover;" />
                                 }
 
-                                <span class="text-dark fw-medium me-3">Hello, @displayName</span>
+                                <span class="text-dark fw-medium me-3">@displayName</span>
                             </li>
 
                             <li class="nav-item">
@@ -109,7 +109,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - SocialMediaApp - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2026 - StudentHub - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 
