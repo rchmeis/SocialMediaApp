@@ -73,8 +73,8 @@ namespace SocialMediaAppLibrary.Services
             {
                 image.Mutate(x => x.Resize(new ResizeOptions
                 {
-                    Size = new ImageSharp.Size(1200, 1600),
-                    Mode = ResizeMode.Max
+                    Size = new ImageSharp.Size(1200, 1600), //set max dimensions here
+                    Mode = ResizeMode.Max                   //this maintains aspect ratio
                 }));
             }
 
@@ -87,7 +87,7 @@ namespace SocialMediaAppLibrary.Services
                 output.SetLength(0); // Reset the output stream every iteration
                 output.Position = 0;
 
-                await image.SaveAsync(output, new WebpEncoder
+                await image.SaveAsync(output, new WebpEncoder  //encodes image as WebP into output at current quality
                 {
                     Quality = quality,
                     FileFormat = WebpFileFormatType.Lossy

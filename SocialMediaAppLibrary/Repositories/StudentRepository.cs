@@ -117,10 +117,68 @@ namespace SocialMediaAppLibrary.Repositories
             return student;
         }
 
-        public Task<Student?> ReadByIdAsync(int id, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+        public async Task<Student?> ReadByIdAsync(int id, CancellationToken cancellationToken)
+        {            
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+
+            const string selectQuery = """
+                                    SELECT
+                                        u.user_id,
+                                        u.user_auth_id,
+                                        u.bio,
+                                        u.image_id,
+                                        u.created_at,
+                                        u.deleted_at,
+                                        s.first_name,
+                                        s.last_name,
+                                        s.is_onboarded,
+                                        s.institute_id,
+                                        s.course_id
+                                    FROM users u
+                                    INNER JOIN students s ON s.user_id = u.user_id
+                                    WHERE u.user_id = @user_id;
+                                    """;
+
+            await using MySqlCommand cmd = new MySqlCommand(selectQuery, connection);
+            cmd.Parameters.AddWithValue("@user_id", id);
+
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            int idOrdinal = reader.GetOrdinal("user_id");
+            int authIdOrdinal = reader.GetOrdinal("user_auth_id");
+            int bioOrdinal = reader.GetOrdinal("bio");
+            int imageIdOrdinal = reader.GetOrdinal("image_id");
+            int createdAtOrdinal = reader.GetOrdinal("created_at");
+            int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
+            int firstNameOrdinal = reader.GetOrdinal("first_name");
+            int lastNameOrdinal = reader.GetOrdinal("last_name");
+            int isOnboardedOrdinal = reader.GetOrdinal("is_onboarded");
+            int instituteIdOrdinal = reader.GetOrdinal("institute_id");
+            int courseIdOrdinal = reader.GetOrdinal("course_id");
+
+            int? imageId = reader.IsDBNull(imageIdOrdinal) ? null : reader.GetInt32(imageIdOrdinal);
+            DateTime? deletedAt = reader.IsDBNull(deletedAtOrdinal) ? null : reader.GetDateTime(deletedAtOrdinal);
+
+            return new Student
+            {
+                Id = reader.GetInt32(idOrdinal),
+                UserAuthenticationId = reader.GetInt32(authIdOrdinal),
+                Bio = reader.IsDBNull(bioOrdinal) ? string.Empty : reader.GetString(bioOrdinal),
+                CreatedAt = reader.GetDateTime(createdAtOrdinal),
+                DeletedAt = deletedAt,
+                FirstName = reader.GetString(firstNameOrdinal),
+                LastName = reader.GetString(lastNameOrdinal),
+                IsOnboarded = reader.GetBoolean(isOnboardedOrdinal),
+                Image = imageId.HasValue ? new Image { Id = imageId.Value } : null,
+                Institute = new Institute { Id = reader.GetInt32(instituteIdOrdinal) },
+                Course = new Course { Id = reader.GetInt32(courseIdOrdinal) }
+            };
         }
+        
 
         public Task<List<Student>> ReadAllAsync(CancellationToken cancellationToken)
         {

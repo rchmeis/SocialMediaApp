@@ -30,7 +30,7 @@ namespace SocialMediaAppLibrary.Services
 
         public Task<Student?> ReadByIdAsync(int id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _studentRepository.ReadByIdAsync(id, cancellationToken);
         }
 
         public Task<Student> UpdateAsync(int id, Student entity, CancellationToken cancellationToken)
