@@ -5,27 +5,19 @@
     ViewData["Title"] = "Profilbillede - Trin 2";
 }
 
-@if (Model.PreviewImage.Id >0)
+@if (Model.PreviewImage.FileSize >0)
 {
     <hr />
     <h1>Forhåndsvisning</h1>
     <picture>
-        @if (Model.PreviewImage.Id > 0)
+        @if (Model.PreviewImage.FileSize > 0)
         {
             <img class="avatar-round"
-                src="/images/@Model.PreviewImage.Id/@Model.PreviewImage.FileName"
+                 src="data:image/webp;base64,@Convert.ToBase64String(@Model.PreviewImage.ImageData)"
                  alt="@(Model.PreviewImage.AltText ?? "Profilbillede")"
                  width="@Model.PreviewImage.Width"
-                 height="@Model.PreviewImage.Height" />
-        }
-        else if (Model.PreviewImage.ImageData is { Length: > 0 })
-        {
-            var base64 = Convert.ToBase64String(Model.PreviewImage.ImageData);
-            <img class="avatar-round" src="data:image/webp;base64,@base64"
-                 alt="@(Model.PreviewImage.AltText ?? "Profilbillede")"
-                 width="@Model.PreviewImage.Width"
-                 height="@Model.PreviewImage.Height" />
-        }
+                 height="@Model.PreviewImage.Height" />        }
+    
     </picture>
 }
 else{
