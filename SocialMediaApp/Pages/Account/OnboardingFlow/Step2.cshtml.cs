@@ -4,6 +4,7 @@ using SocialMediaApp.Security;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Services.Interfaces;
 using SocialMediaAppLibrary.Validation;
+using System.Security.Claims;
 
 namespace SocialMediaApp.Pages.Account.OnboardingFlow
 {
@@ -15,18 +16,22 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
     {
         private readonly IStudentService _studentService;
         private readonly IImageService _imageService;
+        private readonly ILogger<Step2Model> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Step2Model"/> class.
         /// </summary>
         /// <param name="studentService">Service used to read and update <see cref="Student"/> records.</param>
         /// <param name="imageService">Service used to optimize and persist <see cref="Image"/> records.</param>
+        /// <param name="logger">Logger used to record diagnostic and error messages during onboarding step 2.</param>
         public Step2Model(
             IStudentService studentService,
-            IImageService imageService)
+            IImageService imageService,
+            ILogger<Step2Model> logger)
         {
             _studentService = studentService;
             _imageService = imageService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -110,9 +115,25 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 HttpContext.Session.SetImage(optimized);
                 PreviewImage = optimized;
             }
+            catch (OperationCanceledException)
+            {
+                ModelState.AddModelError(string.Empty, "Handlingen blev annulleret.");
+            }
             catch (InvalidOperationException)
             {
-                ModelState.AddModelError(nameof(UploadedImage), "Billedet kunne ikke optimeres til under 64 KB. Prøv et mindre billede.");
+                // Input/file constraint: image could not be compressed within the 64 KB limit.
+                ModelState.AddModelError(nameof(UploadedImage), "Billedet kunne ikke optimeres til under 64 KB. Vælg et mindre eller enklere billede.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to optimize uploaded image in Onboarding Step 2 for UserId {UserId}",
+                    Student.Id);
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Kunne ikke behandle billedet - prøv igen eller kontakt systemadministratoren.");
             }
 
             return Page();
@@ -123,7 +144,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         /// attaching it to the <see cref="Student"/>, clearing the session preview, and navigating to step 3.
         /// </summary>
         /// <param name="cancellationToken">Token used to cancel asynchronous operations.</param>
-        /// <returns>A redirect to step 3 on success, or the current page if no preview image is available.</returns>
+        /// <returns>A redirect to step 3 on success, or the current page if no preview image is available or saving fails.</returns>
         public async Task<IActionResult> OnPostSaveAsync(CancellationToken cancellationToken)
         {
             Student = await ResolveCurrentStudentAsync(cancellationToken);
@@ -140,9 +161,26 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return Page();
             }
 
-            await SaveImageAndStudentAsync(Student, sessionImage!, cancellationToken);
-            HttpContext.Session.Remove(SessionKeys.ImageSessionKey);
+            string? claimName = User.FindFirstValue(ClaimTypes.Name);
+            sessionImage!.AltText = !string.IsNullOrWhiteSpace(claimName)
+                ? $"Profilbillede for {claimName}"
+                : $"Profilbillede for {Student.FirstName} {Student.LastName}".Trim();
 
+            bool previousOnboardedState = Student.IsOnboarded;
+            Student.IsOnboarded = true;
+
+            bool saved = await TrySaveImageAndStudentAsync(Student, sessionImage, cancellationToken);
+            if (!saved)
+            {
+                Student.IsOnboarded = previousOnboardedState;
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Kunne ikke opdatere din profil - prøv igen eller kontakt systemadministratoren.");
+                PreviewImage = sessionImage;
+                return Page();
+            }
+
+            HttpContext.Session.Remove(SessionKeys.ImageSessionKey);
             return RedirectToPage("/Account/OnboardingFlow/Step3");
         }
 
@@ -160,8 +198,37 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return RedirectToPage("/Account/SignupFlow/Step3");
             }
 
-            HttpContext.Session.Remove(SessionKeys.ImageSessionKey);
-            return RedirectToPage("/Account/OnboardingFlow/Step3");
+            try
+            {
+                if (!string.IsNullOrEmpty(Student.Bio) || Student.Interests.Count > 0)
+                {
+                    Student? updatedStudent = await _studentService.UpdateAsync(ClaimsPrincipalExtensions.GetUserId(User), Student, cancellationToken);
+                    if (updatedStudent is not null)
+                    {
+                        Student = updatedStudent;
+                    }
+
+                    HttpContext.Session.SetStudent(Student);
+                }              
+
+                HttpContext.Session.Remove(SessionKeys.ImageSessionKey);
+                return RedirectToPage("/Account/OnboardingFlow/Step3");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed during Skip in Onboarding Step 2");
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Kunne ikke gemme dine oplysninger - prøv igen eller kontakt systemadministratoren.");
+                if (Student is not null)
+                {
+                    PreviewImage = ResolvePreviewImage(Student);
+                }
+                return Page();
+            }                
         }
 
         /// <summary>
@@ -180,13 +247,30 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return sessionStudent;
             }
 
-            Student? studentFromDb = await _studentService.ReadByIdAsync(userId, cancellationToken);
-            if (studentFromDb is not null)
+            try
             {
-                HttpContext.Session.SetStudent(studentFromDb);
-            }
+                Student? studentFromDb = await _studentService.ReadByIdAsync(userId, cancellationToken);
+                if (studentFromDb is not null)
+                {
+                    HttpContext.Session.SetStudent(studentFromDb);
+                }
 
-            return studentFromDb;
+                return studentFromDb;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Loading student in Onboarding Step 2 was cancelled for UserId {UserId}", userId);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to load student in Onboarding Step 2 for UserId {UserId}",
+                    userId);
+
+                return null;
+            }
         }
 
         /// <summary>
@@ -217,12 +301,34 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         /// <param name="student">The student receiving the profile image.</param>
         /// <param name="imageToSave">The optimized image from session to persist.</param>
         /// <param name="cancellationToken">Token used to cancel asynchronous operations.</param>
-        private async Task SaveImageAndStudentAsync(Student student, Image imageToSave, CancellationToken cancellationToken)
+        /// <returns><see langword="true"/> if both image and student were persisted; otherwise <see langword="false"/>.</returns>
+        private async Task<bool> TrySaveImageAndStudentAsync(Student student, Image imageToSave, CancellationToken cancellationToken)
         {
-            Image savedImage = await _imageService.WriteImageAsync(imageToSave, cancellationToken);
-            student.Image = savedImage;
-            await _studentService.UpdateAsync(student.Id, student, cancellationToken);
-            HttpContext.Session.SetStudent(student);
+            try
+            {
+                Image savedImage = await _imageService.WriteImageAsync(imageToSave, cancellationToken);
+                student.Image = savedImage;
+
+                Student? updatedStudent = await _studentService.UpdateAsync(student.Id, student, cancellationToken);
+                if (updatedStudent is null)
+                {
+                    _logger.LogWarning(
+                        "Student update returned null in Onboarding Step 2 for StudentId {StudentId}",
+                        student.Id);
+                    return false;
+                }
+
+                HttpContext.Session.SetStudent(updatedStudent);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to save profile image and update Student in Onboarding Step 2 for StudentId {StudentId}",
+                    student.Id);
+                return false;
+            }
         }
 
         /// <summary>
