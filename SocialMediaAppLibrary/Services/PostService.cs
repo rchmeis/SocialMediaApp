@@ -34,7 +34,7 @@ namespace SocialMediaAppLibrary.Services
             foreach (IFormFile formFile in formFiles)
             {
                 Image optimizedImage = await _imageService.OptimizeImageAsync(formFile);
-                optimizedImage.AltText = post.Content; // Hack: Set the alt text for the image to the post's content
+                optimizedImage.AltText = optimizedImage.FileName; // Hack: Set AltText to the file name, as we don't have a separate alt text input
                 post.Images.Add(optimizedImage);
             }
 

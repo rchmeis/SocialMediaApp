@@ -54,14 +54,12 @@ namespace SocialMediaAppLibrary.Repositories
                 user_image.image_id   AS profile_image_id,
                 user_image.file_name  AS profile_image_file_name,
                 user_image.alt_text   AS profile_image_alt_text,
-                user_image.image_data AS profile_image_data,
                 user_image.height     AS profile_image_height,
                 user_image.width      AS profile_image_width,
 
                 i.image_id   AS post_image_id,
                 i.file_name  AS post_image_file_name,
                 i.alt_text   AS post_image_alt_text,
-                i.image_data AS post_image_data,
                 i.height     AS post_image_height,
                 i.width      AS post_image_width,
                 i.file_size  AS post_image_file_size,
@@ -115,14 +113,12 @@ namespace SocialMediaAppLibrary.Repositories
             int profileImageIdOrdinal = reader.GetOrdinal("profile_image_id");
             int profileImageFileNameOrdinal = reader.GetOrdinal("profile_image_file_name");
             int profileImageAltTextOrdinal = reader.GetOrdinal("profile_image_alt_text");
-            int profileImageDataOrdinal = reader.GetOrdinal("profile_image_data");
             int profileImageHeightOrdinal = reader.GetOrdinal("profile_image_height");
             int profileImageWidthOrdinal = reader.GetOrdinal("profile_image_width");
 
             int postImageIdOrdinal = reader.GetOrdinal("post_image_id");
             int postImageFileNameOrdinal = reader.GetOrdinal("post_image_file_name");
             int postImageAltTextOrdinal = reader.GetOrdinal("post_image_alt_text");
-            int postImageDataOrdinal = reader.GetOrdinal("post_image_data");
             int postImageHeightOrdinal = reader.GetOrdinal("post_image_height");
             int postImageWidthOrdinal = reader.GetOrdinal("post_image_width");
             int postImageFileSizeOrdinal = reader.GetOrdinal("post_image_file_size");
@@ -137,7 +133,6 @@ namespace SocialMediaAppLibrary.Repositories
                     Id = reader.GetInt32(profileImageIdOrdinal),
                     FileName = reader.GetString(profileImageFileNameOrdinal),
                     AltText = reader.GetString(profileImageAltTextOrdinal),
-                    ImageData = (byte[])reader.GetValue(profileImageDataOrdinal),
                     Height = reader.GetInt32(profileImageHeightOrdinal),
                     Width = reader.GetInt32(profileImageWidthOrdinal)
                 };
@@ -175,7 +170,6 @@ namespace SocialMediaAppLibrary.Repositories
                         Id = reader.GetInt32(postImageIdOrdinal),
                         FileName = reader.GetString(postImageFileNameOrdinal),
                         AltText = reader.GetString(postImageAltTextOrdinal),
-                        ImageData = (byte[])reader.GetValue(postImageDataOrdinal),
                         Height = reader.GetInt32(postImageHeightOrdinal),
                         Width = reader.GetInt32(postImageWidthOrdinal),
                         FileSize = reader.GetInt32(postImageFileSizeOrdinal),
@@ -351,14 +345,12 @@ namespace SocialMediaAppLibrary.Repositories
                 user_image.image_id AS profile_image_id,
                 user_image.file_name AS profile_image_file_name,
                 user_image.alt_text AS profile_image_alt_text,
-                user_image.image_data AS profile_image_data,
                 user_image.height AS profile_image_height,
                 user_image.width AS profile_image_width,
 
                 i.image_id AS post_image_id,
                 i.file_name AS post_image_file_name,
                 i.alt_text AS post_image_alt_text,
-                i.image_data AS post_image_data,
                 i.height AS post_image_height,
                 i.width AS post_image_width,
                 i.file_size AS post_image_file_size,
@@ -420,14 +412,12 @@ namespace SocialMediaAppLibrary.Repositories
             int profileImageIdOrdinal = reader.GetOrdinal("profile_image_id");
             int profileImageFileNameOrdinal = reader.GetOrdinal("profile_image_file_name");
             int profileImageAltTextOrdinal = reader.GetOrdinal("profile_image_alt_text");
-            int profileImageDataOrdinal = reader.GetOrdinal("profile_image_data");
             int profileImageHeightOrdinal = reader.GetOrdinal("profile_image_height");
             int profileImageWidthOrdinal = reader.GetOrdinal("profile_image_width");
 
             int postImageIdOrdinal = reader.GetOrdinal("post_image_id");
             int postImageFileNameOrdinal = reader.GetOrdinal("post_image_file_name");
             int postImageAltTextOrdinal = reader.GetOrdinal("post_image_alt_text");
-            int postImageDataOrdinal = reader.GetOrdinal("post_image_data");
             int postImageHeightOrdinal = reader.GetOrdinal("post_image_height");
             int postImageWidthOrdinal = reader.GetOrdinal("post_image_width");
             int postImageFileSizeOrdinal = reader.GetOrdinal("post_image_file_size");
@@ -454,7 +444,6 @@ namespace SocialMediaAppLibrary.Repositories
                             Id = reader.GetInt32(profileImageIdOrdinal),
                             FileName = reader.GetString(profileImageFileNameOrdinal),
                             AltText = reader.GetString(profileImageAltTextOrdinal),
-                            ImageData = (byte[])reader.GetValue(profileImageDataOrdinal),
                             Height = reader.GetInt32(profileImageHeightOrdinal),
                             Width = reader.GetInt32(profileImageWidthOrdinal)
                         };
@@ -492,7 +481,6 @@ namespace SocialMediaAppLibrary.Repositories
                         Id = reader.GetInt32(postImageIdOrdinal),
                         FileName = reader.GetString(postImageFileNameOrdinal),
                         AltText = reader.GetString(postImageAltTextOrdinal),
-                        ImageData = (byte[])reader.GetValue(postImageDataOrdinal),
                         Height = reader.GetInt32(postImageHeightOrdinal),
                         Width = reader.GetInt32(postImageWidthOrdinal),
                         FileSize = reader.GetInt32(postImageFileSizeOrdinal),
