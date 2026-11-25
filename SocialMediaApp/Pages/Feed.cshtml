@@ -230,10 +230,31 @@
         font-weight: 500;
         color: hsl(0 0% 33%);
     }
+
+    .feed-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .pagination-button {
+        padding: 0.25rem 0.5rem;
+        background-color: hsl(0 0% 8%);
+        color: hsl(0, 0%, 96%);
+        text-decoration: none;
+        user-select: none;
+    }
+
+    span.pagination-button {
+        background-color: hsl(0 0% 96%);
+        color: hsl(0, 0%, 75%);
+    }
 </style>
 
 <ul class="posts">
-    @foreach (Post post in Model.Posts)
+    @foreach (Post post in Model.Posts.Items)
     {
     <li>
         <article class="post" id="post-@post.Id">
@@ -297,7 +318,7 @@
                     <div class="modal-content">
                         <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
                         <img class="modal-image" src="" alt="" />
-                        <button type="button" class="modal-nav next modal-next"> &#10095;</button>
+                        <button type="button" class="modal-nav next modal-next">&#10095;</button>
                         <p class="image-caption"></p>
                     </div>
                 </dialog>
@@ -313,3 +334,24 @@
     </li>
     }
 </ul>
+
+@* `href` is used instead of `asp-page` because we need explicit control over the URL, as `page` as a query parameter is a reserved keyword in Razor Pages *@
+<nav class="feed-pagination">
+    @if (Model.PageNumber > 1)
+    {
+    <a class="pagination-button" href="@Model.GetPageUrl(Model.PageNumber - 1)">&#10094;</a>
+    }
+    else
+    {
+    <span class="pagination-button">&#10094;</span>
+    }
+    <span>Side @Model.PageNumber</span>
+    @if (Model.Posts.HasMore)
+    {
+    <a class="pagination-button" href="@Model.GetPageUrl(Model.PageNumber + 1)">&#10095;</a>
+    }
+    else
+    {
+    <span class="pagination-button">&#10095;</span>
+    }
+</nav>

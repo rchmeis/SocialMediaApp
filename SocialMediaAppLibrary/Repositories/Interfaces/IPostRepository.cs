@@ -7,7 +7,7 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
     public interface IPostRepository : ICrud<Post, int>
     {
-        public Task<List<Post>> ReadNewsFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken);
-        public Task<List<Post>> ReadRecommendedFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken);
+        public Task<GenericPaginatedResult<Post>> ReadNewestFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken);
+        public Task<GenericPaginatedResult<Post>> ReadRecommendedFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken);
     }
 }

@@ -54,9 +54,9 @@ namespace SocialMediaAppLibrary.Services
         /// <param name="paginationOptions">The pagination options</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>A list of posts for the news feed</returns>
-        public async Task<List<Post>> GetNewsFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
+        public async Task<GenericPaginatedResult<Post>> GetNewestFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
         {
-            return await _postRepository.ReadNewsFeedAsync(paginationOptions, cancellationToken);
+            return await _postRepository.ReadNewestFeedAsync(paginationOptions, cancellationToken);
         }
 
         public List<Post> ReadAll()

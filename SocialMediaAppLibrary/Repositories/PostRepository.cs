@@ -326,7 +326,7 @@ namespace SocialMediaAppLibrary.Repositories
         /// <param name="paginationOptions">The pagination options</param>
         /// <param name="cancellationToken">The cancellation token</param>
         /// <returns>A list of posts for the news feed</returns>
-        public async Task<List<Post>> ReadNewsFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
+        public async Task<GenericPaginatedResult<Post>> ReadNewestFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
         {
             const string sql = """
             SELECT
@@ -367,7 +367,7 @@ namespace SocialMediaAppLibrary.Repositories
                 FROM posts
                 WHERE deleted_at IS NULL
                 ORDER BY created_at DESC, post_id DESC
-                LIMIT @page_size OFFSET @offset
+                LIMIT @page_size_plus_one OFFSET @offset
             ) p                                                              -- Subquery to paginate the posts before joining with other 1:M tables, ensuring that the correct number of posts are fetched
 
             LEFT JOIN (
@@ -391,10 +391,22 @@ namespace SocialMediaAppLibrary.Repositories
             ORDER BY p.created_at DESC, p.post_id DESC;
             """;
 
+            const string countSql = """
+            SELECT COUNT(*)
+            FROM posts
+            WHERE deleted_at IS NULL;
+            """;
+
             await using MySqlConnection connection = await _dbConnect.ConnectAsync(cancellationToken);
+
+            // Get the total count of posts for pagination purposes
+            await using MySqlCommand countCommand = new MySqlCommand(countSql, connection);
+            int totalCount = Convert.ToInt32(await countCommand.ExecuteScalarAsync(cancellationToken));
+
             await using MySqlCommand command = new MySqlCommand(sql, connection);
 
-            command.Parameters.AddWithValue("@page_size", paginationOptions.PageSize);
+            // One extra post is fetched to determine if there are more posts available for the next page
+            command.Parameters.AddWithValue("@page_size_plus_one", paginationOptions.PageSize + 1);
             command.Parameters.AddWithValue("@offset", (paginationOptions.PageNumber - 1) * paginationOptions.PageSize);
 
             await using DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
@@ -491,10 +503,26 @@ namespace SocialMediaAppLibrary.Repositories
                 }
             }
 
-            return posts;
+            // Determine whether another page exists
+            bool hasMore = posts.Count > paginationOptions.PageSize;
+
+            // Remove the extra post if one was fetched
+            if (hasMore)
+            {
+                posts.RemoveAt(posts.Count - 1);
+            }
+
+            return new GenericPaginatedResult<Post>
+            {
+                Items = posts,
+                HasMore = hasMore,
+                TotalCount = totalCount,
+                PageNumber = paginationOptions.PageNumber,
+                PageSize = paginationOptions.PageSize
+            };
         }
 
-        public Task<List<Post>> ReadRecommendedFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
+        public Task<GenericPaginatedResult<Post>> ReadRecommendedFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
