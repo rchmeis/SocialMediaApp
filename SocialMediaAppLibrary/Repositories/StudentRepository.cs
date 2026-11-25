@@ -8,7 +8,8 @@ namespace SocialMediaAppLibrary.Repositories
 {
     /// <summary>
     /// Repository responsible for persisting, querying, updating, and soft-deleting
-    /// <see cref="Student"/> entities and their associated <c>users</c> and <c>user_interests</c> records in MySQL.
+    /// <see cref="Student"/> entities and their associated <c>users</c>, <c>images</c>,
+    /// and <c>user_interests</c> records in MySQL.
     /// </summary>
     public class StudentRepository : IStudentRepository
     {
@@ -112,7 +113,7 @@ namespace SocialMediaAppLibrary.Repositories
 
         /// <summary>
         /// Retrieves a single active (non-deleted) <see cref="Student"/> by user identifier,
-        /// including its <see cref="Student.Interests"/> list.
+        /// including its full <see cref="Image"/> and <see cref="Student.Interests"/> list.
         /// </summary>
         /// <param name="userId">The unique user/student identifier.</param>
         /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
@@ -135,9 +136,18 @@ namespace SocialMediaAppLibrary.Repositories
                     s.last_name,
                     s.is_onboarded,
                     s.institute_id,
-                    s.course_id
+                    s.course_id,
+                    img.image_id AS img_id,
+                    img.file_name,
+                    img.alt_text,
+                    img.image_data,
+                    img.height,
+                    img.width,
+                    img.file_size,
+                    img.created_at AS img_created_at
                 FROM users u
                 INNER JOIN students s ON s.user_id = u.user_id
+                LEFT JOIN images img ON img.image_id = u.image_id
                 WHERE u.user_id = @user_id
                   AND u.deleted_at IS NULL;
                 """;
@@ -154,28 +164,7 @@ namespace SocialMediaAppLibrary.Repositories
                     return null;
                 }
 
-                int imageIdOrdinal = reader.GetOrdinal("image_id");
-                int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
-
-                student = new Student
-                {
-                    Id = reader.GetInt32(reader.GetOrdinal("user_id")),
-                    UserAuthenticationId = reader.GetInt32(reader.GetOrdinal("user_auth_id")),
-                    Bio = reader.GetString(reader.GetOrdinal("bio")),
-                    Image = reader.IsDBNull(imageIdOrdinal)
-                        ? null
-                        : new Image { Id = reader.GetInt32(imageIdOrdinal) },
-                    CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
-                    DeletedAt = reader.IsDBNull(deletedAtOrdinal)
-                        ? null
-                        : reader.GetDateTime(deletedAtOrdinal),
-                    FirstName = reader.GetString(reader.GetOrdinal("first_name")),
-                    LastName = reader.GetString(reader.GetOrdinal("last_name")),
-                    IsOnboarded = reader.GetBoolean(reader.GetOrdinal("is_onboarded")),
-                    Institute = new Institute { Id = reader.GetInt32(reader.GetOrdinal("institute_id")) },
-                    Course = new Course { Id = reader.GetInt32(reader.GetOrdinal("course_id")) },
-                    Interests = new List<string>()
-                };
+                student = MapStudent(reader);
             }
 
             const string selectInterestsQuery = """
@@ -199,7 +188,7 @@ namespace SocialMediaAppLibrary.Repositories
 
         /// <summary>
         /// Retrieves all active (non-deleted) <see cref="Student"/> records along with their
-        /// associated <see cref="Student.Interests"/>.
+        /// full <see cref="Image"/> and associated <see cref="Student.Interests"/>.
         /// </summary>
         /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
         /// <returns>A list of all active <see cref="Student"/> entities.</returns>
@@ -219,9 +208,18 @@ namespace SocialMediaAppLibrary.Repositories
                     s.last_name,
                     s.is_onboarded,
                     s.institute_id,
-                    s.course_id
+                    s.course_id,
+                    img.image_id AS img_id,
+                    img.file_name,
+                    img.alt_text,
+                    img.image_data,
+                    img.height,
+                    img.width,
+                    img.file_size,
+                    img.created_at AS img_created_at
                 FROM users u
                 INNER JOIN students s ON s.user_id = u.user_id
+                LEFT JOIN images img ON img.image_id = u.image_id
                 WHERE u.deleted_at IS NULL;
                 """;
 
@@ -230,43 +228,10 @@ namespace SocialMediaAppLibrary.Repositories
             await using (MySqlCommand cmd = new MySqlCommand(selectStudentsQuery, connection))
             await using (var reader = await cmd.ExecuteReaderAsync(cancellationToken))
             {
-                int userIdOrdinal = reader.GetOrdinal("user_id");
-                int userAuthIdOrdinal = reader.GetOrdinal("user_auth_id");
-                int bioOrdinal = reader.GetOrdinal("bio");
-                int imageIdOrdinal = reader.GetOrdinal("image_id");
-                int createdAtOrdinal = reader.GetOrdinal("created_at");
-                int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
-                int firstNameOrdinal = reader.GetOrdinal("first_name");
-                int lastNameOrdinal = reader.GetOrdinal("last_name");
-                int isOnboardedOrdinal = reader.GetOrdinal("is_onboarded");
-                int instituteIdOrdinal = reader.GetOrdinal("institute_id");
-                int courseIdOrdinal = reader.GetOrdinal("course_id");
-
                 while (await reader.ReadAsync(cancellationToken))
                 {
-                    int userId = reader.GetInt32(userIdOrdinal);
-
-                    var student = new Student
-                    {
-                        Id = userId,
-                        UserAuthenticationId = reader.GetInt32(userAuthIdOrdinal),
-                        Bio = reader.GetString(bioOrdinal),
-                        Image = reader.IsDBNull(imageIdOrdinal)
-                            ? null
-                            : new Image { Id = reader.GetInt32(imageIdOrdinal) },
-                        CreatedAt = reader.GetDateTime(createdAtOrdinal),
-                        DeletedAt = reader.IsDBNull(deletedAtOrdinal)
-                            ? null
-                            : reader.GetDateTime(deletedAtOrdinal),
-                        FirstName = reader.GetString(firstNameOrdinal),
-                        LastName = reader.GetString(lastNameOrdinal),
-                        IsOnboarded = reader.GetBoolean(isOnboardedOrdinal),
-                        Institute = new Institute { Id = reader.GetInt32(instituteIdOrdinal) },
-                        Course = new Course { Id = reader.GetInt32(courseIdOrdinal) },
-                        Interests = new List<string>()
-                    };
-
-                    studentsById[userId] = student;
+                    Student student = MapStudent(reader);
+                    studentsById[student.Id] = student;
                 }
             }
 
@@ -444,6 +409,64 @@ namespace SocialMediaAppLibrary.Repositories
                 }
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Maps a joined <c>users</c>, <c>students</c>, and <c>images</c> row into a <see cref="Student"/> instance.
+        /// </summary>
+        /// <param name="reader">Active data reader positioned at a valid student row.</param>
+        /// <returns>A populated <see cref="Student"/> instance.</returns>
+        private static Student MapStudent(DbDataReader reader)
+        {
+            int imageIdOrdinal = reader.GetOrdinal("image_id");
+            int imgIdOrdinal = reader.GetOrdinal("img_id");
+            int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
+
+            Image? image = null;
+            if (!reader.IsDBNull(imageIdOrdinal) && !reader.IsDBNull(imgIdOrdinal))
+            {
+                int imageDataOrdinal = reader.GetOrdinal("image_data");
+                byte[] imageData = reader.IsDBNull(imageDataOrdinal)
+                    ? []
+                    : (byte[])reader[imageDataOrdinal];
+
+                int fileNameOrdinal = reader.GetOrdinal("file_name");
+                int altTextOrdinal = reader.GetOrdinal("alt_text");
+                int heightOrdinal = reader.GetOrdinal("height");
+                int widthOrdinal = reader.GetOrdinal("width");
+                int fileSizeOrdinal = reader.GetOrdinal("file_size");
+                int imgCreatedAtOrdinal = reader.GetOrdinal("img_created_at");
+
+                image = new Image
+                {
+                    Id = reader.GetInt32(imgIdOrdinal),
+                    FileName = reader.IsDBNull(fileNameOrdinal) ? string.Empty : reader.GetString(fileNameOrdinal),
+                    AltText = reader.IsDBNull(altTextOrdinal) ? string.Empty : reader.GetString(altTextOrdinal),
+                    ImageData = imageData,
+                    Height = reader.IsDBNull(heightOrdinal) ? 0 : reader.GetInt32(heightOrdinal),
+                    Width = reader.IsDBNull(widthOrdinal) ? 0 : reader.GetInt32(widthOrdinal),
+                    FileSize = reader.IsDBNull(fileSizeOrdinal) ? 0 : reader.GetInt32(fileSizeOrdinal),
+                    CreatedAt = reader.IsDBNull(imgCreatedAtOrdinal) ? DateTime.MinValue : reader.GetDateTime(imgCreatedAtOrdinal)
+                };
+            }
+
+            return new Student
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("user_id")),
+                UserAuthenticationId = reader.GetInt32(reader.GetOrdinal("user_auth_id")),
+                Bio = reader.GetString(reader.GetOrdinal("bio")),
+                Image = image,
+                CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
+                DeletedAt = reader.IsDBNull(deletedAtOrdinal)
+                    ? null
+                    : reader.GetDateTime(deletedAtOrdinal),
+                FirstName = reader.GetString(reader.GetOrdinal("first_name")),
+                LastName = reader.GetString(reader.GetOrdinal("last_name")),
+                IsOnboarded = reader.GetBoolean(reader.GetOrdinal("is_onboarded")),
+                Institute = new Institute { Id = reader.GetInt32(reader.GetOrdinal("institute_id")) },
+                Course = new Course { Id = reader.GetInt32(reader.GetOrdinal("course_id")) },
+                Interests = new List<string>()
+            };
         }
 
         /// <summary>

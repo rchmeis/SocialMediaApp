@@ -71,7 +71,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return RedirectToPage("/Feed");
             }
 
-            PreviewImage = await ResolvePreviewImageAsync(Student, cancellationToken);
+            PreviewImage = ResolvePreviewImage(Student);
             return Page();
         }
 
@@ -89,7 +89,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return RedirectToPage("/Account/SignupFlow/Step3");
             }
 
-            PreviewImage = await ResolvePreviewImageAsync(Student, cancellationToken);
+            PreviewImage = ResolvePreviewImage(Student);
 
             if (UploadedImage is null)
             {
@@ -136,7 +136,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
             if (!HasValidImageData(sessionImage))
             {
                 ModelState.AddModelError(string.Empty, "Vælg et billede og klik på Forhåndsvis, før du gemmer.");
-                PreviewImage = await ResolvePreviewImageAsync(Student, cancellationToken);
+                PreviewImage = ResolvePreviewImage(Student);
                 return Page();
             }
 
@@ -193,9 +193,8 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         /// Resolves the best available preview <see cref="Image"/> from session or the student's existing image.
         /// </summary>
         /// <param name="student">The current student.</param>
-        /// <param name="cancellationToken">Token used to cancel asynchronous operations.</param>
         /// <returns>A preview <see cref="Image"/> with binary data if available; otherwise <see langword="null"/>.</returns>
-        private async Task<Image?> ResolvePreviewImageAsync(Student student, CancellationToken cancellationToken)
+        private Image? ResolvePreviewImage(Student student)
         {
             Image? sessionImage = HttpContext.Session.GetImage();
             if (HasValidImageData(sessionImage))
@@ -203,21 +202,9 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return sessionImage;
             }
 
-            if (student.Image is not null)
+            if (HasValidImageData(student.Image))
             {
-                if (HasValidImageData(student.Image))
-                {
-                    return student.Image;
-                }
-
-                if (student.Image.Id > 0)
-                {
-                    Image? dbImage = await _imageService.GetByIdAsync(student.Image.Id, cancellationToken);
-                    if (HasValidImageData(dbImage))
-                    {
-                        return dbImage;
-                    }
-                }
+                return student.Image;
             }
 
             return null;
