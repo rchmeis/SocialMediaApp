@@ -30,7 +30,7 @@ else{
 
     <div class="upload-row">
         <label asp-for="UploadedImage" class="btn-upload">
-            @(Model.PreviewImage is not null ? "Skift billede" : "Vælg billede")
+            @(Model.PreviewImage.FileSize>0 ? "Skift billede" : "Vælg billede")
         </label>
         <input asp-for="UploadedImage"
                type="file"
