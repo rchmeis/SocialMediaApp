@@ -7,6 +7,32 @@
 }
 
 <style>
+    .tab-navigation {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .tab-list {
+        display: flex;
+        gap: 1rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .tab-link {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        color: hsl(0 0% 0%);
+
+        &.active {
+            font-weight: 500;
+            border-bottom: 2px solid hsl(0 0% 0%);
+        }
+    }
+
     .posts {
         display: flex;
         flex-direction: column;
@@ -252,6 +278,21 @@
         color: hsl(0, 0%, 75%);
     }
 </style>
+
+<nav class="tab-navigation">
+    <ul class="tab-list">
+        @foreach (KeyValuePair<FeedTab, string> tab in Model.FeedTabs)
+        {
+        <li>
+             <a class="tab-link @(Model.CurrentTab == tab.Key.ToString().ToLower() ? "active" : "")"
+                asp-page="/Feed"
+                asp-route-tab="@tab.Key.ToString().ToLower()">
+                @tab.Value
+            </a>
+        </li>
+        }
+    </ul>
+</nav>
 
 <ul class="posts">
     @foreach (Post post in Model.Posts.Items)

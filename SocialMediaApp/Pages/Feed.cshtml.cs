@@ -16,6 +16,14 @@ namespace SocialMediaApp.Pages
         [FromQuery(Name = "page")]
         public int PageNumber { get; set; } = 1;
 
+        public Dictionary<FeedTab, string> FeedTabs { get; set; } = new Dictionary<FeedTab, string>
+        {
+            { FeedTab.Recommended, "For dig" },
+            { FeedTab.Newest, "Nyeste" }
+        };
+
+        [BindProperty(SupportsGet = true)]
+        [FromQuery(Name = "tab")]
         public string CurrentTab { get; set; } = string.Empty;
 
         public FeedModel(IPostService postService)
