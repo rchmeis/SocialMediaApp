@@ -14,17 +14,17 @@ namespace SocialMediaAppLibrary.Models
         /// <summary>
         /// Gets or sets the file name of the image.
         /// </summary>
-        public string? FileName { get; set; }
+        public string FileName { get; set; }
 
         /// <summary>
         /// Gets or sets the alternative text for the image.
         /// </summary>
-        public string? AltText { get; set; }
+        public string AltText { get; set; }
 
         /// <summary>
         /// Gets or sets the binary data of the image.
         /// </summary>
-        public byte[]? ImageData { get; set; }
+        public byte[] ImageData { get; set; }
 
         /// <summary>
         /// Gets or sets the height of the image.
