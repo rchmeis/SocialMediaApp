@@ -20,12 +20,12 @@ namespace SocialMediaAppLibrary.Services
 
         public Task<Student> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _studentRepository.DeleteAsync(id, cancellationToken);
         }
 
         public Task<List<Student>> ReadAllAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return _studentRepository.ReadAllAsync(cancellationToken);
         }
 
         public Task<Student?> ReadByIdAsync(int id, CancellationToken cancellationToken)
