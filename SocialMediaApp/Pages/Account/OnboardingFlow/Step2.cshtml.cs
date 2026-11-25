@@ -43,7 +43,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
 
         /// <summary>
         /// Gets or sets the <see cref="Image"/> shown in the preview area.
-        /// </summary>
+        /// </summary>     
         public Image? PreviewImage { get; set; }
 
         /// <summary>
@@ -54,12 +54,12 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         [MaxFileSize(5 * 1024 * 1024, ErrorMessage = "Billedet må højst være 5 MB.")]
         public IFormFile? UploadedImage { get; set; }
 
-        /// <summary>
-        /// Gets or sets the alternative text provided by the user for the profile image.
-        /// </summary>
-        [BindProperty]
-        [MaxLength(255, ErrorMessage = "Alternativ tekst må højst være 255 tegn.")]
-        public string UserProvidedAltText { get; set; } = string.Empty;
+        ///// <summary>
+        ///// Gets or sets the alternative text provided by the user for the profile image.
+        ///// </summary>
+        //[BindProperty]
+        //[MaxLength(255, ErrorMessage = "Alternativ tekst må højst være 255 tegn.")]
+        //public string UserProvidedAltText { get; set; } = string.Empty;
 
         /// <summary>
         /// Handles GET requests by resolving the current student, enforcing onboarding state, and loading preview data.
@@ -78,7 +78,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return RedirectToPage("/Feed");
             }
 
-            PreviewImage = HttpContext.Session.GetImage() ?? Student.Image;
+            //PreviewImage = HttpContext.Session.GetImage() ?? Student.Image;
             //if (!string.IsNullOrEmpty(PreviewImage?.AltText))
             //{
             //    UserProvidedAltText = PreviewImage.AltText;
@@ -101,7 +101,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return RedirectToPage("/Account/SignupFlow/Step3");
             }
 
-            PreviewImage = HttpContext.Session.GetImage() ?? Student.Image;
+            //PreviewImage = HttpContext.Session.GetImage() ?? Student.Image;
 
             if (!ModelState.IsValid)
             {
@@ -111,7 +111,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
             try
             {
                 Image optimized = await _imageService.OptimizeImageAsync(UploadedImage!);
-                optimized.AltText = GetTrimmedAltText();
+                //optimized.AltText = GetTrimmedAltText();
                 
                 HttpContext.Session.SetImage(optimized);
                 PreviewImage = optimized;
@@ -131,7 +131,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A redirect to step 3 on success, or the current page if validation fails or no preview image exists.</returns>
         public async Task<IActionResult> OnPostSaveAsync(CancellationToken cancellationToken)
-        {
+        {             
             Student = await ResolveCurrentStudentAsync(cancellationToken);
             if (Student is null) 
             {
@@ -139,7 +139,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
             }
 
             Image? sessionImage = HttpContext.Session.GetImage(); 
-            if (sessionImage.Id <=0) // sikkerhedstjek hvis session mangler trods knappen i UI
+            if (sessionImage.FileSize <=0) // sikkerhedstjek hvis session mangler trods knappen i UI
             {
                 ModelState.AddModelError(string.Empty, "Upload venligst et billede først, før du gemmer."); // viser fejl hvis der ikke er noget preview-billede
                 PreviewImage = Student.Image; 
@@ -152,7 +152,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
                 return Page(); 
             }
 
-            sessionImage.AltText = GetTrimmedAltText();
+            //sessionImage.AltText = GetTrimmedAltText();
 
             await SaveImageAndStudentAsync(Student, sessionImage, cancellationToken); // gemmer billede, opdaterer Student og lægger Student i session
             HttpContext.Session.Remove(SessionKeys.ImageSessionKey);
@@ -201,6 +201,6 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         /// Returns <see cref="UserProvidedAltText"/> with leading and trailing whitespace removed.
         /// </summary>
         /// <returns>The trimmed alternative text string.</returns>
-        private string GetTrimmedAltText() => (UserProvidedAltText ?? string.Empty).Trim();
+        //private string GetTrimmedAltText() => (UserProvidedAltText ?? string.Empty).Trim();
     }
 }
