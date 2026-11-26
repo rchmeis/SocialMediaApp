@@ -294,6 +294,15 @@
     </ul>
 </nav>
 
+<!-- [ÆNDRING] MIDLERTIDIGT Link til oprettelse af opslag fra det generelle feed med returnUrl -->
+<div class="feed-create-post">
+    <a class="create-post-link"
+       asp-page="/Posts/CreatePost"
+       asp-route-returnUrl="@Url.Page("/Feed", new { tab = Model.CurrentTab })">
+        Opret opslag
+    </a>
+</div>
+
 <ul class="posts">
     @foreach (Post post in Model.Posts.Items)
     {

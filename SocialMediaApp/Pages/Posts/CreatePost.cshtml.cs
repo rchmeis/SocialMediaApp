@@ -19,6 +19,10 @@ namespace SocialMediaApp.Pages.Posts
         public Random RandomGenerator { get; set; } = new Random();
         public string RandomizedPlaceholder { get; set; } = string.Empty;
 
+        // [ÆNDRING] Gemmer hvor brugeren kom fra (fx "/Account/Profile/Index" eller "/Feed"), så den overlever POST og validation-fejl
+        [BindProperty(SupportsGet = true)]
+        public string? ReturnUrl { get; set; }
+
         [BindProperty]
         [MaxLength(63, ErrorMessage = "Titlen må højst være 63 tegn.")]
         public string? PostTitle { get; set; }
@@ -44,12 +48,21 @@ namespace SocialMediaApp.Pages.Posts
         public void OnGet()
         {
             RandomizedPlaceholder = GenerateRandomPlaceholder();
+            if (string.IsNullOrWhiteSpace(ReturnUrl) || !Url.IsLocalUrl(ReturnUrl))
+            {
+                ReturnUrl = "/Feed";
+            }
         }
 
         public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
+                // [ÆNDRING] Sørg for at placeholder også er sat hvis siden vises igen ved validation-fejl
+                if (string.IsNullOrWhiteSpace(RandomizedPlaceholder))
+                {
+                    RandomizedPlaceholder = GenerateRandomPlaceholder();
+                }
                 return Page();
             }
 
@@ -68,6 +81,12 @@ namespace SocialMediaApp.Pages.Posts
             try
             {
                 await _postService.CreateAsync(postToCreate, PostImages, cancellationToken);
+
+                // [ÆNDRING] Redirect til ReturnUrl (f.eks. egen profilside) hvis det er en gyldig lokal URL, ellers tilbage til feedet
+                if (!string.IsNullOrWhiteSpace(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                {
+                    return LocalRedirect(ReturnUrl);
+                }
                 return RedirectToPage("/Feed");
             }
             catch (Exception)

@@ -1,4 +1,834 @@
 ﻿@page
 @model SocialMediaApp.Pages.Account.Profile.IndexModel
-@{
-}
+@* Ren CSS uden Bootstrap; alle data hentes fra Model.CurrentStudent og Model.PagedPosts *@
+@using SocialMediaAppLibrary.Models
+
+<div class="profile-page-shell">
+    <!-- Grøn sektion i fuld skærmbredde med centreret indhold -->
+    <section class="profile-hero">
+        <div class="profile-hero-inner">
+            <div class="profile-identity-card">
+                <div class="profile-hero-top">
+                    <div class="profile-avatar-wrap">
+                        @if (Model.CurrentStudent.Image != null)
+                        {
+                            <img src="/images/@Model.CurrentStudent.Image.Id/@Model.CurrentStudent.Image.FileName"
+                                 alt="@Model.CurrentStudent.FirstName @Model.CurrentStudent.LastName"
+                                 class="profile-avatar-round" />
+                        }
+                        else
+                        {
+                            <img src="~/images/default-avatar.jpg"
+                                 alt="Standard profilbillede"
+                                 class="profile-avatar-round" />
+                        }
+                    </div>
+
+                    <div class="profile-details">
+                        <h1 class="profile-fullname">
+                            @Model.CurrentStudent.FirstName @Model.CurrentStudent.LastName
+                        </h1>
+
+                        <p class="profile-study">
+                            @Model.CurrentStudent.Course?.Name
+                            @if (Model.CurrentStudent.Course != null && Model.CurrentStudent.Institute != null)
+                            {
+                                <text>, </text>
+                            }
+                            @Model.CurrentStudent.Institute?.Name
+                        </p>
+
+                        <p class="profile-bio">
+                            @Model.CurrentStudent.Bio
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Followers/following til venstre og Rediger under bio til højre -->
+                <div class="profile-hero-bottom">
+                    <div class="profile-relations">
+                        <a asp-page="/Account/Profile/Followers" class="profile-relation-btn">Followers</a>
+                        <a asp-page="/Account/Profile/Following" class="profile-relation-btn">Following</a>
+                    </div>
+
+                    <div class="profile-edit-wrap">
+                        <a asp-page="/Account/Profile/Edit" class="profile-edit-btn">Rediger</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nedre område med sidebar til venstre og centreret hovedindhold til højre -->
+    <div class="profile-body-layout">
+        <aside class="profile-sidebar @(Model.IsSidebarCollapsed ? "is-collapsed" : "")" aria-label="Profilnavigation">
+            <nav class="sidebar-nav">
+                <div class="sidebar-first-row">
+                    <a class="sidebar-tab" asp-page="/Index" title="Feed">
+                        <span class="sidebar-tab-icon" aria-hidden="true">•</span>
+                        <span class="sidebar-tab-label">Feed</span>
+                    </a>
+
+                    <form method="post" asp-page-handler="ToggleSidebar" asp-route-pageNumber="@Model.CurrentPage" class="sidebar-toggle-form">
+                        <button type="submit" class="sidebar-toggle-btn" title="Slå sidebar ind eller ud">
+                            @(Model.IsSidebarCollapsed ? "»" : "«")
+                        </button>
+                    </form>
+                </div>
+
+                <a class="sidebar-tab" asp-page="/Events/Index" title="Events">
+                    <span class="sidebar-tab-icon" aria-hidden="true">•</span>
+                    <span class="sidebar-tab-label">Events</span>
+                </a>
+                <a class="sidebar-tab" asp-page="/Marketplace/Index" title="Marketplace">
+                    <span class="sidebar-tab-icon" aria-hidden="true">•</span>
+                    <span class="sidebar-tab-label">Marketplace</span>
+                </a>
+                <a class="sidebar-tab" asp-page="/Jobs/Index" title="Studiejobs">
+                    <span class="sidebar-tab-icon" aria-hidden="true">•</span>
+                    <span class="sidebar-tab-label">Studiejobs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="profile-main">
+            <!-- Sammenhængende 720px-spor med lodrette afgrænsningslinjer fra hero-boksen ned gennem opslagene -->
+            <div class="profile-content-container">
+                <section class="post-composer-section">
+                    <a asp-page="/Posts/CreatePost"
+                       asp-route-returnUrl="/Account/Profile/Index"
+                       class="post-pill-bar post-pill-link">
+                        <span class="post-pill-placeholder">@Model.PlaceholderText</span>
+                        <span class="post-plus-btn" aria-hidden="true">+</span>
+                    </a>
+                </section>
+
+                <section class="user-posts-section" aria-label="Mine opslag">
+                    @if (Model.PagedPosts != null && Model.PagedPosts.Any())
+                    {
+                        <div class="user-posts-list">
+                            @foreach (var post in Model.PagedPosts)
+                            {
+                                <article class="post-card" id="post-@post.Id">
+                                    <div class="post-card-header">
+                                        <div class="post-author-meta">
+                                            <img class="post-author-avatar"
+                                                 src="@(post.Author?.ProfileImage != null
+                                                                                                      ? $"/images/{post.Author.ProfileImage.Id}/{post.Author.ProfileImage.FileName}"
+                                                                                                      : Url.Content("~/images/default-avatar.jpg"))"
+                                                 alt="@post.Author?.DisplayName" />
+                                            <div class="post-author-text">
+                                                <span class="post-author">@post.Author?.DisplayName</span>
+                                                <span class="post-time">@post.TimeAgo()</span>
+                                            </div>
+                                        </div>
+
+                                        <details class="post-menu">
+                                            <summary class="post-menu-trigger" aria-label="Flere valgmuligheder for opslag">&#8943;</summary>
+                                            <div class="post-menu-dropdown">
+                                                <a class="post-menu-item"
+                                                   asp-page="/Posts/EditPost"
+                                                   asp-route-postId="@post.Id"
+                                                   asp-route-returnUrl="/Account/Profile/Index">
+                                                    Rediger
+                                                </a>
+
+                                                <form method="post"
+                                                      asp-page-handler="DeletePost"
+                                                      asp-route-postId="@post.Id"
+                                                      asp-route-pageNumber="@Model.CurrentPage"
+                                                      class="post-menu-form">
+                                                    <button type="submit" class="post-menu-item post-menu-item--danger">
+                                                        Slet
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </details>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(post.Title))
+                                    {
+                                        <h2 class="post-title">@post.Title</h2>
+                                    }
+
+                                    <p class="post-content">@post.Content</p>
+
+                                    @if (post.Images != null && post.Images.Count > 0)
+                                    {
+                                        var visibleImages = post.Images.Take(4).ToList();
+                                        <div class="post-image-gallery">
+                                            @for (int i = 0; i < visibleImages.Count; i++)
+                                            {
+                                                Image image = visibleImages[i];
+                                                <button type="button"
+                                                        class="post-image-card"
+                                                        data-index="@i"
+                                                        data-dialog="image-dialog-@post.Id">
+                                                    <img src="/images/@image.Id/@image.FileName"
+                                                         alt="@image.AltText"
+                                                         loading="lazy" />
+                                                </button>
+                                            }
+                                        </div>
+
+                                        <dialog id="image-dialog-@post.Id" class="lightbox">
+                                            <div class="modal-content">
+                                                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                                                <img class="modal-image" src="" alt="" />
+                                                <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                                                <p class="image-caption"></p>
+                                            </div>
+                                        </dialog>
+                                    }
+                                </article>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="no-posts-text">Du har ikke delt noget endnu - opret et opslag så dine venner kan lære dig bedre at kende!</p>
+                    }
+
+                    @if (Model.TotalPages > 1)
+                    {
+                        <nav class="pagination-nav" aria-label="Sideskift">
+                            @if (Model.CurrentPage > 1)
+                            {
+                                <a class="pagination-link"
+                                   asp-page="/Account/Profile/Index"
+                                   asp-route-pageNumber="@(Model.CurrentPage - 1)">
+                                    Forrige
+                                </a>
+                            }
+
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <a class="pagination-link @(i == Model.CurrentPage ? "is-active" : "")"
+                                   asp-page="/Account/Profile/Index"
+                                   asp-route-pageNumber="@i">
+                                    @i
+                                </a>
+                            }
+
+                            @if (Model.CurrentPage < Model.TotalPages)
+                            {
+                                <a class="pagination-link"
+                                   asp-page="/Account/Profile/Index"
+                                   asp-route-pageNumber="@(Model.CurrentPage + 1)">
+                                    Næste
+                                </a>
+                            }
+                        </nav>
+                    }
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-page-shell {
+        width: 100%;
+        min-height: 85vh;
+        background-color: #f6f6f4;
+        box-sizing: border-box;
+    }
+
+    /* Grøn profilsektion i fuld bredde */
+    .profile-hero {
+        width: 100%;
+        background-color: #56b837;
+        padding: 24px 20px 20px 20px;
+        box-sizing: border-box;
+    }
+
+    .profile-hero-inner {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Fast 720px-bredde til studenteroplysninger */
+    .profile-identity-card {
+        width: 720px;
+        max-width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .profile-hero-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .profile-avatar-wrap {
+        flex-shrink: 0;
+    }
+
+    .profile-avatar-round {
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+        background-color: #fafaf8;
+    }
+
+    .profile-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .profile-fullname {
+        margin: 0 0 8px 0;
+        padding: 8px 12px;
+        background-color: #fafaf8;
+        color: #111111;
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.3;
+        border-radius: 4px;
+    }
+
+    .profile-study {
+        margin: 0 0 8px 0;
+        padding: 8px 12px;
+        background-color: #fafaf8;
+        color: #111111;
+        font-size: 0.95rem;
+        border-radius: 4px;
+    }
+
+    .profile-bio {
+        margin: 0;
+        padding: 10px 12px;
+        min-height: 52px;
+        background-color: #fafaf8;
+        color: #111111;
+        font-size: 0.95rem;
+        border-radius: 4px;
+    }
+
+    /* Række under bio: followers/following til venstre, Rediger til højre */
+    .profile-hero-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 12px;
+    }
+
+    .profile-relations {
+        display: flex;
+        gap: 14px;
+    }
+
+    .profile-relation-btn {
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+        .profile-relation-btn:hover {
+            text-decoration: underline;
+        }
+
+    .profile-edit-wrap {
+        flex-shrink: 0;
+    }
+
+    .profile-edit-btn {
+        display: inline-block;
+        background-color: #fafaf8;
+        color: #111111;
+        text-decoration: none;
+        padding: 6px 15px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 500;
+    }
+
+        .profile-edit-btn:hover {
+            background-color: #ffffff;
+        }
+
+    /* Nedre layout med sidebar til venstre og hovedindhold til højre */
+    .profile-body-layout {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        min-height: 60vh;
+        box-sizing: border-box;
+    }
+
+    /* Sidebar i let off-white/grå med skillelinje til højre */
+    .profile-sidebar {
+        width: 210px;
+        flex-shrink: 0;
+        background-color: #f6f6f4;
+        border-right: 1px solid #deded9;
+        padding: 20px 12px;
+        transition: width 0.2s ease;
+        box-sizing: border-box;
+    }
+
+        .profile-sidebar.is-collapsed {
+            width: 56px;
+            padding: 20px 8px;
+        }
+
+            .profile-sidebar.is-collapsed .sidebar-tab-label {
+                display: none;
+            }
+
+            .profile-sidebar.is-collapsed .sidebar-first-row {
+                justify-content: center;
+            }
+
+            .profile-sidebar.is-collapsed .sidebar-tab {
+                display: none;
+            }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .sidebar-first-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .sidebar-tab {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        background-color: transparent;
+        color: #1f2937;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.92rem;
+        padding: 7px 10px;
+        border-radius: 8px;
+        box-sizing: border-box;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .sidebar-tab-icon {
+        color: #56b837;
+        font-size: 1.1rem;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .sidebar-tab:hover {
+        background-color: #e8f5e3;
+        color: #1e4d12;
+    }
+
+    .sidebar-toggle-form {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .sidebar-toggle-btn {
+        background-color: #ffffff;
+        color: #1f2937;
+        border: 1px solid #deded9;
+        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+
+        .sidebar-toggle-btn:hover {
+            background-color: #e8f5e3;
+            border-color: #56b837;
+            color: #1e4d12;
+        }
+
+    /* Hovedområde til højre */
+    .profile-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 0 20px 32px 20px;
+        box-sizing: border-box;
+    }
+
+    /* Fast 720px-spor med venstre og højre afgrænsningslinje fra hero-boksen */
+    .profile-content-container {
+        width: 720px;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 18px 24px 18px;
+        border-left: 1px solid #deded9;
+        border-right: 1px solid #deded9;
+        box-sizing: border-box;
+    }
+
+    .post-composer-section {
+        width: 100%;
+        margin-bottom: 18px;
+    }
+
+    .post-pill-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #fde047;
+        border: 1px solid #facc15;
+        border-radius: 999px;
+        padding: 8px 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .post-pill-link {
+        text-decoration: none;
+        color: #18181b;
+        cursor: pointer;
+    }
+
+        .post-pill-link:hover {
+            background-color: #fef08a;
+        }
+
+    .post-pill-placeholder {
+        flex: 1;
+        padding: 6px 10px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #18181b;
+    }
+
+    .post-plus-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #ffffff;
+        color: #18181b;
+        font-weight: 700;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .user-posts-section {
+        width: 100%;
+    }
+
+    .user-posts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .post-card {
+        background-color: #ffffff;
+        border: 1px solid #deded9;
+        border-radius: 8px;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .post-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .post-author-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .post-author-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        background-color: #f6f6f4;
+    }
+
+    .post-author-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .post-author {
+        font-weight: 600;
+        color: #111111;
+        line-height: 1.25;
+    }
+
+    .post-time {
+        font-size: 0.85rem;
+        color: #555555;
+        line-height: 1.25;
+    }
+
+    .post-menu {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .post-menu-trigger {
+        list-style: none;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #333333;
+        user-select: none;
+    }
+
+        .post-menu-trigger::-webkit-details-marker {
+            display: none;
+        }
+
+        .post-menu-trigger:hover {
+            background-color: #f6f6f4;
+        }
+
+    .post-menu-dropdown {
+        position: absolute;
+        right: 0;
+        top: 100%;
+        margin-top: 4px;
+        min-width: 130px;
+        background-color: #ffffff;
+        border: 1px solid #deded9;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        padding: 4px 0;
+    }
+
+    .post-menu-form {
+        margin: 0;
+    }
+
+    .post-menu-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: none;
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        color: #111111;
+        text-decoration: none;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+        .post-menu-item:hover {
+            background-color: #f6f6f4;
+        }
+
+    .post-menu-item--danger {
+        color: #b42318;
+        font-weight: 500;
+    }
+
+        .post-menu-item--danger:hover {
+            background-color: #fef3f2;
+        }
+
+    .post-title {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #111111;
+    }
+
+    .post-content {
+        margin: 0;
+        color: #222222;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        line-height: 1.45;
+    }
+
+    .post-image-gallery {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        max-width: 100%;
+        max-height: 360px;
+        overflow: hidden;
+        border-radius: 6px;
+    }
+
+        .post-image-gallery:has(> :only-child) {
+            grid-template-columns: minmax(0, 1fr);
+            max-height: 340px;
+        }
+
+        .post-image-gallery:has(> :nth-child(3):last-child) > :first-child {
+            grid-row: span 2;
+        }
+
+    .post-image-card {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 120px;
+        max-height: 340px;
+        padding: 0;
+        border: none;
+        overflow: hidden;
+        background-color: #f6f6f4;
+        cursor: pointer;
+    }
+
+        .post-image-card img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            object-fit: cover;
+            transition: transform 0.25s ease, filter 0.25s ease;
+        }
+
+        .post-image-card:hover img {
+            transform: scale(1.04);
+            filter: brightness(0.9);
+        }
+
+    .lightbox {
+        position: fixed;
+        inset: 0;
+        margin: auto;
+        padding: 0;
+        width: min(90vw, 75rem);
+        max-width: none;
+        max-height: 90vh;
+        border: none;
+        overflow: visible;
+        background: transparent;
+        color: #ffffff;
+    }
+
+        .lightbox::backdrop {
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(6px);
+        }
+
+    .modal-content {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 20rem;
+    }
+
+        .modal-content img {
+            display: block;
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+    .modal-nav {
+        position: absolute;
+        top: 50%;
+        z-index: 2;
+        transform: translateY(-50%);
+        display: grid;
+        place-items: center;
+        width: 3rem;
+        height: 3rem;
+        border: none;
+        border-radius: 50%;
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.35);
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+        .modal-nav.prev {
+            left: 0.75rem;
+        }
+
+        .modal-nav.next {
+            right: 0.75rem;
+        }
+
+    .image-caption {
+        position: absolute;
+        bottom: -2rem;
+        width: 100%;
+        margin: 0;
+        color: #e5e5e5;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+
+    .no-posts-text {
+        text-align: center;
+        color: #333333;
+        padding: 28px 16px;
+        font-size: 0.98rem;
+    }
+
+    .pagination-nav {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 24px;
+    }
+
+    .pagination-link {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #ffffff;
+        border: 1px solid #deded9;
+        color: #111111;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+        .pagination-link.is-active {
+            background-color: #56b837;
+            border-color: #439629;
+            color: #ffffff;
+            font-weight: 700;
+        }
+</style>
