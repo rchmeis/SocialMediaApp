@@ -85,7 +85,6 @@
         grid-template-rows: repeat(2, 1fr);
         gap: 0.25rem;
         flex-wrap: nowrap;
-        aspect-ratio: 4 / 3;
 
         &:has(> :only-child) {
             grid-template-columns: 1fr;
@@ -97,6 +96,7 @@
         }
 
         &:has(> :nth-child(3):last-child) {
+            aspect-ratio: 4 / 3;
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(2, 1fr);
 
@@ -110,6 +110,7 @@
         }
 
         &:has(> :nth-child(4):last-child) {
+            aspect-ratio: 4 / 3;
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(2, 1fr);
         }
@@ -128,7 +129,6 @@
         display: block;
         height: 100%;
         width: 100%;
-        aspect-ratio: 4 / 3;
         object-fit: cover;
         transition: transform .35s ease, filter .35s ease;
     }
