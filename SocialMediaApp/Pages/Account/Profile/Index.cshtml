@@ -50,47 +50,17 @@
                         <a asp-page="/Account/Profile/Followers" class="profile-relation-btn">Followers</a>
                         <a asp-page="/Account/Profile/Following" class="profile-relation-btn">Following</a>
                     </div>
-
-                    <div class="profile-edit-wrap">
-                        <a asp-page="/Account/Profile/Edit" class="profile-edit-btn">Rediger</a>
+                    <div class="profile-member-since">
+                        <small>Medlem siden @Model.CurrentStudent.CreatedAt.ToShortDateString()</small>
                     </div>
+                     
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Nedre område med sidebar til venstre og centreret hovedindhold til højre -->
+    <!-- Nedre område med centreret hovedindhold (sidebar ligger nu i _Layout.cshtml) -->
     <div class="profile-body-layout">
-        <aside class="profile-sidebar @(Model.IsSidebarCollapsed ? "is-collapsed" : "")" aria-label="Profilnavigation">
-            <nav class="sidebar-nav">
-                <div class="sidebar-first-row">
-                    <a class="sidebar-tab" asp-page="/Index" title="Feed">
-                        <span class="sidebar-tab-icon" aria-hidden="true">•</span>
-                        <span class="sidebar-tab-label">Feed</span>
-                    </a>
-
-                    <form method="post" asp-page-handler="ToggleSidebar" asp-route-pageNumber="@Model.CurrentPage" class="sidebar-toggle-form">
-                        <button type="submit" class="sidebar-toggle-btn" title="Slå sidebar ind eller ud">
-                            @(Model.IsSidebarCollapsed ? "»" : "«")
-                        </button>
-                    </form>
-                </div>
-
-                <a class="sidebar-tab" asp-page="/Events/Index" title="Events">
-                    <span class="sidebar-tab-icon" aria-hidden="true">•</span>
-                    <span class="sidebar-tab-label">Events</span>
-                </a>
-                <a class="sidebar-tab" asp-page="/Marketplace/Index" title="Marketplace">
-                    <span class="sidebar-tab-icon" aria-hidden="true">•</span>
-                    <span class="sidebar-tab-label">Marketplace</span>
-                </a>
-                <a class="sidebar-tab" asp-page="/Jobs/Index" title="Studiejobs">
-                    <span class="sidebar-tab-icon" aria-hidden="true">•</span>
-                    <span class="sidebar-tab-label">Studiejobs</span>
-                </a>
-            </nav>
-        </aside>
-
         <div class="profile-main">
             <!-- Sammenhængende 720px-spor med lodrette afgrænsningslinjer fra hero-boksen ned gennem opslagene -->
             <div class="profile-content-container">
@@ -114,8 +84,8 @@
                                         <div class="post-author-meta">
                                             <img class="post-author-avatar"
                                                  src="@(post.Author?.ProfileImage != null
-                                                                                                      ? $"/images/{post.Author.ProfileImage.Id}/{post.Author.ProfileImage.FileName}"
-                                                                                                      : Url.Content("~/images/default-avatar.jpg"))"
+                                                                                                                                                       ? $"/images/{post.Author.ProfileImage.Id}/{post.Author.ProfileImage.FileName}"
+                                                                                                                                                       : Url.Content("~/images/default-avatar.jpg"))"
                                                  alt="@post.Author?.DisplayName" />
                                             <div class="post-author-text">
                                                 <span class="post-author">@post.Author?.DisplayName</span>
@@ -227,6 +197,17 @@
 </div>
 
 <style>
+    .profile-member-since {
+    color: #ffffff;
+    line-height: 1;
+    margin: 0;
+    }
+
+    .profile-member-since small {
+        display: inline-block;
+        margin: 0;
+        font-size: 0.85rem;
+    }
     .profile-page-shell {
         width: 100%;
         min-height: 85vh;
@@ -354,7 +335,7 @@
             background-color: #ffffff;
         }
 
-    /* Nedre layout med sidebar til venstre og hovedindhold til højre */
+    /* Nedre layout uden lokal sidebar */
     .profile-body-layout {
         display: flex;
         align-items: stretch;
@@ -363,105 +344,7 @@
         box-sizing: border-box;
     }
 
-    /* Sidebar i let off-white/grå med skillelinje til højre */
-    .profile-sidebar {
-        width: 210px;
-        flex-shrink: 0;
-        background-color: #f6f6f4;
-        border-right: 1px solid #deded9;
-        padding: 20px 12px;
-        transition: width 0.2s ease;
-        box-sizing: border-box;
-    }
-
-        .profile-sidebar.is-collapsed {
-            width: 56px;
-            padding: 20px 8px;
-        }
-
-            .profile-sidebar.is-collapsed .sidebar-tab-label {
-                display: none;
-            }
-
-            .profile-sidebar.is-collapsed .sidebar-first-row {
-                justify-content: center;
-            }
-
-            .profile-sidebar.is-collapsed .sidebar-tab {
-                display: none;
-            }
-
-    .sidebar-nav {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .sidebar-first-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        width: 100%;
-    }
-
-    .sidebar-tab {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-height: 38px;
-        background-color: transparent;
-        color: #1f2937;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.92rem;
-        padding: 7px 10px;
-        border-radius: 8px;
-        box-sizing: border-box;
-        transition: background-color 0.15s ease, color 0.15s ease;
-    }
-
-    .sidebar-tab-icon {
-        color: #56b837;
-        font-size: 1.1rem;
-        line-height: 1;
-        flex-shrink: 0;
-    }
-
-    .sidebar-tab:hover {
-        background-color: #e8f5e3;
-        color: #1e4d12;
-    }
-
-    .sidebar-toggle-form {
-        margin: 0;
-        flex-shrink: 0;
-    }
-
-    .sidebar-toggle-btn {
-        background-color: #ffffff;
-        color: #1f2937;
-        border: 1px solid #deded9;
-        border-radius: 8px;
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-    }
-
-        .sidebar-toggle-btn:hover {
-            background-color: #e8f5e3;
-            border-color: #56b837;
-            color: #1e4d12;
-        }
-
-    /* Hovedområde til højre */
+    /* Hovedområde */
     .profile-main {
         flex: 1 1 auto;
         min-width: 0;
