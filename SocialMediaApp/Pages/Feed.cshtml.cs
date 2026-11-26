@@ -60,8 +60,6 @@ namespace SocialMediaApp.Pages
                     return RedirectToPage("/Feed", new { tab = FeedTab.Recommended.ToString().ToLower(), page = 1 });
             }
 
-            Posts = await _postService.GetNewestFeedAsync(queryOptions, cancellationToken);
-
             return Page();
         }
 
