@@ -85,7 +85,6 @@
         grid-template-rows: repeat(2, 1fr);
         gap: 0.25rem;
         flex-wrap: nowrap;
-        aspect-ratio: 4 / 3;
 
         &:has(> :only-child) {
             grid-template-columns: 1fr;
@@ -97,6 +96,7 @@
         }
 
         &:has(> :nth-child(3):last-child) {
+            aspect-ratio: 4 / 3;
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(2, 1fr);
 
@@ -110,6 +110,7 @@
         }
 
         &:has(> :nth-child(4):last-child) {
+            aspect-ratio: 4 / 3;
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(2, 1fr);
         }
@@ -128,7 +129,6 @@
         display: block;
         height: 100%;
         width: 100%;
-        aspect-ratio: 4 / 3;
         object-fit: cover;
         transition: transform .35s ease, filter .35s ease;
     }
@@ -208,7 +208,7 @@
     }
 </style>
 
-<article class="post">
+<article class="post" id="post-@Model.PostDetails.Id">
     <div class="post-header">
         <img
             class="post-author-profile-picture"
@@ -247,13 +247,13 @@
     @if (Model.PostDetails.Images.Count > 0)
     {
     <div class="post-gallery-container">
-        <div class="post-image-gallery" id="post-image-gallery">
+        <div class="post-image-gallery" id="post-image-gallery-@Model.PostDetails.Id">
             @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
             {
 
             Image image = Model.PostDetails.Images[i];
 
-            <button type="button" class="post-image-card" data-index="@i" command="show-modal" commandfor="image-dialog">
+            <button type="button" class="post-image-card" data-index="@i">
                 <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
             </button>
             }
@@ -261,10 +261,10 @@
 
         <dialog id="image-dialog" class="lightbox">
             <div class="modal-content">
-                <button type="button" class="modal-nav prev" id="modal-prev" aria-label="Previous image">&#10094;</button>
-                <img id="modal-image" src="" alt="" />
-                <button type="button" class="modal-nav next" id="modal-next" aria-label="Next image">&#10095;</button>
-                <p id="image-caption"></p>
+                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                <img class="modal-image" src="" alt="" />
+                <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                <p class="image-caption"></p>
             </div>
         </dialog>
     </div>

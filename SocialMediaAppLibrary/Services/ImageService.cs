@@ -99,7 +99,7 @@ namespace SocialMediaAppLibrary.Services
                 {
                     return new Image()
                     {
-                        FileName = Guid.NewGuid().ToString(), // Generate a unique filename and to obscure the user's original filename for privacy.
+                        FileName = Guid.NewGuid().ToString() + ".webp", // Generate a unique filename and to obscure the user's original filename for privacy
                         AltText = string.Empty, // Alt text can be set later when saving the image
                         ImageData = imageData,
                         Width = image.Width,

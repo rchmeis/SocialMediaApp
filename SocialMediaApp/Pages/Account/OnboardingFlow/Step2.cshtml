@@ -1,63 +1,101 @@
 ﻿@page
 @model SocialMediaApp.Pages.Account.OnboardingFlow.Step2Model
 @using SocialMediaAppLibrary.Models
-@{    
+@{
     ViewData["Title"] = "Profilbillede - Trin 2";
+    bool hasPreview = Model.PreviewImage is not null &&
+                      Model.PreviewImage.ImageData is { Length: > 0 } &&
+                      Model.PreviewImage.FileSize > 0;
 }
 
-@if (Model.PreviewImage.Id >0)
-{
-    <hr />
-    <h1>Forhåndsvisning</h1>
-    <picture>
-        @if (Model.PreviewImage.Id > 0)
-        {
+<h1>Vælg profilbillede</h1>
+<p>Vælg et billede, klik på <strong>Forhåndsvis</strong>, og vælg derefter <strong>Gem og næste</strong> — eller <strong>Spring over</strong>.</p>
+
+<hr />
+
+<div class="preview-section">
+    <h2>Forhåndsvisning</h2>
+
+    @if (hasPreview)
+    {
+        <picture>
             <img class="avatar-round"
-                src="/images/@Model.PreviewImage.Id/@Model.PreviewImage.FileName"
-                 alt="@(Model.PreviewImage.AltText ?? "Profilbillede")"
+                 src="data:image/webp;base64,@Convert.ToBase64String(Model.PreviewImage!.ImageData)"
+                 alt="@(string.IsNullOrWhiteSpace(Model.PreviewImage.AltText) ? "Profilbillede" : Model.PreviewImage.AltText)"
                  width="@Model.PreviewImage.Width"
                  height="@Model.PreviewImage.Height" />
-        }
-        else if (Model.PreviewImage.ImageData is { Length: > 0 })
-        {
-            var base64 = Convert.ToBase64String(Model.PreviewImage.ImageData);
-            <img class="avatar-round" src="data:image/webp;base64,@base64"
-                 alt="@(Model.PreviewImage.AltText ?? "Profilbillede")"
-                 width="@Model.PreviewImage.Width"
-                 height="@Model.PreviewImage.Height" />
-        }
-    </picture>
-}
-else{
-    <img class="avatar-round" src="/images/default-avatar.jpg" alt="standard profilbilldee" />
-}
+        </picture>    
+    }
+    else
+    {
+        <img class="avatar-round"
+             src="/images/default-avatar.jpg"
+             alt="Standard profilbillede" />
+    }
+</div>
 
-
-<form method="post" enctype="multipart/form-data">
-    <div asp-validation-summary="All"></div>
+<form method="post" enctype="multipart/form-data" class="upload-form">
+    <div asp-validation-summary="All" class="validation-summary"></div>
 
     <div class="upload-row">
-        <label asp-for="UploadedImage" class="btn-upload">
-            @(Model.PreviewImage is not null ? "Skift billede" : "Vælg billede")
+        <label for="uploadedImageInput" class="btn-upload">
+            @(hasPreview ? "Vælg et andet billede" : "Vælg billede")
         </label>
-        <input asp-for="UploadedImage"
+
+        <input id="uploadedImageInput"
+               asp-for="UploadedImage"
                type="file"
-               accept=".jpg, .jpeg, .png, .webp"
+               accept=".jpg, .jpeg, .png, .webp, image/jpeg, image/png, image/webp"
                class="hidden-file-input" />
-        <span asp-validation-for="UploadedImage"></span>
+
+        <span id="selectedFileName" class="file-name">
+            @(hasPreview ? "Forhåndsvisning aktiv" : "Intet billede valgt")
+        </span>
+
+        <div>
+            <span asp-validation-for="UploadedImage" class="field-error"></span>
+        </div>
     </div>
 
     <div class="action-row">
-        <button asp-page-handler="Upload" type="submit" class="btn-secondary">Preview</button>
-        @if (Model.PreviewImage is not null)
+        <button asp-page-handler="Upload" type="submit" class="btn-secondary">
+            Forhåndsvis
+        </button>
+
+        @if (hasPreview)
         {
-            <button asp-page-handler="Save" type="submit" class="btn-save">Gem og næste</button>
+            <button asp-page-handler="Save" type="submit" class="btn-save">
+                Gem og næste
+            </button>
         }
+
+        <button asp-page-handler="Skip" type="submit" formnovalidate class="btn-skip">
+            Spring over
+        </button>
     </div>
 </form>
 
+<script>
+    (function () {
+        const input = document.getElementById("uploadedImageInput");
+        const fileNameLabel = document.getElementById("selectedFileName");
+
+        if (!input || !fileNameLabel) {
+            return;
+        }
+
+        input.addEventListener("change", function () {
+            if (input.files && input.files.length > 0) {
+                fileNameLabel.textContent = "Valgt fil: " + input.files[0].name + " — tryk Forhåndsvis";
+            }
+        });
+    })();
+</script>
 
 <style>
+    .preview-section {
+        margin-bottom: 16px;
+    }
 
     .avatar-round {
         width: 150px;
@@ -65,6 +103,12 @@ else{
         border-radius: 50%;
         object-fit: cover;
         display: block;
+    }
+
+    .status-text {
+        margin-top: 8px;
+        color: #334155;
+        font-size: 0.92rem;
     }
 
     .hidden-file-input {
@@ -82,11 +126,27 @@ else{
     .upload-row,
     .action-row {
         margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .file-name {
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    .field-error,
+    .validation-summary {
+        color: #dc2626;
+        font-size: 0.9rem;
     }
 
     .btn-upload,
     .btn-secondary,
-    .btn-save {
+    .btn-save,
+    .btn-skip {
         display: inline-block;
         padding: 8px 16px;
         border: none;
@@ -94,6 +154,7 @@ else{
         font-size: 1rem;
         font-weight: 500;
         cursor: pointer;
+        text-decoration: none;
     }
 
     .btn-upload,
@@ -114,5 +175,16 @@ else{
 
         .btn-save:hover {
             background-color: #1d4ed8;
+        }
+
+    .btn-skip {
+        background-color: transparent;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+
+        .btn-skip:hover {
+            background-color: #f8fafc;
+            color: #0f172a;
         }
 </style>

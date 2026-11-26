@@ -52,14 +52,14 @@ namespace SocialMediaAppLibrary.Repositories
                 CONCAT_WS(' ', s.first_name, s.last_name) AS display_name,
 
                 user_image.image_id   AS profile_image_id,
-                user_image.image_data AS profile_image_data,
+                user_image.file_name  AS profile_image_file_name,
+                user_image.alt_text   AS profile_image_alt_text,
                 user_image.height     AS profile_image_height,
                 user_image.width      AS profile_image_width,
 
                 i.image_id   AS post_image_id,
                 i.file_name  AS post_image_file_name,
                 i.alt_text   AS post_image_alt_text,
-                i.image_data AS post_image_data,
                 i.height     AS post_image_height,
                 i.width      AS post_image_width,
                 i.file_size  AS post_image_file_size,
@@ -101,11 +101,24 @@ namespace SocialMediaAppLibrary.Repositories
             }
 
             // Cache column ordinals
+            int postIdOrdinal = reader.GetOrdinal("post_id");
+            int userIdOrdinal = reader.GetOrdinal("user_id");
+            int displayNameOrdinal = reader.GetOrdinal("display_name");
+            int titleOrdinal = reader.GetOrdinal("title");
+            int contentOrdinal = reader.GetOrdinal("content");
+            int likesCountOrdinal = reader.GetOrdinal("likes_count");
+            int createdAtOrdinal = reader.GetOrdinal("created_at");
+            int updatedAtOrdinal = reader.GetOrdinal("updated_at");
+
             int profileImageIdOrdinal = reader.GetOrdinal("profile_image_id");
+            int profileImageFileNameOrdinal = reader.GetOrdinal("profile_image_file_name");
+            int profileImageAltTextOrdinal = reader.GetOrdinal("profile_image_alt_text");
+            int profileImageHeightOrdinal = reader.GetOrdinal("profile_image_height");
+            int profileImageWidthOrdinal = reader.GetOrdinal("profile_image_width");
+
             int postImageIdOrdinal = reader.GetOrdinal("post_image_id");
             int postImageFileNameOrdinal = reader.GetOrdinal("post_image_file_name");
             int postImageAltTextOrdinal = reader.GetOrdinal("post_image_alt_text");
-            int postImageDataOrdinal = reader.GetOrdinal("post_image_data");
             int postImageHeightOrdinal = reader.GetOrdinal("post_image_height");
             int postImageWidthOrdinal = reader.GetOrdinal("post_image_width");
             int postImageFileSizeOrdinal = reader.GetOrdinal("post_image_file_size");
@@ -118,30 +131,32 @@ namespace SocialMediaAppLibrary.Repositories
                 profileImage = new Image
                 {
                     Id = reader.GetInt32(profileImageIdOrdinal),
-                    ImageData = (byte[])reader["profile_image_data"],
-                    Height = reader.GetInt32(reader.GetOrdinal("profile_image_height")),
-                    Width = reader.GetInt32(reader.GetOrdinal("profile_image_width"))
+                    FileName = reader.GetString(profileImageFileNameOrdinal),
+                    AltText = reader.GetString(profileImageAltTextOrdinal),
+                    Height = reader.GetInt32(profileImageHeightOrdinal),
+                    Width = reader.GetInt32(profileImageWidthOrdinal)
                 };
             }
 
             // Populate the author's details
             UserSummary author = new UserSummary
             {
-                Id = reader.GetInt32(reader.GetOrdinal("user_id")),
-                DisplayName = reader.GetString(reader.GetOrdinal("display_name")),
+                Id = reader.GetInt32(userIdOrdinal),
+                DisplayName = reader.GetString(displayNameOrdinal),
                 ProfileImage = profileImage
             };
 
             // Populate the post's details
             Post post = new Post
             {
-                Id = reader.GetInt32(reader.GetOrdinal("post_id")),
+                Id = reader.GetInt32(postIdOrdinal),
                 Author = author,
-                Title = reader.GetString(reader.GetOrdinal("title")),
-                Content = reader.GetString(reader.GetOrdinal("content")),
-                LikesCount = reader.GetInt32(reader.GetOrdinal("likes_count")),
-                CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
-                UpdatedAt = reader.IsDBNull(reader.GetOrdinal("updated_at")) ? null : reader.GetDateTime(reader.GetOrdinal("updated_at"))
+                Title = reader.GetString(titleOrdinal),
+                Content = reader.GetString(contentOrdinal),
+                LikesCount = Convert.ToInt32(reader.GetValue(likesCountOrdinal)),
+                CreatedAt = reader.GetDateTime(createdAtOrdinal),
+                UpdatedAt = reader.IsDBNull(updatedAtOrdinal) ? null : reader.GetDateTime(updatedAtOrdinal),
+                Images = new List<Image>()
             };
 
             // Populate the post's associated images
@@ -155,20 +170,16 @@ namespace SocialMediaAppLibrary.Repositories
                         Id = reader.GetInt32(postImageIdOrdinal),
                         FileName = reader.GetString(postImageFileNameOrdinal),
                         AltText = reader.GetString(postImageAltTextOrdinal),
-                        ImageData = (byte[])reader[postImageDataOrdinal],
                         Height = reader.GetInt32(postImageHeightOrdinal),
                         Width = reader.GetInt32(postImageWidthOrdinal),
                         FileSize = reader.GetInt32(postImageFileSizeOrdinal),
-                        CreatedAt = reader.GetDateTime(postImageCreatedAtOrdinal),
+                        CreatedAt = reader.GetDateTime(postImageCreatedAtOrdinal)
                     };
 
-                    postImages.Add(postImage);
+                    post.Images.Add(postImage);
                 }
 
-            } while (await reader.ReadAsync());
-
-            // Assign the list of images to the post
-            post.Images = postImages;
+            } while (await reader.ReadAsync(cancellationToken));
 
             return post;
         }
@@ -237,8 +248,8 @@ namespace SocialMediaAppLibrary.Repositories
                     await using MySqlCommand command2 = new MySqlCommand(sql2, connection, transaction);
 
                     command2.Parameters.AddWithValue("@file_name", image.FileName);
-                    command2.Parameters.AddWithValue("@image_data", image.ImageData);
                     command2.Parameters.AddWithValue("@alt_text", image.AltText);
+                    command2.Parameters.AddWithValue("@image_data", image.ImageData);
                     command2.Parameters.AddWithValue("@height", image.Height);
                     command2.Parameters.AddWithValue("@width", image.Width);
                     command2.Parameters.AddWithValue("@file_size", image.FileSize);
@@ -304,6 +315,214 @@ namespace SocialMediaAppLibrary.Repositories
         }
 
         public Post Write(Post entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Retrieves a list of posts for the news feed paginated based on the provided query options.
+        /// The method fetches posts along with their associated author and images, ordered by creation date in descending order.
+        /// </summary>
+        /// <param name="paginationOptions">The pagination options</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>A list of posts for the news feed</returns>
+        public async Task<GenericPaginatedResult<Post>> ReadNewestFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
+        {
+            const string sql = """
+            SELECT
+                p.post_id,
+                p.author_id,
+                p.title,
+                p.content,
+                p.created_at,
+                p.updated_at,
+
+                COALESCE(likes.likes_count, 0) AS likes_count,
+
+                u.user_id,
+                CONCAT_WS(' ', s.first_name, s.last_name) AS display_name,
+
+                user_image.image_id AS profile_image_id,
+                user_image.file_name AS profile_image_file_name,
+                user_image.alt_text AS profile_image_alt_text,
+                user_image.height AS profile_image_height,
+                user_image.width AS profile_image_width,
+
+                i.image_id AS post_image_id,
+                i.file_name AS post_image_file_name,
+                i.alt_text AS post_image_alt_text,
+                i.height AS post_image_height,
+                i.width AS post_image_width,
+                i.file_size AS post_image_file_size,
+                i.created_at AS post_image_created_at
+
+            FROM (
+                SELECT
+                    post_id,
+                    author_id,
+                    title,
+                    content,
+                    created_at,
+                    updated_at
+                FROM posts
+                WHERE deleted_at IS NULL
+                ORDER BY created_at DESC, post_id DESC
+                LIMIT @page_size_plus_one OFFSET @offset
+            ) p                                                              -- Subquery to paginate the posts before joining with other 1:M tables, ensuring that the correct number of posts are fetched
+
+            LEFT JOIN (
+                SELECT
+                    post_id,
+                    COUNT(*) AS likes_count
+                FROM user_likes_post
+                GROUP BY post_id
+            ) likes ON p.post_id = likes.post_id                             -- Join the user_likes_post junction table to get the count of likes for each post with a subquery to avoid unnecessary row multiplication
+
+            LEFT JOIN post_images pi ON p.post_id = pi.post_id               -- Join the post_images junction table to get the associated images for the post
+
+            LEFT JOIN images i ON pi.image_id = i.image_id                   -- Join the images table to get the details of each image associated with the post
+
+            LEFT JOIN users u ON p.author_id = u.user_id                     -- Join the users table to get the author details for the post
+
+            LEFT JOIN students AS s ON u.user_id = s.user_id                 -- Join the students table to get the display name of the author
+
+            LEFT JOIN images user_image ON u.image_id = user_image.image_id  -- Join the images table to get the profile image of the author
+
+            ORDER BY p.created_at DESC, p.post_id DESC;
+            """;
+
+            const string countSql = """
+            SELECT COUNT(*)
+            FROM posts
+            WHERE deleted_at IS NULL;
+            """;
+
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync(cancellationToken);
+
+            // Get the total count of posts for pagination purposes
+            await using MySqlCommand countCommand = new MySqlCommand(countSql, connection);
+            int totalCount = Convert.ToInt32(await countCommand.ExecuteScalarAsync(cancellationToken));
+
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
+
+            // One extra post is fetched to determine if there are more posts available for the next page
+            command.Parameters.AddWithValue("@page_size_plus_one", paginationOptions.PageSize + 1);
+            command.Parameters.AddWithValue("@offset", (paginationOptions.PageNumber - 1) * paginationOptions.PageSize);
+
+            await using DbDataReader reader = await command.ExecuteReaderAsync(cancellationToken);
+
+            // Cache column ordinals
+            int postIdOrdinal = reader.GetOrdinal("post_id");
+            int userIdOrdinal = reader.GetOrdinal("user_id");
+            int displayNameOrdinal = reader.GetOrdinal("display_name");
+            int titleOrdinal = reader.GetOrdinal("title");
+            int contentOrdinal = reader.GetOrdinal("content");
+            int likesCountOrdinal = reader.GetOrdinal("likes_count");
+            int createdAtOrdinal = reader.GetOrdinal("created_at");
+            int updatedAtOrdinal = reader.GetOrdinal("updated_at");
+
+            int profileImageIdOrdinal = reader.GetOrdinal("profile_image_id");
+            int profileImageFileNameOrdinal = reader.GetOrdinal("profile_image_file_name");
+            int profileImageAltTextOrdinal = reader.GetOrdinal("profile_image_alt_text");
+            int profileImageHeightOrdinal = reader.GetOrdinal("profile_image_height");
+            int profileImageWidthOrdinal = reader.GetOrdinal("profile_image_width");
+
+            int postImageIdOrdinal = reader.GetOrdinal("post_image_id");
+            int postImageFileNameOrdinal = reader.GetOrdinal("post_image_file_name");
+            int postImageAltTextOrdinal = reader.GetOrdinal("post_image_alt_text");
+            int postImageHeightOrdinal = reader.GetOrdinal("post_image_height");
+            int postImageWidthOrdinal = reader.GetOrdinal("post_image_width");
+            int postImageFileSizeOrdinal = reader.GetOrdinal("post_image_file_size");
+            int postImageCreatedAtOrdinal = reader.GetOrdinal("post_image_created_at");
+
+            List<Post> posts = new List<Post>();
+
+            Post? currentPost = null;
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                int postId = reader.GetInt32(postIdOrdinal);
+
+                // Check whether we've reached a new post
+                if (currentPost == null || currentPost.Id != postId)
+                {
+                    // Populate the author's profile image if one exists
+                    Image? profileImage = null;
+
+                    if (!reader.IsDBNull(profileImageIdOrdinal))
+                    {
+                        profileImage = new Image
+                        {
+                            Id = reader.GetInt32(profileImageIdOrdinal),
+                            FileName = reader.GetString(profileImageFileNameOrdinal),
+                            AltText = reader.GetString(profileImageAltTextOrdinal),
+                            Height = reader.GetInt32(profileImageHeightOrdinal),
+                            Width = reader.GetInt32(profileImageWidthOrdinal)
+                        };
+                    }
+
+                    // Populate the author's details
+                    UserSummary author = new UserSummary
+                    {
+                        Id = reader.GetInt32(userIdOrdinal),
+                        DisplayName = reader.GetString(displayNameOrdinal),
+                        ProfileImage = profileImage
+                    };
+
+                    // Create the new post
+                    currentPost = new Post
+                    {
+                        Id = postId,
+                        Author = author,
+                        Title = reader.GetString(titleOrdinal),
+                        Content = reader.GetString(contentOrdinal),
+                        LikesCount = Convert.ToInt32(reader.GetValue(likesCountOrdinal)),
+                        CreatedAt = reader.GetDateTime(createdAtOrdinal),
+                        UpdatedAt = reader.IsDBNull(updatedAtOrdinal) ? null : reader.GetDateTime(updatedAtOrdinal),
+                        Images = new List<Image>()
+                    };
+
+                    posts.Add(currentPost);
+                }
+
+                // Populate the current post's associated images
+                if (!reader.IsDBNull(postImageIdOrdinal))
+                {
+                    Image postImage = new Image
+                    {
+                        Id = reader.GetInt32(postImageIdOrdinal),
+                        FileName = reader.GetString(postImageFileNameOrdinal),
+                        AltText = reader.GetString(postImageAltTextOrdinal),
+                        Height = reader.GetInt32(postImageHeightOrdinal),
+                        Width = reader.GetInt32(postImageWidthOrdinal),
+                        FileSize = reader.GetInt32(postImageFileSizeOrdinal),
+                        CreatedAt = reader.GetDateTime(postImageCreatedAtOrdinal)
+                    };
+
+                    currentPost.Images.Add(postImage);
+                }
+            }
+
+            // Determine whether another page exists
+            bool hasMore = posts.Count > paginationOptions.PageSize;
+
+            // Remove the extra post if one was fetched
+            if (hasMore)
+            {
+                posts.RemoveAt(posts.Count - 1);
+            }
+
+            return new GenericPaginatedResult<Post>
+            {
+                Items = posts,
+                HasMore = hasMore,
+                TotalCount = totalCount,
+                PageNumber = paginationOptions.PageNumber,
+                PageSize = paginationOptions.PageSize
+            };
+        }
+
+        public Task<GenericPaginatedResult<Post>> ReadRecommendedFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

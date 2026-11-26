@@ -11,10 +11,6 @@ namespace SocialMediaAppLibrary.Models
         public bool IsOnboarded { get; set; }
         public Course Course { get; set; }
         public Institute Institute { get; set; }
-        public List<Event> AttendingEvents { get; set; } = new List<Event>();
         public List<string> Interests { get; set; } = new List<string>();
-        public List<UserSummary> Following { get; set; } = new List<UserSummary>();        
-        public List<UserSummary> BlockedUsers { get; set; } = new List<UserSummary>();
-
     }
 }

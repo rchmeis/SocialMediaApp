@@ -34,7 +34,7 @@ namespace SocialMediaAppLibrary.Services
             foreach (IFormFile formFile in formFiles)
             {
                 Image optimizedImage = await _imageService.OptimizeImageAsync(formFile);
-                optimizedImage.AltText = post.Content; // Hack: Set the alt text for the image to the post's content
+                optimizedImage.AltText = optimizedImage.FileName; // Hack: Set AltText to the file name, as we don't have a separate alt text input
                 post.Images.Add(optimizedImage);
             }
 
@@ -46,6 +46,19 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Retrieves a list of posts for the news feed, paginated based on the provided query options.
+        /// The method fetches posts along with their associated author and images, ordered by creation date
+        /// </summary>
+        /// <param name="paginationOptions">The pagination options</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>A list of posts for the news feed</returns>
+        public async Task<GenericPaginatedResult<Post>> GetNewestFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken)
+        {
+            return await _postRepository.ReadNewestFeedAsync(paginationOptions, cancellationToken);
+        }
+
         public List<Post> ReadAll()
         {
             throw new NotImplementedException();

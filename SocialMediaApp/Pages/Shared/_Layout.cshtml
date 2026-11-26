@@ -21,7 +21,7 @@ bool IsActive(string prefix) => currentPath.StartsWith(prefix);
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SocialMediaApp.styles.css" asp-append-version="true" />
     <script defer type="module" src="~/js/createPost.js"></script>
-    <script defer type="module" src="~/js/postDetailImageCarousel.js"></script>
+    <script defer type="module" src="~/js/postGalleryCarousel.js"></script>
 </head>
 
 
@@ -107,7 +107,7 @@ bool IsActive(string prefix) => currentPath.StartsWith(prefix);
                             </a>
                         }
                     </li>
-
+                    
                     <li>
                         @if (IsActive("/events"))
                         {
@@ -182,8 +182,9 @@ bool IsActive(string prefix) => currentPath.StartsWith(prefix);
                     <li><a class="dropdown-item" href="#">Opret event</a></li>
                 </ul>
             </div>
-        </div>
+        </div> 
     }
+            
 
     <!-- Render Page -->
     <main role="main" class="app-body">
@@ -215,10 +216,8 @@ bool IsActive(string prefix) => currentPath.StartsWith(prefix);
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        © 2026 StudentHub
-    </div>
+<footer class="app-footer">
+    © 2026 StudentHub · <a asp-area="" asp-page="/Privacy">Privatlivspolitik</a>
 </footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
