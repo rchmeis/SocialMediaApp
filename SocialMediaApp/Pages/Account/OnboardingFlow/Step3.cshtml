@@ -10,7 +10,15 @@
     
     <!-- Input image here once step 2 is done to see how the image is handled!-->
     <div class="image">
-        <img >
+        @if (Model.ProfilePicture is not null)
+        {
+            <img src="data:image/webp;base64,@Convert.ToBase64String(Model.ProfilePicture.ImageData)"
+                 alt="@Model.ProfilePicture.AltText" />
+        }
+        else
+        {
+            <img src="~/images/default-avatar.png" alt="Standard profilbillede" />
+        }
     </div>
     <!-- ......................... -->
     
