@@ -1,11 +1,9 @@
-using System;
-
 namespace SocialMediaAppLibrary.Models;
 
 /// <summary>
-/// Represents the query options for fetching list of posts.
+/// Represents the query options for fetching a list of posts.
 /// </summary>
-public struct PaginationOptions
+public sealed record PaginationOptions
 {
     /// <summary>
     /// Gets the page number for pagination.
@@ -14,6 +12,7 @@ public struct PaginationOptions
     /// Default value is 1.
     /// </summary>
     public int PageNumber { get; init; } = 1;
+
     /// <summary>
     /// Gets the page size for pagination.
     /// Must be non-negative.
@@ -23,7 +22,12 @@ public struct PaginationOptions
     public int PageSize { get; init; } = 20;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PaginationOptions"/> struct with the specified page number and page size.
+    /// Initializes a new instance of the <see cref="PaginationOptions"/> record with default values.
+    /// </summary>
+    public PaginationOptions() { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PaginationOptions"/> record with the specified page number and page size.
     /// </summary>
     /// <param name="pageNumber">The page number. Must be non-negative.</param>
     /// <param name="pageSize">The page size. Must be non-negative.</param>

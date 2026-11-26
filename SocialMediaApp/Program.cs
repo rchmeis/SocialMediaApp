@@ -109,6 +109,8 @@ namespace SocialMediaApp
             builder.Services.AddScoped<IVerificationService, VerificationService>();
             builder.Services.AddScoped<IInterestService, InterestService>();
             builder.Services.AddScoped<IInterestRepository, InterestRepository>();
+            builder.Services.AddScoped<ILikeService, LikeService>();
+            builder.Services.AddScoped<ILikeRepository, LikeRepository>();
             
             var app = builder.Build();
 
