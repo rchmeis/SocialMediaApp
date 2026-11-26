@@ -225,26 +225,26 @@
         cursor: pointer;
         background-color: var(--heart-color);
         mask: var(--heart-icon) no-repeat center / contain;
+    }
 
-        &.solid-heart {
-            --heart-color: hsl(0 95% 55%);
-            --heart-icon: url("/images/solid-heart.svg");
+    .post-likes-actions > button.solid-heart {
+        --heart-color: hsl(0 95% 55%);
+        --heart-icon: url("/images/solid-heart.svg");
+    }
 
-            &:hover {
-                --heart-color: hsl(0 0% 0%);
-                --heart-icon: url("/images/outline-heart.svg");
-            }
-        }
+    .post-likes-actions > button.outline-heart {
+        --heart-color: hsl(0 0% 0%);
+        --heart-icon: url("/images/outline-heart.svg");
+    }
 
-        &.outline-heart {
-            --heart-color: hsl(0 0% 0%);
-            --heart-icon: url("/images/outline-heart.svg");
+    .post-likes-actions > button.solid-heart:hover {
+        --heart-color: hsl(0 0% 0%);
+        --heart-icon: url("/images/outline-heart.svg");
+    }
 
-            &:hover {
-                --heart-color: hsl(0 95% 55%);
-                --heart-icon: url("/images/solid-heart.svg");
-            }
-        }
+    .post-likes-actions > button.outline-heart:hover {
+        --heart-color: hsl(0 95% 55%);
+        --heart-icon: url("/images/solid-heart.svg");
     }
 </style>
 
