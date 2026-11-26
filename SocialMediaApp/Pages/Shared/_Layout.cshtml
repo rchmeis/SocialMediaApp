@@ -1,122 +1,230 @@
 ﻿@using System.Security.Claims
+
+<!-- Properties for reusability -->
+@{
+var isLoggedIn = User.Identity?.IsAuthenticated == true;
+var currentPath = Context.Request.Path.Value?.ToLower() ?? ""; // Getting page path and put it into a string
+
+// Used to highlight the active tab in the sidebar
+bool IsActive(string prefix) => currentPath.StartsWith(prefix);
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SocialMediaApp</title>
+    <title>@ViewData["Title"] – StudentHub</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SocialMediaApp.styles.css" asp-append-version="true" />
     <script defer type="module" src="~/js/createPost.js"></script>
     <script defer type="module" src="~/js/postDetailImageCarousel.js"></script>
 </head>
+
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">SocialMediaApp</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
 
-                    <ul class="navbar-nav align-items-center ms-auto">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+<!-- Header bar-->
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
+        <div class="container">
+            <a class="navbar-brand" asp-area="" asp-page="/Index">StudentHub</a>
+            <div>
+                
+                <ul class="navbar-nav align-items-center ms-auto">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        // 1. Retrieve data directly from cookie claims                            
+                        var displayName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity.Name;
+                        var imageId = User.FindFirst("ImageId")?.Value;
+
+                        // 2. WHEN USER IS LOGGED IN (Show image, name, and logout button)
+                        <li class="nav-item">
+                            <details class="profile-menu">
+                                <summary>
+                                    @if (!string.IsNullOrEmpty(imageId))
+                                    {
+                                        <!-- Calls our handler that fetches byte[] from the database -->
+                                        <img src="/Index?handler=UserImage&id=@imageId" alt="Profilmenu" />
+                                    }
+                                    else
+                                    {
+                                        <img src="~/images/default-avatar.jpg" alt="Profilmenu" />
+                                    }
+                                </summary>
+
+                                <div class="profile-menu-list">
+                                    <span class="profile-menu-name">@displayName</span>
+                                    <a asp-page="/Account/Profile/Index">Se profil</a>
+                                    <a asp-page="/Account/Inbox/Index">Indbakke</a>
+                                    <a asp-page="/Account/Profile/EditProfile">Rediger profil</a>
+                                    <form method="post" asp-page="/Account/SignOut">
+                                        <button type="submit">Log ud</button>
+                                    </form>
+                                </div>
+                            </details>
+                        </li>
+                    }
+                    else
+                    {
+                        // 3. WHEN USER IS LOGGED OUT (Show login button only)
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm" asp-page="/Account/SignIn">Login</a>
+                            <a class="btn btn-secondary btn-sm" asp-page="/Account/Signupflow/step1">Opret Bruger</a>
+
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="app-body">
+    
+    <!-- Sidebar -->
+    @if (isLoggedIn)
+    {
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <nav aria-label="Hovednavigation">
+                <ul class="sidebar-nav">
+
+                    <li>
+                        @if (IsActive("/feed"))
                         {
-                            // 1. Retrieve data directly from cookie claims                            
-                            var displayName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity.Name;
-                            var imageId = User.FindFirst("ImageId")?.Value;
-
-                            // 2. WHEN USER IS LOGGED IN (Show image, name, and logout button)
-                            <li class="nav-item d-flex align-items-center me-3">
-                                @if (!string.IsNullOrEmpty(imageId))
-                                {
-                                    <!-- Calls our handler that fetches byte[] from the database -->
-                                    <img src="/Index?handler=UserImage&id=@imageId" 
-                                         alt="Profile picture" 
-                                         class="rounded-circle me-2" 
-                                         style="width: 35px; height: 35px; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <img src="~/images/default-avatar.jpg" 
-                                         alt="Standard profile picture" 
-                                         class="rounded-circle me-2" 
-                                         style="width: 35px; height: 35px; object-fit: cover;" />
-                                }
-
-                                <span class="text-dark fw-medium me-3">Hello, @displayName</span>
-                            </li>
-
-                            <li class="nav-item">
-                                <form method="post" asp-page="/Account/SignOut" class="form-inline m-0">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Log out</button>
-                                </form>
-                            </li>
+                            <a asp-page="/Feed" class="sidebar-link active" aria-current="page">
+                                <span>Feed / Nyheder</span>
+                            </a>
                         }
                         else
                         {
-                            // 3. WHEN USER IS LOGGED OUT (Show login button only)
-                            <li class="nav-item">
-                                <a class="btn btn-primary btn-sm" asp-page="/Account/SignIn">Login</a>
-                            </li>
+                            <a asp-page="/Feed" class="sidebar-link">
+                                <span>Feed / Nyheder</span>
+                            </a>
                         }
-                    </ul>
-                </div>
-            </div>            
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @if (Context.Request.Query["accessDenied"] == "true")
-            {
-                <div class="alert alert-warning alert-dismissible fade show rounded-0 mb-0 text-center" role="alert">
-                    <strong>Advarsel:</strong> Du har ikke tilladelse til at udføre denne handling eller tilgå den side.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
-            
-            @if (TempData["Success"] is string success)
-            {
-                <div class="success-div" role="alert">
-                    @success
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Luk"></button>
-                </div>
-            }
-            
-            @if (TempData["Error"] is string error)
-            {
-                <div class="error-div" role="alert">
-                    @error
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Luk"></button>
-                </div>
-            }
-            
-            @RenderBody()
-        </main>
-    </div>
+                    </li>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - SocialMediaApp - <a asp-area="" asp-page="/Privacy">Privacy</a>
+                    <li>
+                        @if (IsActive("/events"))
+                        {
+                            <a asp-page="/Events/Index" class="sidebar-link active" aria-current="page">
+                                <span>Events / Offline Meets</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-page="/Events/Index" class="sidebar-link">
+                                <span>Events / Offline Meets</span>
+                            </a>
+                        }
+                    </li>
+
+                    <li>
+                        @if (IsActive("/marketplace"))
+                        {
+                            <a asp-page="/MarketPlace/Index" class="sidebar-link active" aria-current="page">
+                                <span>Bytte / Salg</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-page="/MarketPlace/Index" class="sidebar-link">
+                                <span>Bytte / Salg</span>
+                            </a>
+                        }
+                    </li>
+
+                    <li>
+                        @if (IsActive("/studentjobs"))
+                        {
+                            <a asp-page="/StudentJobs/Index" class="sidebar-link active" aria-current="page">
+                                <span>Studiejobs</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-page="/StudentJobs/Index" class="sidebar-link">
+                                <span>Studiejobs</span>
+                            </a>
+                        }
+                    </li>
+
+                    <li>
+                        @if (IsActive("/account/profile/connections"))
+                        {
+                            <a asp-page="/Account/Profile/Connections" class="sidebar-link active" aria-current="page">
+                                <span>Mit Netværk</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-page="/Account/Profile/Connections" class="sidebar-link">
+                                <span>Mit Netværk</span>
+                            </a>
+                        }
+                    </li>
+
+                </ul>
+            </nav>
+
+            <!-- "+ Opret" i bunden -->
+            <div class="dropup sidebar-create-wrapper">
+                <button class="sidebar-create" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    <span>Opret</span>
+                </button>
+                <ul class="dropdown-menu w-100">
+                    <li><a class="dropdown-item" href="#">Opret opslag</a></li>
+                    <li><a class="dropdown-item" href="#">Opret event</a></li>
+                </ul>
+            </div>
         </div>
-    </footer>
+    }
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Render Page -->
+    <main role="main" class="app-body">
+        @if (Context.Request.Query["accessDenied"] == "true")
+        {
+            <div class="alert alert-warning alert-dismissible fade show rounded-0 mb-0 text-center" role="alert">
+                <strong>Advarsel:</strong> Du har ikke tilladelse til at udføre denne handling eller tilgå den side.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
 
-    @await RenderSectionAsync("Scripts", required: false)
+        @if (TempData["Success"] is string success)
+        {
+            <div class="success-div" role="alert">
+                @success
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Luk"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] is string error)
+        {
+            <div class="error-div" role="alert">
+                @error
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Luk"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container">
+        © 2026 StudentHub
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
