@@ -151,7 +151,7 @@ namespace SocialMediaAppLibrary.Repositories
             {
                 Id = reader.GetInt32(postIdOrdinal),
                 Author = author,
-                Title = reader.GetString(titleOrdinal),
+                Title = reader.IsDBNull(titleOrdinal) ? null : reader.GetString(titleOrdinal),
                 Content = reader.GetString(contentOrdinal),
                 LikesCount = Convert.ToInt32(reader.GetValue(likesCountOrdinal)),
                 CreatedAt = reader.GetDateTime(createdAtOrdinal),
@@ -474,7 +474,7 @@ namespace SocialMediaAppLibrary.Repositories
                     {
                         Id = postId,
                         Author = author,
-                        Title = reader.GetString(titleOrdinal),
+                        Title = reader.IsDBNull(titleOrdinal) ? null : reader.GetString(titleOrdinal),
                         Content = reader.GetString(contentOrdinal),
                         LikesCount = Convert.ToInt32(reader.GetValue(likesCountOrdinal)),
                         CreatedAt = reader.GetDateTime(createdAtOrdinal),
