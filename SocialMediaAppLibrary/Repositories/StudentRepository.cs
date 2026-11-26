@@ -9,11 +9,62 @@ namespace SocialMediaAppLibrary.Repositories
     /// <summary>
     /// Repository responsible for persisting, querying, updating, and soft-deleting
     /// <see cref="Student"/> entities and their associated <c>users</c>, <c>images</c>,
+    /// <c>institutes</c>, <c>cities</c>, <c>courses</c>, <c>fields_of_study</c>,
     /// and <c>user_interests</c> records in MySQL.
     /// </summary>
     public class StudentRepository : IStudentRepository
     {
         private readonly IDbConnect _db;
+
+        private const string StudentSelectColumns = """
+            u.user_id,
+            u.user_auth_id,
+            u.bio,
+            u.image_id,
+            u.created_at,
+            u.deleted_at,
+
+            s.first_name,
+            s.last_name,
+            s.is_onboarded,
+            s.institute_id,
+            s.course_id,
+
+            img.image_id AS img_id,
+            img.file_name,
+            img.alt_text,
+            img.image_data,
+            img.height,
+            img.width,
+            img.file_size,
+            img.created_at AS img_created_at,
+
+            inst.institute_id AS inst_id,
+            inst.name AS institute_name,
+            inst.domain_name AS institute_domain_name,
+            inst.city_id AS inst_city_id,
+
+            c.city_id AS city_id,
+            c.name AS city_name,
+            c.postal_code AS city_postal_code,
+
+            co.course_id AS co_id,
+            co.name AS course_name,
+            co.field_of_study_id AS co_field_of_study_id,
+
+            fos.field_of_study_id AS fos_id,
+            fos.name AS field_of_study_name
+            """;
+
+        private const string StudentJoins = """
+            FROM users u
+            INNER JOIN students s ON s.user_id = u.user_id
+            LEFT JOIN images img ON img.image_id = u.image_id
+            LEFT JOIN institutes inst ON inst.institute_id = s.institute_id
+            LEFT JOIN cities c ON c.city_id = inst.city_id
+            LEFT JOIN courses co ON co.course_id = s.course_id
+            LEFT JOIN fields_of_study fos ON fos.field_of_study_id = co.field_of_study_id
+            """;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StudentRepository"/> class.
@@ -29,9 +80,6 @@ namespace SocialMediaAppLibrary.Repositories
         /// <c>users</c>, assigning the generated primary key to <see cref="User.Id"/>, inserting into
         /// <c>students</c>, and synchronizing <see cref="Student.Interests"/> in <c>user_interests</c>.
         /// </summary>
-        /// <param name="student">The student entity to persist.</param>
-        /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
-        /// <returns>The persisted <see cref="Student"/> instance with <see cref="User.Id"/> populated.</returns>
         public async Task<Student> WriteAsync(Student student, CancellationToken cancellationToken = default)
         {
             MySqlTransaction? transaction = null;
@@ -113,41 +161,17 @@ namespace SocialMediaAppLibrary.Repositories
 
         /// <summary>
         /// Retrieves a single active (non-deleted) <see cref="Student"/> by user identifier,
-        /// including its full <see cref="Image"/> and <see cref="Student.Interests"/> list.
+        /// including its full <see cref="Image"/>, <see cref="Institute"/>, <see cref="City"/>,
+        /// <see cref="Course"/>, and <see cref="Student.Interests"/> list.
         /// </summary>
-        /// <param name="userId">The unique user/student identifier.</param>
-        /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
-        /// <returns>
-        /// The matching <see cref="Student"/> if found and not soft-deleted; otherwise <see langword="null"/>.
-        /// </returns>
         public async Task<Student?> ReadByIdAsync(int userId, CancellationToken cancellationToken = default)
         {
             await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
 
-            const string selectStudentQuery = """
+            string selectStudentQuery = $"""
                 SELECT
-                    u.user_id,
-                    u.user_auth_id,
-                    u.bio,
-                    u.image_id,
-                    u.created_at,
-                    u.deleted_at,
-                    s.first_name,
-                    s.last_name,
-                    s.is_onboarded,
-                    s.institute_id,
-                    s.course_id,
-                    img.image_id AS img_id,
-                    img.file_name,
-                    img.alt_text,
-                    img.image_data,
-                    img.height,
-                    img.width,
-                    img.file_size,
-                    img.created_at AS img_created_at
-                FROM users u
-                INNER JOIN students s ON s.user_id = u.user_id
-                LEFT JOIN images img ON img.image_id = u.image_id
+                    {StudentSelectColumns}
+                {StudentJoins}
                 WHERE u.user_id = @user_id
                   AND u.deleted_at IS NULL;
                 """;
@@ -177,10 +201,14 @@ namespace SocialMediaAppLibrary.Repositories
             await using MySqlCommand interestsCmd = new MySqlCommand(selectInterestsQuery, connection);
             interestsCmd.Parameters.AddWithValue("@user_id", userId);
 
-            await using var interestReader = await interestsCmd.ExecuteReaderAsync(cancellationToken);
+            await using DbDataReader interestReader = await interestsCmd.ExecuteReaderAsync(cancellationToken);
+            int nameOrdinal = interestReader.GetOrdinal("name");
             while (await interestReader.ReadAsync(cancellationToken))
             {
-                student.Interests.Add(interestReader.GetString(interestReader.GetOrdinal("name")));
+                if (!interestReader.IsDBNull(nameOrdinal))
+                {
+                    student.Interests.Add(interestReader.GetString(nameOrdinal));
+                }
             }
 
             return student;
@@ -188,45 +216,24 @@ namespace SocialMediaAppLibrary.Repositories
 
         /// <summary>
         /// Retrieves all active (non-deleted) <see cref="Student"/> records along with their
-        /// full <see cref="Image"/> and associated <see cref="Student.Interests"/>.
+        /// full <see cref="Image"/>, <see cref="Institute"/>, <see cref="City"/>, <see cref="Course"/>,
+        /// and associated <see cref="Student.Interests"/>.
         /// </summary>
-        /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
-        /// <returns>A list of all active <see cref="Student"/> entities.</returns>
         public async Task<List<Student>> ReadAllAsync(CancellationToken cancellationToken = default)
         {
             await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
 
-            const string selectStudentsQuery = """
+            string selectStudentsQuery = $"""
                 SELECT
-                    u.user_id,
-                    u.user_auth_id,
-                    u.bio,
-                    u.image_id,
-                    u.created_at,
-                    u.deleted_at,
-                    s.first_name,
-                    s.last_name,
-                    s.is_onboarded,
-                    s.institute_id,
-                    s.course_id,
-                    img.image_id AS img_id,
-                    img.file_name,
-                    img.alt_text,
-                    img.image_data,
-                    img.height,
-                    img.width,
-                    img.file_size,
-                    img.created_at AS img_created_at
-                FROM users u
-                INNER JOIN students s ON s.user_id = u.user_id
-                LEFT JOIN images img ON img.image_id = u.image_id
+                    {StudentSelectColumns}
+                {StudentJoins}
                 WHERE u.deleted_at IS NULL;
                 """;
 
             var studentsById = new Dictionary<int, Student>();
 
             await using (MySqlCommand cmd = new MySqlCommand(selectStudentsQuery, connection))
-            await using (var reader = await cmd.ExecuteReaderAsync(cancellationToken))
+            await using (DbDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken))
             {
                 while (await reader.ReadAsync(cancellationToken))
                 {
@@ -251,7 +258,7 @@ namespace SocialMediaAppLibrary.Repositories
                 """;
 
             await using MySqlCommand interestsCmd = new MySqlCommand(selectAllInterestsQuery, connection);
-            await using var interestReader = await interestsCmd.ExecuteReaderAsync(cancellationToken);
+            await using DbDataReader interestReader = await interestsCmd.ExecuteReaderAsync(cancellationToken);
 
             int interestUserIdOrdinal = interestReader.GetOrdinal("user_id");
             int interestNameOrdinal = interestReader.GetOrdinal("name");
@@ -259,7 +266,8 @@ namespace SocialMediaAppLibrary.Repositories
             while (await interestReader.ReadAsync(cancellationToken))
             {
                 int userId = interestReader.GetInt32(interestUserIdOrdinal);
-                if (studentsById.TryGetValue(userId, out Student? student))
+                if (!interestReader.IsDBNull(interestNameOrdinal) &&
+                    studentsById.TryGetValue(userId, out Student? student))
                 {
                     student.Interests.Add(interestReader.GetString(interestNameOrdinal));
                 }
@@ -272,12 +280,6 @@ namespace SocialMediaAppLibrary.Repositories
         /// Updates an existing active <see cref="Student"/>, its underlying <c>users</c> row, and its
         /// <see cref="Student.Interests"/> in <c>user_interests</c> within a database transaction.
         /// </summary>
-        /// <param name="id">The identifier of the student/user to update.</param>
-        /// <param name="student">The updated student data.</param>
-        /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
-        /// <returns>
-        /// The updated <see cref="Student"/> if found and active; otherwise <see langword="null"/>.
-        /// </returns>
         public async Task<Student?> UpdateAsync(int id, Student student, CancellationToken cancellationToken = default)
         {
             MySqlTransaction? transaction = null;
@@ -338,7 +340,9 @@ namespace SocialMediaAppLibrary.Repositories
 
                 await transaction.CommitAsync(cancellationToken);
                 await transaction.DisposeAsync();
-                return student;
+
+                // Hent den fuldt opdaterede student inkl. joined institute, city, course og interests
+                return await ReadByIdAsync(id, cancellationToken);
             }
             catch
             {
@@ -355,12 +359,6 @@ namespace SocialMediaAppLibrary.Repositories
         /// Soft-deletes an active <see cref="Student"/> by setting <c>deleted_at</c> on the underlying
         /// <c>users</c> row and returns the deleted student snapshot.
         /// </summary>
-        /// <param name="userId">The identifier of the student/user to soft-delete.</param>
-        /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
-        /// <returns>
-        /// The soft-deleted <see cref="Student"/> with <see cref="User.DeletedAt"/> populated if found;
-        /// otherwise <see langword="null"/>.
-        /// </returns>
         public async Task<Student?> DeleteAsync(int userId, CancellationToken cancellationToken = default)
         {
             Student? student = await ReadByIdAsync(userId, cancellationToken);
@@ -412,14 +410,18 @@ namespace SocialMediaAppLibrary.Repositories
         }
 
         /// <summary>
-        /// Maps a joined <c>users</c>, <c>students</c>, and <c>images</c> row into a <see cref="Student"/> instance.
+        /// Maps a joined <c>users</c>, <c>students</c>, <c>images</c>, <c>institutes</c>,
+        /// <c>cities</c>, <c>courses</c>, and <c>fields_of_study</c> row into a <see cref="Student"/> instance.
         /// </summary>
-        /// <param name="reader">Active data reader positioned at a valid student row.</param>
-        /// <returns>A populated <see cref="Student"/> instance.</returns>
         private static Student MapStudent(DbDataReader reader)
         {
             int imageIdOrdinal = reader.GetOrdinal("image_id");
             int imgIdOrdinal = reader.GetOrdinal("img_id");
+            int instIdOrdinal = reader.GetOrdinal("inst_id");
+            int cityIdOrdinal = reader.GetOrdinal("city_id");
+            int courseIdOrdinal = reader.GetOrdinal("co_id");
+            int fosIdOrdinal = reader.GetOrdinal("fos_id");
+            int bioOrdinal = reader.GetOrdinal("bio");
             int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
 
             Image? image = null;
@@ -450,11 +452,52 @@ namespace SocialMediaAppLibrary.Repositories
                 };
             }
 
+            City? city = null;
+            if (!reader.IsDBNull(cityIdOrdinal))
+            {
+                int postalCodeOrdinal = reader.GetOrdinal("city_postal_code");
+                city = new City
+                {
+                    Id = reader.GetInt32(cityIdOrdinal),
+                    Name = reader.GetString(reader.GetOrdinal("city_name")),
+                    PostalCode = reader.IsDBNull(postalCodeOrdinal)
+                        ? string.Empty
+                        : reader.GetValue(postalCodeOrdinal).ToString() ?? string.Empty
+                };
+            }
+
+            Institute? institute = null;
+            if (!reader.IsDBNull(instIdOrdinal))
+            {
+                int domainOrdinal = reader.GetOrdinal("institute_domain_name");
+                institute = new Institute
+                {
+                    Id = reader.GetInt32(instIdOrdinal),
+                    Name = reader.GetString(reader.GetOrdinal("institute_name")),
+                    DomainName = reader.IsDBNull(domainOrdinal) ? null : reader.GetString(domainOrdinal),
+                    City = city
+                };
+            }
+
+            Course? course = null;
+            if (!reader.IsDBNull(courseIdOrdinal))
+            {
+                int fosNameOrdinal = reader.GetOrdinal("field_of_study_name");
+                course = new Course
+                {
+                    Id = reader.GetInt32(courseIdOrdinal),
+                    Name = reader.GetString(reader.GetOrdinal("course_name")),
+                    FieldOfStudy = reader.IsDBNull(fosIdOrdinal) || reader.IsDBNull(fosNameOrdinal)
+                        ? null
+                        : reader.GetString(fosNameOrdinal)
+                };
+            }
+
             return new Student
             {
                 Id = reader.GetInt32(reader.GetOrdinal("user_id")),
                 UserAuthenticationId = reader.GetInt32(reader.GetOrdinal("user_auth_id")),
-                Bio = reader.GetString(reader.GetOrdinal("bio")),
+                Bio = reader.IsDBNull(bioOrdinal) ? null : reader.GetString(bioOrdinal),
                 Image = image,
                 CreatedAt = reader.GetDateTime(reader.GetOrdinal("created_at")),
                 DeletedAt = reader.IsDBNull(deletedAtOrdinal)
@@ -463,20 +506,12 @@ namespace SocialMediaAppLibrary.Repositories
                 FirstName = reader.GetString(reader.GetOrdinal("first_name")),
                 LastName = reader.GetString(reader.GetOrdinal("last_name")),
                 IsOnboarded = reader.GetBoolean(reader.GetOrdinal("is_onboarded")),
-                Institute = new Institute { Id = reader.GetInt32(reader.GetOrdinal("institute_id")) },
-                Course = new Course { Id = reader.GetInt32(reader.GetOrdinal("course_id")) },
+                Institute = institute,
+                Course = course,
                 Interests = new List<string>()
             };
         }
 
-        /// <summary>
-        /// Replaces all <c>user_interests</c> mappings for the specified user with the provided interest names.
-        /// </summary>
-        /// <param name="connection">An open <see cref="MySqlConnection"/> participating in the transaction.</param>
-        /// <param name="transaction">The active <see cref="MySqlTransaction"/> for the operation.</param>
-        /// <param name="userId">The identifier of the user whose interests are being synchronized.</param>
-        /// <param name="interests">Collection of interest names to assign to the user.</param>
-        /// <param name="cancellationToken">Token used to cancel the asynchronous database operation.</param>
         private static async Task SyncUserInterestsAsync(
             MySqlConnection connection,
             MySqlTransaction transaction,
