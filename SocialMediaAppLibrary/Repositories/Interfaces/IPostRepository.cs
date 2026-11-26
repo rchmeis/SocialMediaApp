@@ -9,5 +9,6 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
     {
         public Task<GenericPaginatedResult<Post>> ReadNewestFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken);
         public Task<GenericPaginatedResult<Post>> ReadRecommendedFeedAsync(PaginationOptions paginationOptions, CancellationToken cancellationToken);
+        public Task<GenericPaginatedResult<Post>> ReadFeedByIdAsync(int id, PaginationOptions paginationOptions, CancellationToken cancellation);
     }
 }

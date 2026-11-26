@@ -47,6 +47,11 @@ namespace SocialMediaAppLibrary.Services
             throw new NotImplementedException();
         }
 
+        public Task<GenericPaginatedResult<Post>> GetFeedByIdAsync(int id, PaginationOptions queryOptions, CancellationToken cancellationToken)
+        {
+            return _postRepository.ReadFeedByIdAsync(id, queryOptions, cancellationToken);
+        }
+
         /// <summary>
         /// Retrieves a list of posts for the news feed, paginated based on the provided query options.
         /// The method fetches posts along with their associated author and images, ordered by creation date
