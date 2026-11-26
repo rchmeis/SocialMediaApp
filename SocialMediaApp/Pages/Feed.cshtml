@@ -7,6 +7,10 @@
 }
 
 <style>
+    :root {
+        scroll-behavior: auto !important; /* Override bootstrap scroll behavior */
+    }
+
     .tab-navigation {
         display: flex;
         justify-content: center;
@@ -250,11 +254,51 @@
     .post-footer {
         display: flex;
         flex-direction: row;
+        align-items: center;
         gap: 1rem;
         padding: 0 1.5rem 1.5rem 1.5rem;
         font-size: 0.875rem;
         font-weight: 500;
         color: hsl(0 0% 33%);
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .post-likes {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .post-likes-actions > button {
+        border: none;
+        padding: 0.75rem;
+        cursor: pointer;
+        background-color: var(--heart-color);
+        mask: var(--heart-icon) no-repeat center / contain;
+    }
+
+    .post-likes-actions > button.solid-heart {
+        --heart-color: hsl(0 95% 55%);
+        --heart-icon: url("/images/solid-heart.svg");
+    }
+
+    .post-likes-actions > button.outline-heart {
+        --heart-color: hsl(0 0% 0%);
+        --heart-icon: url("/images/outline-heart.svg");
+    }
+
+    .post-likes-actions > button.solid-heart:hover {
+        --heart-color: hsl(0 0% 0%);
+        --heart-icon: url("/images/outline-heart.svg");
+    }
+
+    .post-likes-actions > button.outline-heart:hover {
+        --heart-color: hsl(0 95% 55%);
+        --heart-icon: url("/images/solid-heart.svg");
     }
 
     .feed-pagination {
@@ -377,7 +421,22 @@
 
             @* TODO: Add functionality for liking and commenting on posts *@
             <div class="post-footer">
-                <p>@post.LikesCount like@(post.LikesCount != 1 ? "s" : "")</p>
+                <div class="post-likes">
+                    <form method="post" class="post-likes-actions">
+                        <input type="hidden" name="postId" value="@post.Id" />
+                        <input type="hidden" name="tab" value="@Model.CurrentTab" />
+                        <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                        @if (Model.LikedPostIds.Contains(post.Id))
+                        {
+                        <button class="solid-heart" type="submit" asp-page-handler="Unlike"></button>
+                        }
+                        else
+                        {
+                        <button class="outline-heart" type="submit" asp-page-handler="Like"></button>
+                        }
+                    </form>
+                    <p>@post.LikesCount like@(post.LikesCount != 1 ? "s" : "")</p>
+                </div>
                 <p>@post.Comments.Count kommentar@(post.Comments.Count != 1 ? "er" : "")</p>
             </div>
         </article>
