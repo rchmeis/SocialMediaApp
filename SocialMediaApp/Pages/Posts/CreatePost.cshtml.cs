@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SocialMediaApp.Security;
 using SocialMediaAppLibrary.Models;
 using SocialMediaAppLibrary.Services.Interfaces;
 using SocialMediaAppLibrary.Validation;
@@ -11,10 +12,6 @@ namespace SocialMediaApp.Pages.Posts
     public class CreatePostModel : PageModel
     {
         private readonly IPostService _postService;
-
-        private readonly IUserAuthenticationService _userAuthenticationService;
-
-        private readonly IUserService _userService;
 
         public Random RandomGenerator { get; set; } = new Random();
         public string RandomizedPlaceholder { get; set; } = string.Empty;
@@ -38,11 +35,9 @@ namespace SocialMediaApp.Pages.Posts
         [MaxFileSize(5 * 1024 * 1024, ErrorMessage = "Alle billeder må højst være 5 MB.")]
         public List<IFormFile> PostImages { get; set; } = new List<IFormFile>();
 
-        public CreatePostModel(IPostService postService, IUserAuthenticationService userAuthenticationService, IUserService userService)
+        public CreatePostModel(IPostService postService)
         {
             _postService = postService;
-            _userAuthenticationService = userAuthenticationService;
-            _userService = userService;
         }
 
         public void OnGet()
@@ -66,9 +61,11 @@ namespace SocialMediaApp.Pages.Posts
                 return Page();
             }
 
+            int userId = ClaimsPrincipalExtensions.GetUserId(User);
+
             UserSummary author = new UserSummary
             {
-                Id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!)
+                Id = userId
             };
 
             Post postToCreate = new Post
