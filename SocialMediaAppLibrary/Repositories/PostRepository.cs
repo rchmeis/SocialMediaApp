@@ -19,9 +19,117 @@ namespace SocialMediaAppLibrary.Repositories
             _dbConnect = dbConnect;
         }
 
-        public Task<Post> DeleteAsync(int id, CancellationToken cancellationToken)
+        /// <summary>
+        /// Soft-deletes a post by setting its <c>deleted_at</c> timestamp and returns the updated post with author details.
+        /// </summary>
+        /// <param name="id">The identifier of the post to soft-delete.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous operation if the request aborts.</param>
+        /// <returns>The updated <see cref="Post"/> record with a populated <see cref="UserSummary"/> author, or <c>null</c> if no active post with the specified ID exists.</returns>
+        public async Task<Post?> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            const string updateSql = """
+                    UPDATE posts
+                    SET deleted_at = CURRENT_TIMESTAMP(6),
+                        updated_at = CURRENT_TIMESTAMP(6)
+                    WHERE post_id = @postId
+                      AND deleted_at IS NULL;
+                    """;
+
+            const string selectSql = """
+                    SELECT
+                        p.post_id,
+                        p.author_id,
+                        p.title,
+                        p.content,
+                        p.created_at,
+                        p.updated_at,
+                        p.deleted_at,
+
+                        u.user_id,
+                        CONCAT_WS(' ', s.first_name, s.last_name) AS display_name,
+
+                        user_image.image_id AS profile_image_id,
+                        user_image.file_name AS profile_image_file_name,
+                        user_image.alt_text AS profile_image_alt_text,
+                        user_image.height AS profile_image_height,
+                        user_image.width AS profile_image_width
+                    FROM posts p
+                    LEFT JOIN users u ON p.author_id = u.user_id
+                    LEFT JOIN students s ON u.user_id = s.user_id
+                    LEFT JOIN images user_image ON u.image_id = user_image.image_id
+                    WHERE p.post_id = @postId;
+                    """;
+
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync(cancellationToken);
+
+            await using MySqlCommand updateCommand = new MySqlCommand(updateSql, connection);
+            updateCommand.Parameters.AddWithValue("@postId", id);
+            int rowsAffected = await updateCommand.ExecuteNonQueryAsync(cancellationToken);
+
+            if (rowsAffected == 0)
+            {
+                return null;
+            }
+
+            await using MySqlCommand selectCommand = new MySqlCommand(selectSql, connection);
+            selectCommand.Parameters.AddWithValue("@postId", id);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return null;
+            }
+
+            int postIdOrdinal = reader.GetOrdinal("post_id");
+            int authorIdOrdinal = reader.GetOrdinal("author_id");
+            int titleOrdinal = reader.GetOrdinal("title");
+            int contentOrdinal = reader.GetOrdinal("content");
+            int createdAtOrdinal = reader.GetOrdinal("created_at");
+            int updatedAtOrdinal = reader.GetOrdinal("updated_at");
+            int deletedAtOrdinal = reader.GetOrdinal("deleted_at");
+
+            int userIdOrdinal = reader.GetOrdinal("user_id");
+            int displayNameOrdinal = reader.GetOrdinal("display_name");
+
+            int profileImageIdOrdinal = reader.GetOrdinal("profile_image_id");
+            int profileImageFileNameOrdinal = reader.GetOrdinal("profile_image_file_name");
+            int profileImageAltTextOrdinal = reader.GetOrdinal("profile_image_alt_text");
+            int profileImageHeightOrdinal = reader.GetOrdinal("profile_image_height");
+            int profileImageWidthOrdinal = reader.GetOrdinal("profile_image_width");
+
+            Image? profileImage = null;
+            if (!reader.IsDBNull(profileImageIdOrdinal))
+            {
+                profileImage = new Image
+                {
+                    Id = reader.GetInt32(profileImageIdOrdinal),
+                    FileName = reader.GetString(profileImageFileNameOrdinal),
+                    AltText = reader.IsDBNull(profileImageAltTextOrdinal) ? string.Empty : reader.GetString(profileImageAltTextOrdinal),
+                    Height = reader.GetInt32(profileImageHeightOrdinal),
+                    Width = reader.GetInt32(profileImageWidthOrdinal)
+                };
+            }
+
+            int authorId = reader.IsDBNull(userIdOrdinal) ? reader.GetInt32(authorIdOrdinal) : reader.GetInt32(userIdOrdinal);
+            string displayName = reader.IsDBNull(displayNameOrdinal) ? string.Empty : reader.GetString(displayNameOrdinal);
+
+            UserSummary author = new UserSummary
+            {
+                Id = authorId,
+                DisplayName = displayName,
+                ProfileImage = profileImage
+            };
+
+            return new Post
+            {
+                Id = reader.GetInt32(postIdOrdinal),
+                Author = author,
+                Title = reader.IsDBNull(titleOrdinal) ? null : reader.GetString(titleOrdinal),
+                Content = reader.GetString(contentOrdinal),
+                CreatedAt = reader.GetDateTime(createdAtOrdinal),
+                UpdatedAt = reader.IsDBNull(updatedAtOrdinal) ? null : reader.GetDateTime(updatedAtOrdinal),
+                DeletedAt = reader.IsDBNull(deletedAtOrdinal) ? null : reader.GetDateTime(deletedAtOrdinal)
+            };
         }
 
         public Task<List<Post>> ReadAllAsync(CancellationToken cancellationToken)
@@ -612,6 +720,7 @@ namespace SocialMediaAppLibrary.Repositories
 
             await using MySqlCommand countCommand = new MySqlCommand(countSql, connection);
             countCommand.Parameters.AddWithValue("@userId", userId);
+            //countSql only returns 1 row and 1 column (the count). ExecuteScalarAsync avoids the overhead of creating a full data reader just to grab one scalar value.
             int totalCount = Convert.ToInt32(await countCommand.ExecuteScalarAsync(cancellationToken));
 
             await using MySqlCommand command = new MySqlCommand(sql, connection);

@@ -41,12 +41,22 @@ namespace SocialMediaAppLibrary.Services
             return await _postRepository.WriteAsync(post, cancellationToken);
         }
 
-        
-        public Post Delete(int id)
+      
+
+        public async Task<Post> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await _postRepository.DeleteAsync(id, cancellationToken);
         }
 
+        /// <summary>
+        /// Retrieves a paginated feed of posts for the specified user.
+        /// </summary>
+        /// <param name="id">The identifier of the user whose post feed is being requested.</param>
+        /// <param name="queryOptions">The pagination parameters specifying page number and page size.</param>
+        /// <param name="cancellationToken">Token used to cancel the asynchronous operation if the request aborts.</param>
+        /// <returns>
+        /// A <see cref="GenericPaginatedResult{T}"/> of <see cref="Post"/> containing the posts for the requested page and pagination metadata.
+        /// </returns>
         public Task<GenericPaginatedResult<Post>> GetFeedByIdAsync(int id, PaginationOptions queryOptions, CancellationToken cancellationToken)
         {
             return _postRepository.ReadFeedByIdAsync(id, queryOptions, cancellationToken);
