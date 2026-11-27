@@ -6,9 +6,6 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
 {
     public interface IWrite<T,TKey>
     {
-        public T Write(T entity);
-        public T Update(TKey id, T entity);
-        public T Delete(TKey id);
         public Task<T> WriteAsync(T entity, CancellationToken cancellationToken);
         public Task<T> UpdateAsync(TKey id, T entity, CancellationToken cancellationToken);
         public Task<T> DeleteAsync(TKey id, CancellationToken cancellationToken);
