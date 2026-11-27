@@ -10,5 +10,9 @@ namespace SocialMediaAppLibrary.Repositories.Interfaces
         public Task<UserSummary> GetByUserAuthIdAsync(int id, CancellationToken cancellationToken);
         Task<int> GetFollowersCountAsync(int userId, CancellationToken cancellationToken);
         Task<int> GetFollowingCountAsync(int userId, CancellationToken cancellationToken);
+        public Task<bool>IsFollowingAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken);
+        public Task<bool> FollowAsync(int loggedInUserId, int targetUserId, CancellationToken cancellation);
+        public Task<bool> UnfollowAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken);
+
     }
 }

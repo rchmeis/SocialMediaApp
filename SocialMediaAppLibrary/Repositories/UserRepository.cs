@@ -26,7 +26,12 @@ namespace SocialMediaAppLibrary.Repositories
             _db = dbconnect;
         }
 
-
+        /// <summary>
+        /// Retrieves the total number of users following the specified user.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user being followed.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>The number of follower relationships pointing to <paramref name="userId"/>.</returns>
         public async Task<int> GetFollowersCountAsync(int userId, CancellationToken cancellationToken)
         {
             const string sql = @"
@@ -43,6 +48,12 @@ namespace SocialMediaAppLibrary.Repositories
             return result is null or DBNull ? 0 : Convert.ToInt32(result);
         }
 
+        /// <summary>
+        /// Retrieves the total number of users following the specified user.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user being followed.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>The number of follower relationships pointing to <paramref name="userId"/>.</returns>
         public async Task<int> GetFollowingCountAsync(int userId, CancellationToken cancellationToken)
         {
             const string sql = @"
@@ -260,33 +271,103 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public User? ReadById(int id)
+        /// <summary>
+        /// Determines whether the signed-in user currently follows the target user.
+        /// </summary>
+        /// <param name="loggedInUserId">The unique identifier of the user who may be following.</param>
+        /// <param name="targetUserId">The unique identifier of the user who may be followed.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// <see langword="true"/> if a follow relationship exists from <paramref name="loggedInUserId"/> to
+        /// <paramref name="targetUserId"/>; otherwise, <see langword="false"/>.
+        /// </returns>
+        public async Task<bool> IsFollowingAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-        }        
+            if (loggedInUserId == targetUserId)
+            {
+                return false;
+            }
 
-        public User Update(int id, User entity)
-        {
-            throw new NotImplementedException();
+            //select 1 tells mysql not to read or send actual column data - just return the number 1.
+            const string sql = @"
+                    SELECT 1
+                    FROM user_follows_user
+                    WHERE from_user_id = @from_user_id
+                      AND to_user_id = @to_user_id
+                    LIMIT 1;";
+
+            await using MySqlConnection connection = _db.Connect();
+
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@from_user_id", loggedInUserId);
+            command.Parameters.AddWithValue("@to_user_id", targetUserId);
+
+            //ExecuteScalar returns the first column of the first row in the result set. NO MATCHING ROW -> returns null. IF a matching row exists but the first column value is SQL NULL the value is represented as DBNull.
+            //We used select 1, so it will return 1 if it exists but null if the row doesnt exist, and DBNull if the value in the first column is SQL NULL
+            object? result = await command.ExecuteScalarAsync(cancellationToken);         
+            return result is not null and not DBNull;
         }
 
-       
-        public User Write(User entity)
+        /// <summary>
+        /// Creates a follow relationship from the signed-in user to the target user if it does not already exist.
+        /// </summary>
+        /// <param name="loggedInUserId">The unique identifier of the user initiating the follow.</param>
+        /// <param name="targetUserId">The unique identifier of the user being followed.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// <see langword="true"/> if a new follow row was inserted; otherwise, <see langword="false"/>.
+        /// </returns>
+        public async Task<bool> FollowAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (loggedInUserId == targetUserId)
+            {
+                return false;
+            }
+
+            //Insert ignore - hvis der allerede findes en række med (from_user_id, to_user_id) returnerer den bare rowsaffected=0.
+            const string sql = @"
+                    INSERT IGNORE INTO user_follows_user (from_user_id, to_user_id)
+                    VALUES (@from_user_id, @to_user_id);";
+
+            await using MySqlConnection connection = _db.Connect();
+
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@from_user_id", loggedInUserId);
+            command.Parameters.AddWithValue("@to_user_id", targetUserId);
+
+            int rowsAffected = await command.ExecuteNonQueryAsync(cancellationToken);
+            return rowsAffected > 0;
         }
 
-       
-
-        public User Delete(int id)
+        /// <summary>
+        /// Removes an existing follow relationship from the signed-in user to the target user.
+        /// </summary>
+        /// <param name="loggedInUserId">The unique identifier of the user unfollowing.</param>
+        /// <param name="targetUserId">The unique identifier of the user being unfollowed.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// <see langword="true"/> if a follow row was deleted; otherwise, <see langword="false"/>.
+        /// </returns>
+        public async Task<bool> UnfollowAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-        }
-        public List<User> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
+            if (loggedInUserId == targetUserId)
+            {
+                return false;
+            }
 
+            const string sql = @"
+                    DELETE FROM user_follows_user
+                    WHERE from_user_id = @from_user_id
+                    AND to_user_id = @to_user_id;";
 
+            await using MySqlConnection connection = _db.Connect();
+
+            await using MySqlCommand command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@from_user_id", loggedInUserId);
+            command.Parameters.AddWithValue("@to_user_id", targetUserId);
+
+            int rowsAffected = await command.ExecuteNonQueryAsync(cancellationToken);
+            return rowsAffected > 0;
+        }
     }
 }
