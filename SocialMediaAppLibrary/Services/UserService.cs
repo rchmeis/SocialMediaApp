@@ -30,6 +30,16 @@ namespace SocialMediaAppLibrary.Services
             return await _userRepository.GetByUserAuthIdAsync(userAuthId, cancellationToken);
         }
 
+        public Task<int> GetFollowersCountAsync(int userId, CancellationToken cancellationToken)
+        {
+            return _userRepository.GetFollowersCountAsync(userId, cancellationToken);
+        }
+
+        public Task<int> GetFollowingCountAsync(int userId, CancellationToken cancellationToken)
+        {
+            return _userRepository.GetFollowingCountAsync(userId, cancellationToken);
+        }
+
         public List<User> ReadAll()
         {
             throw new NotImplementedException();

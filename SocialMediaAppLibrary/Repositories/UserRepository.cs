@@ -26,6 +26,40 @@ namespace SocialMediaAppLibrary.Repositories
             _db = dbconnect;
         }
 
+
+        public async Task<int> GetFollowersCountAsync(int userId, CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                    SELECT COUNT(*)
+                    FROM user_follows_user
+                    WHERE to_user_id = @user_id;";
+
+            await using MySqlConnection connection = _db.Connect();
+
+            await using var command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@user_id", userId);
+
+            object? result = await command.ExecuteScalarAsync();
+            return result is null or DBNull ? 0 : Convert.ToInt32(result);
+        }
+
+        public async Task<int> GetFollowingCountAsync(int userId, CancellationToken cancellationToken)
+        {
+            const string sql = @"
+                    SELECT COUNT(*)
+                    FROM user_follows_user
+                    WHERE from_user_id = @user_id;";
+
+            await using MySqlConnection connection = _db.Connect();
+           
+
+            await using var command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@user_id", userId);
+
+            object? result = await command.ExecuteScalarAsync();
+            return result is null or DBNull ? 0 : Convert.ToInt32(result);
+        }
+
         public Task<User> WriteAsync(User entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
@@ -252,5 +286,7 @@ namespace SocialMediaAppLibrary.Repositories
         {
             throw new NotImplementedException();
         }
+
+
     }
 }

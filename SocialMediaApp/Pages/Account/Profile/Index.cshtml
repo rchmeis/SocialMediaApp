@@ -41,14 +41,23 @@
                         <p class="profile-bio">
                             @Model.CurrentStudent.Bio
                         </p>
+                        @if (Model.CurrentStudent.Interests != null && Model.CurrentStudent.Interests.Any())
+                        {
+                            <div class="profile-interests" aria-label="Interesser">
+                                @foreach (var interest in Model.CurrentStudent.Interests.Take(10))
+                                {
+                                    <span class="interest-tag">@interest</span>
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
 
                 <!-- Followers/following til venstre og Rediger under bio til højre -->
                 <div class="profile-hero-bottom">
                     <div class="profile-relations">
-                        <a asp-page="/Account/Profile/Followers" class="profile-relation-btn">Followers</a>
-                        <a asp-page="/Account/Profile/Following" class="profile-relation-btn">Following</a>
+                        <a asp-page="/Account/Profile/Connections" class="profile-relation-btn">@Model.Followers Followers</a>
+                        <a asp-page="/Account/Profile/Connections" class="profile-relation-btn">@Model.Following Following</a>
                     </div>
                     <div class="profile-member-since">
                         <small>Medlem siden @Model.CurrentStudent.CreatedAt.ToShortDateString()</small>
@@ -103,16 +112,43 @@
                                                     Rediger
                                                 </a>
 
-                                                <form method="post"
-                                                      asp-page-handler="DeletePost"
-                                                      asp-route-postId="@post.Id"
-                                                      asp-route-pageNumber="@Model.CurrentPage"
-                                                      class="post-menu-form">
-                                                      @Html.AntiForgeryToken()
-                                                    <button type="submit" class="post-menu-item post-menu-item--danger">
+                                                <div class="delete-confirm-wrapper">
+                                                    <input type="checkbox"
+                                                           id="confirm-delete-@post.Id"
+                                                           class="delete-confirm-toggle"
+                                                           aria-hidden="true" />
+
+                                                    <label for="confirm-delete-@post.Id"
+                                                           class="post-menu-item post-menu-item--danger">
                                                         Slet
-                                                    </button>
-                                                </form>
+                                                    </label>
+
+                                                    <div class="delete-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-title-@post.Id">
+                                                        <div class="delete-modal-box">
+                                                            <h3 id="delete-title-@post.Id" class="delete-modal-title">Slet opslag?</h3>
+                                                            <p class="delete-modal-text">
+                                                                Er du sikker på, at du vil slette dette opslag? Handlingen kan ikke fortrydes.
+                                                            </p>
+
+                                                            <div class="delete-modal-actions">
+                                                                <label for="confirm-delete-@post.Id" class="delete-btn delete-btn--cancel">
+                                                                    Annuller
+                                                                </label>
+
+                                                                <form method="post"
+                                                                      asp-page-handler="DeletePost"
+                                                                      asp-route-postId="@post.Id"
+                                                                      asp-route-pageNumber="@Model.CurrentPage"
+                                                                      class="delete-confirm-form">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="delete-btn delete-btn--confirm">
+                                                                        Bekræft
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </details>
                                     </div>
@@ -198,6 +234,129 @@
 </div>
 
 <style>
+
+    /* INTERESTS */
+    .profile-interests {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .interest-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background-color: #fafaf8;
+        color: #1f2937;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+
+
+    /* CONFRM MODAL CSS */
+    .delete-confirm-wrapper {
+        position: relative;
+        margin: 0;
+    }
+
+    .delete-confirm-toggle {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .delete-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background-color: rgba(17, 17, 17, 0.55);
+        padding: 20px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Vis advarselsboksen når checkboxen er markeret */
+    .delete-confirm-toggle:checked ~ .delete-modal-backdrop {
+        display: flex;
+    }
+
+    .delete-modal-box {
+        width: 100%;
+        max-width: 400px;
+        background-color: #ffffff;
+        border: 1px solid #deded9;
+        border-radius: 10px;
+        padding: 20px 22px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+        box-sizing: border-box;
+    }
+
+    .delete-modal-title {
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #111111;
+    }
+
+    .delete-modal-text {
+        margin: 0 0 18px 0;
+        font-size: 0.94rem;
+        line-height: 1.45;
+        color: #333333;
+    }
+
+    .delete-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .delete-confirm-form {
+        margin: 0;
+    }
+
+    .delete-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+
+    .delete-btn--cancel {
+        background-color: #f6f6f4;
+        color: #111111;
+        border: 1px solid #deded9;
+    }
+
+        .delete-btn--cancel:hover {
+            background-color: #ecece8;
+        }
+
+    .delete-btn--confirm {
+        background-color: #b42318;
+        color: #ffffff;
+        border: 1px solid #b42318;
+    }
+
+        .delete-btn--confirm:hover {
+            background-color: #911b12;
+        }
+    /* CONFIRM MODAL CSS */
+
     .profile-member-since {
     color: #ffffff;
     line-height: 1;

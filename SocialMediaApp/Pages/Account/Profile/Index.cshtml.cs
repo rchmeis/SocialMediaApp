@@ -18,6 +18,7 @@ public class IndexModel : PageModel
     private readonly IStudentService _studentService;
     private readonly IPostService _postService;
     private readonly ILogger<IndexModel> _logger;
+    private readonly IUserService _userService;
 
     /// <summary>
     /// Number of posts displayed per page on the profile feed.
@@ -30,11 +31,12 @@ public class IndexModel : PageModel
     /// <param name="studentService">Service used to retrieve student profile details.</param>
     /// <param name="postService">Service used to retrieve paginated posts for the user.</param>
     /// <param name="logger">Logger used to record warnings and errors during page execution.</param>
-    public IndexModel(IStudentService studentService, IPostService postService, ILogger<IndexModel> logger)
+    public IndexModel(IStudentService studentService, IPostService postService, ILogger<IndexModel> logger, IUserService userservice)
     {
         _studentService = studentService;
         _postService = postService;
         _logger = logger;
+        _userService = userservice;
     }
 
     /// <summary>
@@ -66,6 +68,15 @@ public class IndexModel : PageModel
     /// Gets or sets the total number of pages available for the user's posts (minimum value is 1).
     /// </summary>
     public int TotalPages { get; set; } = 1;
+    /// <summary>
+    /// Gets or set the total number of followers for the current user
+    /// </summary>
+    public int Followers { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the total number of users the current user is following
+    /// </summary>
+    public int Following { get; set; } = 0;
 
     /// <summary>
     /// Handles HTTP GET requests for the profile page, validates the current user and profile,
@@ -95,6 +106,8 @@ public class IndexModel : PageModel
             }
 
             CurrentStudent = student;
+            Following = await _userService.GetFollowingCountAsync(userId, cancellationToken);
+            Followers = await _userService.GetFollowersCountAsync(userId, cancellationToken);
 
             // Hent 10 posts pr. side for den aktuelle bruger
             await LoadUserPostsAsync(CurrentStudent.Id, CurrentPage, cancellationToken);
@@ -152,7 +165,7 @@ public class IndexModel : PageModel
 
             await _postService.DeleteAsync(postId, cancellationToken);
 
-            //TAKING CARE OF EDGE CASES (deleting the last post on page 2, makes sure user gets redirected to page 1
+            //TAKING CARE OF EDGE CASES (eg deleting the last post on page 2, makes sure user gets redirected to page 1
             var options = new PaginationOptions
             {
                 PageNumber = safePageNumber,
@@ -162,6 +175,8 @@ public class IndexModel : PageModel
             GenericPaginatedResult<Post> feed = await _postService.GetFeedByIdAsync(student.Id, options, cancellationToken);
             int totalPages = Math.Max(1, (int)Math.Ceiling((double)feed.TotalCount / PageSize));
             int targetPage = Math.Min(safePageNumber, totalPages);
+
+            TempData["Success"] = "Opslaget er slettet";
 
             return RedirectToPage(new { pageNumber = targetPage });
         }
