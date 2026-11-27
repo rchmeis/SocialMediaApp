@@ -37,6 +37,7 @@
                             // 1. Retrieve data directly from cookie claims
                             var displayName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity.Name;
                             var imageId = User.FindFirst("ImageId")?.Value;
+                            var imageFileName = User.FindFirst("ImageFileName")?.Value;
 
                             // 2. WHEN USER IS LOGGED IN (Show image, name, and dropdown menu)
                             <li class="nav-item">
@@ -45,7 +46,7 @@
                                         @if (!string.IsNullOrEmpty(imageId))
                                         {
                                             <!-- Calls our handler that fetches byte[] from the database -->
-                                            <img src="/Index?handler=UserImage&id=@imageId" alt="Profilmenu" />
+                                            <img src="/images/@imageId/@imageFileName" alt="Profilmenu" />
                                         }
                                         else
                                         {
