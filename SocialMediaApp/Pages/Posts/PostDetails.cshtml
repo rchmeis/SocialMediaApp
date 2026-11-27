@@ -406,3 +406,191 @@
     </div>
     
 </article>
+
+<style>
+    /* CONFRM DELETE MODAL CSS */
+    .delete-confirm-wrapper {
+        position: relative;
+        margin: 0;
+    }
+
+    .delete-confirm-toggle {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .delete-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background-color: rgba(17, 17, 17, 0.55);
+        padding: 20px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Vis advarselsboksen når checkboxen er markeret */
+    .delete-confirm-toggle:checked ~ .delete-modal-backdrop {
+        display: flex;
+    }
+
+    .delete-modal-box {
+        width: 100%;
+        max-width: 400px;
+        background-color: #ffffff;
+        border: 1px solid #deded9;
+        border-radius: 10px;
+        padding: 20px 22px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+        box-sizing: border-box;
+    }
+
+    .delete-modal-title {
+        margin: 0 0 8px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #111111;
+    }
+
+    .delete-modal-text {
+        margin: 0 0 18px 0;
+        font-size: 0.94rem;
+        line-height: 1.45;
+        color: #333333;
+    }
+
+    .delete-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .delete-confirm-form {
+        margin: 0;
+    }
+
+    .delete-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+
+    .delete-btn--cancel {
+        background-color: #f6f6f4;
+        color: #111111;
+        border: 1px solid #deded9;
+    }
+
+        .delete-btn--cancel:hover {
+            background-color: #ecece8;
+        }
+
+    .delete-btn--confirm {
+        background-color: #b42318;
+        color: #ffffff;
+        border: 1px solid #b42318;
+    }
+
+        .delete-btn--confirm:hover {
+            background-color: #911b12;
+        }
+    /* CONFIRM MODAL CSS */
+
+    .profile-member-since {
+        color: #ffffff;
+        line-height: 1;
+        margin: 0;
+    }
+
+        .profile-member-since small {
+            display: inline-block;
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+    .profile-page-shell {
+        width: 100%;
+        min-height: 85vh;
+        background-color: #f6f6f4;
+        box-sizing: border-box;
+    }
+
+    .post-menu {
+        position: relative;
+        margin-left: auto;
+    }
+
+    .post-menu-trigger {
+        list-style: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 1.25rem;
+        line-height: 1;
+        color: #333333;
+        user-select: none;
+    }
+
+        /* Hide default disclosure marker in Chrome/Edge/Safari */
+        .post-menu-trigger::-webkit-details-marker {
+            display: none;
+        }
+
+        .post-menu-trigger:hover {
+            background-color: #ecece8;
+        }
+
+    .post-menu-dropdown {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 4px);
+        z-index: 20;
+        min-width: 140px;
+        background-color: #ffffff;
+        border: 1px solid #deded9;
+        border-radius: 8px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .post-menu-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: #111111;
+        text-decoration: none;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        box-sizing: border-box;
+    }
+
+        .post-menu-item:hover {
+            background-color: #f6f6f4;
+        }
+
+    .post-menu-item--danger {
+        color: #b42318;
+        font-weight: 600;
+    }
+
+        .post-menu-item--danger:hover {
+            background-color: #fef3f2;
+        }
+</style>
