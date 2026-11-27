@@ -1,1 +1,57 @@
-﻿
+﻿/*form TEMPDATA MESSAGES SUCCESS com*/
+.flash-banner-stack {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.flash-banner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 20px;
+    font-size: 0.94rem;
+    font-weight: 500;
+    line-height: 1.35;
+    box-sizing: border-box;
+}
+
+/* Bootstrap alert-success */
+.flash-banner--success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-bottom: 1px solid #badbcc;
+}
+
+/* Bootstrap alert-danger */
+.flash-banner--error {
+    background-color: #f8d7da;
+    color: #842029;
+    border-bottom: 1px solid #f5c2c7;
+}
+
+/* Bootstrap alert-warning (valgfri til accessDenied) */
+.flash-banner--warning {
+    background-color: #fff3cd;
+    color: #664d03;
+    border-bottom: 1px solid #ffecb5;
+}
+
+.flash-banner__close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.3rem;
+    line-height: 1;
+    padding: 0 4px;
+    cursor: pointer;
+    opacity: 0.65;
+    flex-shrink: 0;
+}
+
+    .flash-banner__close:hover {
+        opacity: 1;
+    }
+
+/*TEMPDATA CSS DONE*/
