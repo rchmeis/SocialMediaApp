@@ -16,33 +16,34 @@ public class InterestRepository : IInterestRepository
     {
         _db = db;
     }
-    
-    public Interest Write(Interest entity)
-    {
-        throw new NotImplementedException();
-    }
 
-    public List<Interest> ReadAll()
+
+    public async Task<List<Interest>> ReadAllAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            string sql = """
-                         SELECT * FROM interests
-                         """;
+            const string sql = """
+            SELECT interest_id, name
+            FROM interests;
+            """;
 
-            using MySqlConnection conn = _db.Connect();
+            await using MySqlConnection conn = await _db.ConnectAsync(cancellationToken);
+            await using MySqlCommand cmd = new MySqlCommand(sql, conn);
 
-            using MySqlCommand cmd = new MySqlCommand(sql, conn);
-            
-            using MySqlDataReader reader = cmd.ExecuteReader();
+            await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+            int idOrdinal = reader.GetOrdinal("interest_id");
+            int nameOrdinal = reader.GetOrdinal("name");
 
             List<Interest> interestList = new List<Interest>();
-            while (reader.Read())
+            while (await reader.ReadAsync(cancellationToken))
             {
-                Interest interest = new Interest();
-                interest.Id = reader.GetInt32("interest_id");
-                interest.Name = reader.GetString("name");
-                
+                Interest interest = new Interest
+                {
+                    Id = reader.GetInt32(idOrdinal),
+                    Name = reader.GetString(nameOrdinal)
+                };
+
                 interestList.Add(interest);
             }
 
@@ -50,23 +51,8 @@ public class InterestRepository : IInterestRepository
         }
         catch (Exception ex)
         {
-            throw new Exception("Coudn't read all interests (Repo)", ex);
+            throw new Exception("Couldn't read all interests (Repo)", ex);
         }
-    }
-
-    public Interest Delete(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Interest? ReadById(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Interest Update(int id, Interest entity)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<Interest> WriteAsync(Interest entity, CancellationToken cancellationToken)
@@ -79,10 +65,6 @@ public class InterestRepository : IInterestRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<Interest>> ReadAllAsync(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
 
     public Task<Interest?> ReadByIdAsync(int id, CancellationToken cancellationToken)
     {

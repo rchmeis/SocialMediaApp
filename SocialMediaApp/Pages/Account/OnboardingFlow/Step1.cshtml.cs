@@ -76,7 +76,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
             if (Student.IsOnboarded)
                 return base.RedirectToPage("/Feed");
 
-            LoadInterests();
+            LoadInterests(cancellationToken);
 
             // Pre-fill if the user comes back to this step
             InputBio = Student.Bio;
@@ -112,7 +112,7 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
             if (Student.IsOnboarded)
                 return RedirectToPage("/Feed");
 
-            LoadInterests();  
+            LoadInterests(cancellationToken);  
             
             if (!ModelState.IsValid)
             {
@@ -189,11 +189,11 @@ namespace SocialMediaApp.Pages.Account.OnboardingFlow
         /// Loads all available <see cref="Interest"/> items into <see cref="allInterests"/>,
         /// setting a <see cref="PageModel.TempData"/> error message if retrieval fails.
         /// </summary>
-        public void LoadInterests()
+        public async Task LoadInterests(CancellationToken cancellationToken)
         {
             try
             {
-                allInterests = _interestService.ReadAll();
+                allInterests = await _interestService.ReadAllAsync(cancellationToken);
             }
             catch
             {

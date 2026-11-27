@@ -159,16 +159,11 @@ namespace SocialMediaAppLibrary.Services
         }
 
        
-        public UserAuthentication? ReadById(int id)
+        public Task<UserAuthentication?> ReadById(int id, CancellationToken cancellationToken)
         {
-            return _authenticationRepository.ReadById(id);
+            return _authenticationRepository.ReadByIdAsync(id, cancellationToken);
         }
-        //indfør async metoden , slet derefter denne:
-        public UserAuthentication Write(UserAuthentication entity)
-        {
-            return _authenticationRepository.Write(entity);
-        }
-
+      
         /// <summary>
         /// Asynchronously writes a <see cref="UserAuthentication"/> record in the DBMS using the underlying authentication repository.
         /// </summary>
@@ -220,19 +215,7 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
-        public UserAuthentication Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<UserAuthentication> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
-        public UserAuthentication Update(int id, UserAuthentication entity)
-        {
-            throw new NotImplementedException();
-        }
+ 
 
     }
 }

@@ -120,7 +120,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
         /// is wrong, expired or has too many failed attempts, or a redirect to Step 1 if the session is empty or
         /// the email/username was taken in the meantime.
         /// </returns>
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
         {
             var userAuth = HttpContext.Session.GetUserAuthentication();
 
@@ -155,7 +155,7 @@ namespace SocialMediaApp.Pages.Account.SignupFlow
 
             try
             {
-                userAuth = _userAuthService.Write(userAuth);
+                userAuth = await _userAuthService.WriteAsync(userAuth, cancellationToken);
             }
             catch (Exception ex) when (ex.InnerException is MySqlException { Number: 1062 })
             {

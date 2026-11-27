@@ -154,38 +154,6 @@ namespace SocialMediaAppLibrary.Repositories
         }
 
 
-        //IMPLEMENTER DEN ASYNKRONE METHODE OG SLET DENNE
-        public UserAuthentication Write(UserAuthentication entity)
-        {
-            try
-            {
-                string sql = """
-                             INSERT INTO user_authentications (user_authentication_id, username, email, password_hash, is_verified, role, created_at, deleted_at) 
-                             VALUES (@user_authentication_id, @username, @email, @password_hash, @is_verified, @role, @created_at, @deleted_at)
-                             """;
-
-                MySqlConnection conn = _db.Connect();
-
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("user_authentication_id", entity.Id);
-                cmd.Parameters.AddWithValue("@username", entity.Username);
-                cmd.Parameters.AddWithValue("@email", entity.Email);
-                cmd.Parameters.AddWithValue("@password_hash", entity.PasswordHashed);
-                cmd.Parameters.AddWithValue("@is_verified", entity.IsVerified);
-                cmd.Parameters.AddWithValue("@role", entity.Role.ToString());
-                cmd.Parameters.AddWithValue("@created_at", entity.CreatedAt);
-                cmd.Parameters.AddWithValue("@deleted_at", entity.DeletedAt);
-
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Something went wrong writing user authentication into DB:", ex);
-            }
-
-            return entity;
-        }
-
         /// <summary>
         /// Asynchronously inserts a new <see cref="UserAuthentication"/> record into the <c>user_authentications</c> table.
         /// </summary>
@@ -247,25 +215,6 @@ namespace SocialMediaAppLibrary.Repositories
 
 
 
-
-        //nedenstående skal slettes
-        public List<UserAuthentication> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public UserAuthentication? ReadById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public UserAuthentication Update(int id, UserAuthentication entity)
-        {
-            throw new NotImplementedException();
-        }
-        public UserAuthentication Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }
