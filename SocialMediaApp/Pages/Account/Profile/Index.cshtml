@@ -190,6 +190,9 @@
                                        
                                     </div>
 
+                                    <a asp-page="/Posts/PostDetails"
+                                       asp-route-postId="@post.Id"
+                                       asp-route-returnUrl="@Url.Page("/Feed")">
                                     @if (!string.IsNullOrWhiteSpace(post.Title))
                                     {
                                         <h2 class="post-title">@post.Title</h2>
@@ -224,6 +227,7 @@
                                             </div>
                                         </dialog>
                                     }
+                                    </a>
                                 </article>
                             }
                         </div>

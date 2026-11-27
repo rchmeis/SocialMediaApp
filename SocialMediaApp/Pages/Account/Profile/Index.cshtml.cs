@@ -227,7 +227,7 @@ public class IndexModel : PageModel
     /// <param name="pageNumber">The 1-based page number to return to after deletion.</param>
     /// <param name="cancellationToken">Token used to cancel asynchronous operations if the request aborts.</param>
     /// <returns>A redirect to the profile page for the requested page number.</returns>
-    public async Task<IActionResult> OnPostDeletePostAsync(int postId, int pageNumber = 1, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> OnPostDeletePostAsync(int postId, string? returnUrl = null, int pageNumber = 1, CancellationToken cancellationToken = default)
     {
         int safePageNumber = pageNumber < 1 ? 1 : pageNumber;
 
@@ -256,6 +256,10 @@ public class IndexModel : PageModel
 
             TempData["Success"] = "Opslaget er slettet";
 
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
             return RedirectToPage(new { pageNumber = targetPage });
         }
         catch (UnauthorizedAccessException ex)
@@ -281,6 +285,11 @@ public class IndexModel : PageModel
                 safePageNumber);
 
             TempData["Error"] = "Der skete en fejl under sletning af opslaget.";
+
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
             return RedirectToPage(new { pageNumber = safePageNumber });
         }
     }
