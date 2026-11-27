@@ -1,5 +1,6 @@
 ﻿@page "/post/{postId:int}"
 @using SocialMediaAppLibrary.Models
+@using SocialMediaApp.Security;
 @model SocialMediaApp.Pages.Posts.PostDetailsModel
 @{
     IFormatProvider danishCulture = new System.Globalization.CultureInfo("da-DK");
@@ -251,6 +252,7 @@
     }
 </style>
 
+
 <article class="post" id="post-@Model.PostDetails.Id">
     <a class="post-header" asp-page="/Account/Profile/Index" asp-route-id="@Model.PostDetails.Author.Id">
         <img
@@ -261,6 +263,9 @@
             alt="@Model.PostDetails.Author.DisplayName"
         />
         <p class="post-author-name">@(Model.PostDetails.Author.DisplayName)</p>
+        </a>
+
+        <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@Model.PostDetails.Id" asp-route-returnUrl="@Url.Page("/Feed")">
         <div class="post-time">
             <time
                 datetime="@Model.PostDetails.CreatedAt.ToString("yyyy-MM-ddTHH:mm")"
@@ -277,6 +282,7 @@
         </div>
     </a>
 
+    <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@Model.PostDetails.Id">
     <div class="post-body">
         @if (Model.PostDetails.Title != null)
         {
@@ -312,6 +318,73 @@
         </div>
         }
     </div>
+
+        <dialog id="image-dialog" class="lightbox">
+            <div class="modal-content">
+                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                <img class="modal-image" src="" alt="" />
+                <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                <p class="image-caption"></p>
+            </div>
+        </dialog>
+    </div>
+    }
+
+    @* funcitonality for deleting/editing posts *@
+
+    @if (Model.PostDetails.Author != null && Model.PostDetails.Author.Id == Model.LoggedInUserId)
+    {
+        <details class="post-menu">
+            <summary class="post-menu-trigger" aria-label="Flere valgmuligheder for opslag">&#8943;</summary>
+            <div class="post-menu-dropdown">
+                <a class="post-menu-item"
+                   asp-page="/Posts/UpdatePost"
+                   asp-route-postId="@Model.PostDetails.Id"
+                   asp-route-returnUrl="@Model.SafeReturnUrl">
+                    Rediger
+                </a>
+
+                <div class="delete-confirm-wrapper">
+                    <input type="checkbox"
+                           id="confirm-delete-@Model.PostDetails.Id"
+                           class="delete-confirm-toggle"
+                           aria-hidden="true" />
+
+                    <label for="confirm-delete-@Model.PostDetails.Id"
+                           class="post-menu-item post-menu-item--danger">
+                        Slet
+                    </label>
+
+                    <div class="delete-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-title-@Model.PostDetails.Id">
+                        <div class="delete-modal-box">
+                            <h3 id="delete-title-@Model.PostDetails.Id" class="delete-modal-title">Slet opslag?</h3>
+                            <p class="delete-modal-text">
+                                Er du sikker på, at du vil slette dette opslag? Handlingen kan ikke fortrydes.
+                            </p>
+
+                            <div class="delete-modal-actions">
+                                <label for="confirm-delete-@Model.PostDetails.Id" class="delete-btn delete-btn--cancel">
+                                    Annuller
+                                </label>
+
+                                <form method="post"
+                                      asp-page="/Account/Profile/Index"
+                                      asp-page-handler="DeletePost"
+                                      asp-route-postId="@Model.PostDetails.Id"
+                                      asp-route-returnUrl="@Model.SafeReturnUrl"
+                                      class="delete-confirm-form">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="delete-btn delete-btn--confirm">
+                                        Bekræft
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>
+    }
 
 
     @* TODO: Add functionality for liking and commenting on posts *@
