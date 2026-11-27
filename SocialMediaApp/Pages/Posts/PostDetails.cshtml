@@ -9,10 +9,8 @@
     .post {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
         max-width: 40rem;
         margin: 0 auto;
-        padding: 1.5rem;
     }
 
     .post-header {
@@ -20,6 +18,9 @@
         grid-template-columns: 3rem 1fr;
         grid-template-rows: repeat(2, 1fr);
         gap: 0 0.5rem;
+        padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+        color: unset;
+        text-decoration: none;
     }
 
     .post-author-profile-picture {
@@ -54,6 +55,7 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
     }
 
     .post-title {
@@ -84,7 +86,7 @@
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(2, 1fr);
         gap: 0.25rem;
-        flex-wrap: nowrap;
+        margin-top: 0.75rem;
 
         &:has(> :only-child) {
             grid-template-columns: 1fr;
@@ -206,6 +208,7 @@
         font-size: 0.875rem;
         font-weight: 500;
         color: hsl(0 0% 33%);
+        padding: 0.75rem 1.5rem 1.5rem 1.5rem;
 
         p {
             margin: 0;
@@ -249,7 +252,7 @@
 </style>
 
 <article class="post" id="post-@Model.PostDetails.Id">
-    <div class="post-header">
+    <a class="post-header" asp-page="/Account/Profile/Index" asp-route-id="@Model.PostDetails.Author.Id">
         <img
             class="post-author-profile-picture"
             src="@(Model.PostDetails.Author.ProfileImage != null
@@ -272,7 +275,7 @@
             </span>
             }
         </div>
-    </div>
+    </a>
 
     <div class="post-body">
         @if (Model.PostDetails.Title != null)
@@ -281,34 +284,35 @@
         }
 
         <p class="post-content">@Model.PostDetails.Content</p>
-    </div>
 
-    @* Only render the image gallery if the post has images to display *@
-    @if (Model.PostDetails.Images.Count > 0)
-    {
-    <div class="post-gallery-container">
-        <div class="post-image-gallery" id="post-image-gallery-@Model.PostDetails.Id">
-            @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
-            {
+        @* Only render the image gallery if the post has images to display *@
+        @if (Model.PostDetails.Images.Count > 0)
+        {
+        <div class="post-gallery-container">
+            <div class="post-image-gallery" id="post-image-gallery-@Model.PostDetails.Id">
+                @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
+                {
 
-            Image image = Model.PostDetails.Images[i];
+                Image image = Model.PostDetails.Images[i];
 
-            <button type="button" class="post-image-card" data-index="@i">
-                <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
-            </button>
-            }
-        </div>
-
-        <dialog id="image-dialog" class="lightbox">
-            <div class="modal-content">
-                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
-                <img class="modal-image" src="" alt="" />
-                <button type="button" class="modal-nav next modal-next">&#10095;</button>
-                <p class="image-caption"></p>
+                <button type="button" class="post-image-card" data-index="@i">
+                    <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
+                </button>
+                }
             </div>
-        </dialog>
+
+            <dialog id="image-dialog" class="lightbox">
+                <div class="modal-content">
+                    <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                    <img class="modal-image" src="" alt="" />
+                    <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                    <p class="image-caption"></p>
+                </div>
+            </dialog>
+        </div>
+        }
     </div>
-    }
+
 
     @* TODO: Add functionality for liking and commenting on posts *@
     <div class="post-footer">
