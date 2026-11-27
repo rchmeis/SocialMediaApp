@@ -11,6 +11,13 @@
         scroll-behavior: auto !important; /* Override bootstrap scroll behavior */
     }
 
+    .section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 auto;
+    }
+
     .tab-navigation {
         display: flex;
         justify-content: center;
@@ -50,7 +57,6 @@
     .post {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
         border: 1px solid hsl(0 0% 85%);
         border-radius: 0.5rem;
 
@@ -59,20 +65,14 @@
         }
     }
 
-    .post-link {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        color: unset;
-        text-decoration: none;
-    }
-
     .post-header {
         display: grid;
         grid-template-columns: 3rem 1fr;
         grid-template-rows: repeat(2, 1fr);
         gap: 0 0.5rem;
-        padding: 1.5rem 1.5rem 0 1.5rem;
+        padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+        color: unset;
+        text-decoration: none;
     }
 
     .post-author-profile-picture {
@@ -107,7 +107,9 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        padding: 0 1.5rem;
+        padding: 0.75rem 1.5rem;
+        color: unset;
+        text-decoration: none;
     }
 
     .post-title {
@@ -126,7 +128,6 @@
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(2, 1fr);
         gap: 0.25rem;
-        padding: 0 1.5rem;
 
         &:has(> :only-child) {
             grid-template-columns: 1fr;
@@ -256,7 +257,7 @@
         flex-direction: row;
         align-items: center;
         gap: 1rem;
-        padding: 0 1.5rem 1.5rem 1.5rem;
+        padding: 0.75rem 1.5rem 1.5rem 1.5rem;
         font-size: 0.875rem;
         font-weight: 500;
         color: hsl(0 0% 33%);
@@ -323,38 +324,38 @@
     }
 </style>
 
-<nav class="tab-navigation">
-    <ul class="tab-list">
-        @foreach (KeyValuePair<FeedTab, string> tab in Model.FeedTabs)
+<section class="section">
+    <nav class="tab-navigation">
+        <ul class="tab-list">
+            @foreach (KeyValuePair<FeedTab, string> tab in Model.FeedTabs)
+            {
+            <li>
+                <a class="tab-link @(Model.CurrentTab == tab.Key.ToString().ToLower() ? "active" : "")"
+                    asp-page="/Feed"
+                    asp-route-tab="@tab.Key.ToString().ToLower()">
+                    @tab.Value
+                </a>
+            </li>
+            }
+        </ul>
+    </nav>
+
+    <!-- [ÆNDRING] MIDLERTIDIGT Link til oprettelse af opslag fra det generelle feed med returnUrl -->
+    <div class="feed-create-post">
+        <a class="create-post-link"
+        asp-page="/Posts/CreatePost"
+        asp-route-returnUrl="@Url.Page("/Feed", new { tab = Model.CurrentTab })">
+            Opret opslag
+        </a>
+    </div>
+
+    <ul class="posts">
+        @foreach (Post post in Model.Posts.Items)
         {
         <li>
-             <a class="tab-link @(Model.CurrentTab == tab.Key.ToString().ToLower() ? "active" : "")"
-                asp-page="/Feed"
-                asp-route-tab="@tab.Key.ToString().ToLower()">
-                @tab.Value
-            </a>
-        </li>
-        }
-    </ul>
-</nav>
-
-<!-- [ÆNDRING] MIDLERTIDIGT Link til oprettelse af opslag fra det generelle feed med returnUrl -->
-<div class="feed-create-post">
-    <a class="create-post-link"
-       asp-page="/Posts/CreatePost"
-       asp-route-returnUrl="@Url.Page("/Feed", new { tab = Model.CurrentTab })">
-        Opret opslag
-    </a>
-</div>
-
-<ul class="posts">
-    @foreach (Post post in Model.Posts.Items)
-    {
-    <li>
-        <article class="post" id="post-@post.Id">
-                <div class="post-header">
-                    <a class="post-author-link" asp-page="/Account/Profile/Index" asp-route-id="@post.Author.Id">
-                        @* Tilføjet: link til forfatterens profil med route-id *@
+            <article class="post" id="post-@post.Id">
+                <a class="post-header" asp-page="/Account/Profile/Index" asp-route-id="@post.Author.Id">
+                    @* Tilføjet: link til forfatterens profil med route-id *@
                     <img
                         class="post-author-profile-picture"
                         src="@(post.Author.ProfileImage != null
@@ -363,9 +364,7 @@
                         alt="@post.Author.DisplayName"
                     />
                     <p class="post-author-name">@post.Author.DisplayName</p>
-                    </a> @* Tilføjet: lukker forfatter-linket *@
 
-                    <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">             
                     <div class="post-time">
                         <time
                             datetime="@post.CreatedAt.ToString("yyyy-MM-ddTHH:mm")"
@@ -380,94 +379,92 @@
                         </span>
                         }
                     </div>
-                    </a> 
-                </div>
+                    @* Tilføjet: lukker forfatter-linket *@
+                </a> 
             
-                <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">
-                <div class="post-body">
+                <a class="post-body" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">
                     @if (post.Title != null)
                     {
                     <p class="post-title">@post.Title</p>
                     }
 
                     <p class="post-content">@post.Content</p>
-                </div>
-                </a> 
-            
-
-            @if (post.Images.Count > 0)
-            {
-            <div class="post-gallery-container">
-                <div class="post-image-gallery" id="post-image-gallery-@post.Id">
-                    @for (int i = 0; i < post.Images.Count; i++)
+                    @if (post.Images.Count > 0)
                     {
+                    <div class="post-gallery-container">
+                        <div class="post-image-gallery" id="post-image-gallery-@post.Id">
+                            @for (int i = 0; i < post.Images.Count; i++)
+                            {
 
-                    Image image = post.Images[i];
+                            Image image = post.Images[i];
 
-                    <button
-                        type="button"
-                        class="post-image-card"
-                        data-index="@i"
-                        data-dialog="image-dialog-@post.Id">
+                            <button
+                                type="button"
+                                class="post-image-card"
+                                data-index="@i"
+                                data-dialog="image-dialog-@post.Id">
 
-                        <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
-                    </button>
-                    }
-                </div>
+                                <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
+                            </button>
+                            }
+                        </div>
 
-                <dialog id="image-dialog-@post.Id" class="lightbox">
-                    <div class="modal-content">
-                        <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
-                        <img class="modal-image" src="" alt="" />
-                        <button type="button" class="modal-nav next modal-next">&#10095;</button>
-                        <p class="image-caption"></p>
+                        <dialog id="image-dialog-@post.Id" class="lightbox">
+                            <div class="modal-content">
+                                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                                <img class="modal-image" src="" alt="" />
+                                <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                                <p class="image-caption"></p>
+                            </div>
+                        </dialog>
                     </div>
-                </dialog>
-            </div>
-            }
+                    }
+                </a> 
 
-            @* TODO: Add functionality for liking and commenting on posts *@
-            <div class="post-footer">
-                <div class="post-likes">
-                    <form method="post" class="post-likes-actions">
-                        <input type="hidden" name="postId" value="@post.Id" />
-                        <input type="hidden" name="tab" value="@Model.CurrentTab" />
-                        <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
-                        @if (Model.LikedPostIds.Contains(post.Id))
-                        {
-                        <button class="solid-heart" type="submit" asp-page-handler="Unlike"></button>
-                        }
-                        else
-                        {
-                        <button class="outline-heart" type="submit" asp-page-handler="Like"></button>
-                        }
-                    </form>
-                    <p>@post.LikesCount like@(post.LikesCount != 1 ? "s" : "")</p>
+
+                @* TODO: Add functionality for liking and commenting on posts *@
+                <div class="post-footer">
+                    <div class="post-likes">
+                        <form method="post" class="post-likes-actions">
+                            <input type="hidden" name="postId" value="@post.Id" />
+                            <input type="hidden" name="tab" value="@Model.CurrentTab" />
+                            <input type="hidden" name="pageNumber" value="@Model.PageNumber" />
+                            @if (Model.LikedPostIds.Contains(post.Id))
+                            {
+                            <button class="solid-heart" type="submit" asp-page-handler="Unlike"></button>
+                            }
+                            else
+                            {
+                            <button class="outline-heart" type="submit" asp-page-handler="Like"></button>
+                            }
+                        </form>
+                        <p>@post.LikesCount like@(post.LikesCount != 1 ? "s" : "")</p>
+                    </div>
+                    <p>@post.Comments.Count kommentar@(post.Comments.Count != 1 ? "er" : "")</p>
                 </div>
-                <p>@post.Comments.Count kommentar@(post.Comments.Count != 1 ? "er" : "")</p>
-            </div>
-        </article>
-    </li>
-    }
-</ul>
+            </article>
+        </li>
+        }
+    </ul>
 
-@* `href` is used instead of `asp-page` because we need explicit control over the URL, as `page` as a query parameter is a reserved keyword in Razor Pages *@
-<nav class="feed-pagination">
-    @if (Model.PageNumber > 1)
-    {
-    <a class="pagination-button" href="@Model.GetPageUrl(Model.PageNumber - 1)">&#10094;</a>
-    }
-    else
-    {
-    <span class="pagination-button">&#10094;</span>
-    }
-    <span>Side @Model.PageNumber</span>
-    @if (Model.Posts.HasMore)
-    {
-    <a class="pagination-button" href="@Model.GetPageUrl(Model.PageNumber + 1)">&#10095;</a>
-    }
-    else
-    {
-    <span class="pagination-button">&#10095;</span>
-    }
-</nav>
+    @* `href` is used instead of `asp-page` because we need explicit control over the URL, as `page` as a query parameter is a reserved keyword in Razor Pages *@
+    <nav class="feed-pagination">
+        @if (Model.PageNumber > 1)
+        {
+        <a class="pagination-button" href="@Model.GetPageUrl(Model.PageNumber - 1)">&#10094;</a>
+        }
+        else
+        {
+        <span class="pagination-button">&#10094;</span>
+        }
+        <span>Side @Model.PageNumber</span>
+        @if (Model.Posts.HasMore)
+        {
+        <a class="pagination-button" href="@Model.GetPageUrl(Model.PageNumber + 1)">&#10095;</a>
+        }
+        else
+        {
+        <span class="pagination-button">&#10095;</span>
+        }
+    </nav>
+</section>
