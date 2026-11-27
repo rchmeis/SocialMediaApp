@@ -10,7 +10,8 @@ using SocialMediaAppLibrary.Services.Interfaces;
 namespace SocialMediaApp.Pages.Account.Profile;
 
 /// <summary>
-/// PageModel for the authenticated user's profile page, handling profile loading and paginated post feed retrieval.
+/// PageModel for the profile page, supporting both the authenticated user's own profile and other users' profiles,
+/// follow/unfollow toggling, post deletion, and paginated post feed retrieval.
 /// </summary>
 [Authorize]
 public class IndexModel : PageModel
@@ -31,6 +32,7 @@ public class IndexModel : PageModel
     /// <param name="studentService">Service used to retrieve student profile details.</param>
     /// <param name="postService">Service used to retrieve paginated posts for the user.</param>
     /// <param name="logger">Logger used to record warnings and errors during page execution.</param>
+    /// <param name="userservice">Service used to retrieve follow counts and manage follow relationships.</param>
     public IndexModel(IStudentService studentService, IPostService postService, ILogger<IndexModel> logger, IUserService userservice)
     {
         _studentService = studentService;
@@ -38,6 +40,21 @@ public class IndexModel : PageModel
         _logger = logger;
         _userService = userservice;
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the viewed profile belongs to the currently signed-in user.
+    /// </summary>
+    public bool IsOwnProfile { get; set; }
+
+    /// <summary>
+    /// Gets or sets the user ID of the profile currently being viewed.
+    /// </summary>
+    public int ProfileUserId { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the signed-in user currently follows the viewed profile.
+    /// </summary>
+    public bool IsFollowing { get; set; }
 
     /// <summary>
     /// Gets or sets the full paginated result container returned by the post service.
@@ -79,37 +96,49 @@ public class IndexModel : PageModel
     public int Following { get; set; } = 0;
 
     /// <summary>
-    /// Handles HTTP GET requests for the profile page, validates the current user and profile,
-    /// and loads the requested page of posts.
+    /// Handles HTTP GET requests for the profile page, loads the target user's profile and follow state,
+    /// and retrieves the requested page of posts.
     /// </summary>
+    /// <param name="id">Optional target user ID from the query string; defaults to the signed-in user when omitted.</param>
     /// <param name="pageNumber">The 1-based page number requested via query string. Defaults to <c>1</c>.</param>
     /// <param name="cancellationToken">Token used to cancel asynchronous operations if the request aborts.</param>
     /// <returns>
-    /// The rendered <see cref="PageModel"/> on success or recoverable error, or a redirect to the sign-in page
-    /// if no student profile is linked or user claim extraction fails.
+    /// The rendered <see cref="PageModel"/> on success or recoverable error, or a redirect when profile loading fails
+    /// or user claim extraction fails.
     /// </returns>
-    public async Task<IActionResult> OnGetAsync(int pageNumber = 1, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> OnGetAsync(int?id, int pageNumber = 1, CancellationToken cancellationToken = default)
     {
         PlaceholderText = GenerateRandomPlaceholder();
-
-        // make sure current page is always one
         CurrentPage = pageNumber < 1 ? 1 : pageNumber;
 
         try
         {
-            int userId = ClaimsPrincipalExtensions.GetUserId(User);
-            var student = await _studentService.ReadByIdAsync(userId, cancellationToken);
+            int loggedInUserId = ClaimsPrincipalExtensions.GetUserId(User);
+            int targetUserId = id ?? loggedInUserId;
+            IsOwnProfile = targetUserId == loggedInUserId;
+            ProfileUserId = targetUserId;
+
+            var student = await _studentService.ReadByIdAsync(targetUserId, cancellationToken);
             if (student == null)
             {
-                TempData["Error"] = "Hov - der er opstået en fejl. Der er ikke tilknyttet en profil til din bruger";
-                return RedirectToPage("/Account/SignIn");
+                if (IsOwnProfile)
+                {
+                    TempData["Error"] = "Hov - der er opstået en fejl. Der er ikke tilknyttet en profil til din bruger";
+                    return RedirectToPage("/Account/SignIn");
+                }
+                TempData["Error"] = "Profilen blev ikke fundet.";
+                return RedirectToPage("/Feed");
             }
 
             CurrentStudent = student;
-            Following = await _userService.GetFollowingCountAsync(userId, cancellationToken);
-            Followers = await _userService.GetFollowersCountAsync(userId, cancellationToken);
+            Following = await _userService.GetFollowingCountAsync(targetUserId, cancellationToken);
+            Followers = await _userService.GetFollowersCountAsync(targetUserId, cancellationToken);
 
-            // Hent 10 posts pr. side for den aktuelle bruger
+            if (!IsOwnProfile)
+            {
+                IsFollowing = await _userService.IsFollowingAsync(loggedInUserId, targetUserId, cancellationToken);
+            }
+
             await LoadUserPostsAsync(CurrentStudent.Id, CurrentPage, cancellationToken);
             return Page();
         }
@@ -131,8 +160,8 @@ public class IndexModel : PageModel
         {
             _logger.LogError(
                 ex,
-                "An error occurred while loading the profile page for page number {PageNumber}.",
-                CurrentPage);
+                "An error occurred while loading the profile page for user {TargetUserId} and page {PageNumber}.",
+                ProfileUserId, CurrentPage);
 
             PlaceholderText = GenerateRandomPlaceholder();
 
@@ -141,6 +170,55 @@ public class IndexModel : PageModel
             return Page();
         }
     }
+
+    /// <summary>
+    /// Handles HTTP POST requests to toggle whether the signed-in user follows the specified target user.
+    /// </summary>
+    /// <param name="id">The identifier of the target user to follow or unfollow.</param>
+    /// <param name="pageNumber">The 1-based feed page number to preserve on redirect. Defaults to <c>1</c>.</param>
+    /// <param name="cancellationToken">Token used to cancel asynchronous operations if the request aborts.</param>
+    /// <returns>A redirect back to the target user's profile page.</returns>
+    public async Task<IActionResult> OnPostToggleFollowAsync(int id, int pageNumber = 1, CancellationToken cancellationToken = default)
+    {
+        int safePageNumber = pageNumber < 1 ? 1 : pageNumber;
+
+        try
+        {
+            int loggedInUserId = ClaimsPrincipalExtensions.GetUserId(User);
+
+            if (loggedInUserId == id) //ekstra beskyttelse. sammenligner id for den bruger der er logget ind med den bruger man forsøger at følge
+            {
+                return RedirectToPage(new { id, pageNumber = safePageNumber });
+            }
+
+            bool alreadyFollowing = await _userService.IsFollowingAsync(loggedInUserId, id, cancellationToken);
+
+            if (alreadyFollowing)
+            {
+                await _userService.UnfollowAsync(loggedInUserId, id, cancellationToken);
+            }
+            else
+            {
+                await _userService.FollowAsync(loggedInUserId, id, cancellationToken);
+            }
+
+            return RedirectToPage(new { id, pageNumber = safePageNumber });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized attempt to toggle follow for target user {TargetUserId}.", id);
+            await HttpContext.SignOutAsync();
+            TempData["Error"] = "Hov - der er opstået en fejl i dit brugerlogin. Log ind igen og kontakt systemadministrator hvis problemet vedbliver.";
+            return RedirectToPage("/Account/SignIn");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error toggling follow status for target user {TargetUserId}.", id);
+            TempData["Error"] = "Der skete en fejl under opdatering af følger-status.";
+            return RedirectToPage(new { id, pageNumber = safePageNumber });
+        }
+    }
+
 
     /// <summary>
     /// Handles HTTP POST requests to soft-delete a post and redirects back to the current feed page.

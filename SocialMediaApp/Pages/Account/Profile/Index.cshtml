@@ -55,13 +55,42 @@
 
                 <!-- Followers/following til venstre og Rediger under bio til højre -->
                 <div class="profile-hero-bottom">
+
+                    @* Der sendes et id med som en query string via url'en', så andre brugere kan trykke på followers/following og se andres followers/following*@
                     <div class="profile-relations">
-                        <a asp-page="/Account/Profile/Connections" class="profile-relation-btn">@Model.Followers Followers</a>
-                        <a asp-page="/Account/Profile/Connections" class="profile-relation-btn">@Model.Following Following</a>
+                        <a asp-page="/Account/Profile/Connections"
+                           asp-route-id="@Model.ProfileUserId"
+                           class="profile-relation-btn">
+                            @Model.Followers Followers
+                        </a>
+                        <a asp-page="/Account/Profile/Connections"
+                           asp-route-id="@Model.ProfileUserId"
+                           class="profile-relation-btn">
+                            @Model.Following Following
+                        </a>
                     </div>
-                    <div class="profile-member-since">
-                        <small>Medlem siden @Model.CurrentStudent.CreatedAt.ToShortDateString()</small>
-                    </div>
+
+
+                    @if (!Model.IsOwnProfile)
+                    {
+                        <form method="post"
+                              asp-page-handler="ToggleFollow"
+                              asp-route-id="@Model.ProfileUserId"
+                              asp-route-pageNumber="@Model.CurrentPage"
+                              class="follow-action-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    class="follow-btn @(Model.IsFollowing ? "follow-btn--following" : "follow-btn--follow")">
+                                @(Model.IsFollowing ? "Følger" : "Følg")
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="profile-member-since">
+                            <small>Medlem siden @Model.CurrentStudent.CreatedAt.ToShortDateString()</small>
+                        </div>
+                    }
                      
                 </div>
             </div>
@@ -73,14 +102,18 @@
         <div class="profile-main">
             <!-- Sammenhængende 720px-spor med lodrette afgrænsningslinjer fra hero-boksen ned gennem opslagene -->
             <div class="profile-content-container">
-                <section class="post-composer-section">
-                    <a asp-page="/Posts/CreatePost"
-                       asp-route-returnUrl="/Account/Profile/Index"
-                       class="post-pill-bar post-pill-link">
-                        <span class="post-pill-placeholder">@Model.PlaceholderText</span>
-                        <span class="post-plus-btn" aria-hidden="true">+</span>
-                    </a>
-                </section>
+                
+                @if (Model.IsOwnProfile)
+                {
+                    <section class="post-composer-section">
+                        <a asp-page="/Posts/CreatePost"
+                           asp-route-returnUrl="@Url.Page("/Account/Profile/Index", new { id = Model.ProfileUserId })"
+                           class="post-pill-bar post-pill-link">
+                            <span class="post-pill-placeholder">@Model.PlaceholderText</span>
+                            <span class="post-plus-btn" aria-hidden="true">+</span>
+                        </a>
+                    </section>
+                }
 
                 <section class="user-posts-section" aria-label="Mine opslag">
                     @if (Model.PagedPosts != null && Model.PagedPosts.Any())
@@ -102,55 +135,59 @@
                                             </div>
                                         </div>
 
-                                        <details class="post-menu">
-                                            <summary class="post-menu-trigger" aria-label="Flere valgmuligheder for opslag">&#8943;</summary>
-                                            <div class="post-menu-dropdown">
-                                                <a class="post-menu-item"
-                                                   asp-page="/Posts/UpdatePost"
-                                                   asp-route-postId="@post.Id"
-                                                   asp-route-returnUrl="/Account/Profile/Index">
-                                                    Rediger
-                                                </a>
+                                        @if (Model.IsOwnProfile)
+                                        {
+                                            <details class="post-menu">
+                                                <summary class="post-menu-trigger" aria-label="Flere valgmuligheder for opslag">&#8943;</summary>
+                                                <div class="post-menu-dropdown">
+                                                    <a class="post-menu-item"
+                                                       asp-page="/Posts/UpdatePost"
+                                                       asp-route-postId="@post.Id"
+                                                       asp-route-returnUrl="/Account/Profile/Index">
+                                                        Rediger
+                                                    </a>
 
-                                                <div class="delete-confirm-wrapper">
-                                                    <input type="checkbox"
-                                                           id="confirm-delete-@post.Id"
-                                                           class="delete-confirm-toggle"
-                                                           aria-hidden="true" />
+                                                    <div class="delete-confirm-wrapper">
+                                                        <input type="checkbox"
+                                                               id="confirm-delete-@post.Id"
+                                                               class="delete-confirm-toggle"
+                                                               aria-hidden="true" />
 
-                                                    <label for="confirm-delete-@post.Id"
-                                                           class="post-menu-item post-menu-item--danger">
-                                                        Slet
-                                                    </label>
+                                                        <label for="confirm-delete-@post.Id"
+                                                               class="post-menu-item post-menu-item--danger">
+                                                            Slet
+                                                        </label>
 
-                                                    <div class="delete-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-title-@post.Id">
-                                                        <div class="delete-modal-box">
-                                                            <h3 id="delete-title-@post.Id" class="delete-modal-title">Slet opslag?</h3>
-                                                            <p class="delete-modal-text">
-                                                                Er du sikker på, at du vil slette dette opslag? Handlingen kan ikke fortrydes.
-                                                            </p>
+                                                        <div class="delete-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-title-@post.Id">
+                                                            <div class="delete-modal-box">
+                                                                <h3 id="delete-title-@post.Id" class="delete-modal-title">Slet opslag?</h3>
+                                                                <p class="delete-modal-text">
+                                                                    Er du sikker på, at du vil slette dette opslag? Handlingen kan ikke fortrydes.
+                                                                </p>
 
-                                                            <div class="delete-modal-actions">
-                                                                <label for="confirm-delete-@post.Id" class="delete-btn delete-btn--cancel">
-                                                                    Annuller
-                                                                </label>
+                                                                <div class="delete-modal-actions">
+                                                                    <label for="confirm-delete-@post.Id" class="delete-btn delete-btn--cancel">
+                                                                        Annuller
+                                                                    </label>
 
-                                                                <form method="post"
-                                                                      asp-page-handler="DeletePost"
-                                                                      asp-route-postId="@post.Id"
-                                                                      asp-route-pageNumber="@Model.CurrentPage"
-                                                                      class="delete-confirm-form">
-                                                                    @Html.AntiForgeryToken()
-                                                                    <button type="submit" class="delete-btn delete-btn--confirm">
-                                                                        Bekræft
-                                                                    </button>
-                                                                </form>
+                                                                    <form method="post"
+                                                                          asp-page-handler="DeletePost"
+                                                                          asp-route-postId="@post.Id"
+                                                                          asp-route-pageNumber="@Model.CurrentPage"
+                                                                          class="delete-confirm-form">
+                                                                        @Html.AntiForgeryToken()
+                                                                        <button type="submit" class="delete-btn delete-btn--confirm">
+                                                                            Bekræft
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </details>
+                                            </details>
+                                        }
+                                       
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(post.Title))
@@ -234,6 +271,43 @@
 </div>
 
 <style>
+    /* FOLLOW / FOLLOWING BUTTONS */
+
+    .follow-action-form {
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .follow-btn {
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid transparent;
+        line-height: 1.2;
+    }
+
+    .follow-btn--follow {
+        background-color: #fafaf8;
+        color: #111111;
+    }
+
+        .follow-btn--follow:hover {
+            background-color: #ffffff;
+        }
+
+    .follow-btn--following {
+        background-color: transparent;
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.85);
+    }
+
+        .follow-btn--following:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+
 
     /* INTERESTS */
     .profile-interests {
@@ -259,7 +333,7 @@
 
 
 
-    /* CONFRM MODAL CSS */
+    /* CONFRM DELETE MODAL CSS */
     .delete-confirm-wrapper {
         position: relative;
         margin: 0;
@@ -374,6 +448,7 @@
         background-color: #f6f6f4;
         box-sizing: border-box;
     }
+
 
     /* Grøn profilsektion i fuld bredde */
     .profile-hero {
