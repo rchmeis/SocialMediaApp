@@ -97,7 +97,7 @@ namespace SocialMediaAppLibrary.Repositories
                             i.image_id      AS img_image_id,
                             i.file_name     AS img_file_name,
                             i.alt_text      AS img_alt_text,
-                            i.image_data    AS img_image_data,
+                            -- i.image_data    AS img_image_data,  -- Commented out as Images PageModel will handle image data retrieval and caching
                             i.height        AS img_height,
                             i.width         AS img_width,
                             i.file_size     AS img_file_size,
@@ -126,7 +126,7 @@ namespace SocialMediaAppLibrary.Repositories
             int ordImgId = reader.GetOrdinal("img_image_id");
             int ordFileName = reader.GetOrdinal("img_file_name");
             int ordAltText = reader.GetOrdinal("img_alt_text");
-            int ordImageData = reader.GetOrdinal("img_image_data");
+            // int ordImageData = reader.GetOrdinal("img_image_data"); // Commented out as Images PageModel will handle image data retrieval and caching
             int ordHeight = reader.GetOrdinal("img_height");
             int ordWidth = reader.GetOrdinal("img_width");
             int ordFileSize = reader.GetOrdinal("img_file_size");
@@ -135,20 +135,20 @@ namespace SocialMediaAppLibrary.Repositories
             Image? image = null;
             if (!await reader.IsDBNullAsync(ordImgId, cancellationToken))
             {
-                byte[]? imageData = null;
+                /*byte[]? imageData = null; // Commented out as Images PageModel will handle image data retrieval and caching
                 if (!await reader.IsDBNullAsync(ordImageData, cancellationToken))
                 {
                     long bytesLength = reader.GetBytes(ordImageData, 0, null, 0, 0);
                     imageData = new byte[bytesLength];
                     reader.GetBytes(ordImageData, 0, imageData, 0, (int)bytesLength);
-                }
+                }*/
 
                 image = new Image
                 {
                     Id = reader.GetInt32(ordImgId),
                     FileName = await reader.IsDBNullAsync(ordFileName, cancellationToken) ? string.Empty : reader.GetString(ordFileName),
                     AltText = await reader.IsDBNullAsync(ordAltText, cancellationToken) ? null : reader.GetString(ordAltText),
-                    ImageData = imageData,
+                    // ImageData = imageData, // Commented out as Images PageModel will handle image data retrieval and caching
                     Height = await reader.IsDBNullAsync(ordHeight, cancellationToken) ? 0 : reader.GetInt32(ordHeight),
                     Width = await reader.IsDBNullAsync(ordWidth, cancellationToken) ? 0 : reader.GetInt32(ordWidth),
                     FileSize = await reader.IsDBNullAsync(ordFileSize, cancellationToken) ? 0 : reader.GetInt32(ordFileSize),
@@ -196,7 +196,7 @@ namespace SocialMediaAppLibrary.Repositories
                     i.image_id,
                     i.file_name,
                     i.alt_text,
-                    i.image_data,
+                    -- i.image_data,                               -- Commented out as Images PageModel will handle image data retrieval and caching
                     i.created_at AS image_created_at
                 FROM users u
                 LEFT JOIN partners p ON p.user_id = u.user_id
@@ -227,17 +227,17 @@ namespace SocialMediaAppLibrary.Repositories
                 // A user may not have a profile image (u.image_id IS NULL), so i.image_id can be DBNull.
                 int fileNameOrdinal = reader.GetOrdinal("file_name");
                 int altTextOrdinal = reader.GetOrdinal("alt_text");
-                int imageDataOrdinal = reader.GetOrdinal("image_data");
+                // int imageDataOrdinal = reader.GetOrdinal("image_data"); // Commented out as Images PageModel will handle image data retrieval and caching
                 int imageCreatedAtOrdinal = reader.GetOrdinal("image_created_at");
 
                 byte[] imageData = Array.Empty<byte>();
 
-                if (! await reader.IsDBNullAsync(imageDataOrdinal, cancellationToken))
+                /*if (! await reader.IsDBNullAsync(imageDataOrdinal, cancellationToken)) // Commented out as Images PageModel will handle image data retrieval and caching
                 {
                     long bytesLength = reader.GetBytes(imageDataOrdinal, 0, null, 0, 0); //first call: how many bytes are there? null->no destination array yet. 000, start reading at index 0, start writing at index 0, copy 0 bytes right now.
                     imageData = new byte[bytesLength]; //Allocate the array of that exact size
                     reader.GetBytes(imageDataOrdinal, 0, imageData, 0, (int)bytesLength); //Second call—actually copy the bytes into the array. (int)bytesLength: copy all bytesLength bytes.
-                }
+                }*/
 
                 image = new Image
                 {

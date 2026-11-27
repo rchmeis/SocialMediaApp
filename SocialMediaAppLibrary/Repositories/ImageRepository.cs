@@ -40,7 +40,7 @@ namespace SocialMediaAppLibrary.Repositories
         public async Task<List<Image>> ReadAllAsync(CancellationToken cancellationToken)
         {
             const string sql = """
-            SELECT image_id, file_name, alt_text, image_data, height, width, file_size, created_at
+            SELECT image_id, file_name, alt_text, height, width, file_size, created_at
             FROM images;
             """;
 
@@ -59,7 +59,6 @@ namespace SocialMediaAppLibrary.Repositories
                     Id = reader.GetInt32(reader.GetOrdinal("image_id")),
                     FileName = reader.GetString(reader.GetOrdinal("file_name")),
                     AltText = reader.GetString(reader.GetOrdinal("alt_text")),
-                    ImageData = (byte[])reader[reader.GetOrdinal("image_data")],
                     Height = reader.GetInt32(reader.GetOrdinal("height")),
                     Width = reader.GetInt32(reader.GetOrdinal("width")),
                     FileSize = reader.GetInt32(reader.GetOrdinal("file_size")),
