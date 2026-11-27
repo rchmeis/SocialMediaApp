@@ -190,9 +190,10 @@
                                        
                                     </div>
 
-                                    <a asp-page="/Posts/PostDetails"
+                                    <a class="post-detail-link"
+                                       asp-page="/Posts/PostDetails"
                                        asp-route-postId="@post.Id"
-                                       asp-route-returnUrl="@Url.Page("/Feed")">
+                                       asp-route-returnUrl="@Url.Page("/Account/Profile/Index", new { id = Model.ProfileUserId, pageNumber = Model.CurrentPage })">
                                     @if (!string.IsNullOrWhiteSpace(post.Title))
                                     {
                                         <h2 class="post-title">@post.Title</h2>
@@ -275,6 +276,21 @@
 </div>
 
 <style>
+    /* REMOVE STYLING FROM LINKS */
+    .post-detail-link {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+    }
+
+        .post-detail-link:hover,
+        .post-detail-link:focus {
+            text-decoration: none;
+            color: inherit;
+        }
+
     /* FOLLOW / FOLLOWING BUTTONS */
 
     .follow-action-form {
