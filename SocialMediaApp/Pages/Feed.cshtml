@@ -104,12 +104,19 @@
     }
 
     .post-body {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         padding: 0.75rem 1.5rem;
         color: unset;
         text-decoration: none;
+    }
+
+    .post-body-link {
+        position: absolute;
+        inset: 0;
+        display: block;
     }
 
     .post-title {
@@ -124,10 +131,12 @@
     }
 
     .post-image-gallery {
+        position: relative;
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(2, 1fr);
         gap: 0.25rem;
+        margin-top: 0.75rem;
 
         &:has(> :only-child) {
             grid-template-columns: 1fr;
@@ -382,7 +391,8 @@
                     @* Tilføjet: lukker forfatter-linket *@
                 </a> 
             
-                <a class="post-body" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">
+                <div class="post-body">
+                    <a class="post-body-link" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id"></a>
                     @if (post.Title != null)
                     {
                     <p class="post-title">@post.Title</p>
@@ -419,7 +429,7 @@
                         </dialog>
                     </div>
                     }
-                </a> 
+                </div> 
 
 
                 @* TODO: Add functionality for liking and commenting on posts *@
