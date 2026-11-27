@@ -352,8 +352,9 @@
     {
     <li>
         <article class="post" id="post-@post.Id">
-            <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">
                 <div class="post-header">
+                    <a class="post-author-link" asp-page="/Account/Profile/Index" asp-route-id="@post.Author.Id">
+                        @* Tilføjet: link til forfatterens profil med route-id *@
                     <img
                         class="post-author-profile-picture"
                         src="@(post.Author.ProfileImage != null
@@ -362,6 +363,9 @@
                         alt="@post.Author.DisplayName"
                     />
                     <p class="post-author-name">@post.Author.DisplayName</p>
+                    </a> @* Tilføjet: lukker forfatter-linket *@
+
+                    <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">             
                     <div class="post-time">
                         <time
                             datetime="@post.CreatedAt.ToString("yyyy-MM-ddTHH:mm")"
@@ -376,8 +380,10 @@
                         </span>
                         }
                     </div>
+                    </a> 
                 </div>
-
+            
+                <a class="post-link" asp-page="/Posts/PostDetails" asp-route-postId="@post.Id">
                 <div class="post-body">
                     @if (post.Title != null)
                     {
@@ -386,7 +392,8 @@
 
                     <p class="post-content">@post.Content</p>
                 </div>
-            </a>
+                </a> 
+            
 
             @if (post.Images.Count > 0)
             {
