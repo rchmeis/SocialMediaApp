@@ -281,55 +281,6 @@
             }
         </div>
     </a>
-
-   
-    <div class="post-body">
-        @if (Model.PostDetails.Title != null)
-        {
-        <p class="post-title">@Model.PostDetails.Title</p>
-        }
-
-        <p class="post-content">@Model.PostDetails.Content</p>
-
-        @* Only render the image gallery if the post has images to display *@
-        @if (Model.PostDetails.Images.Count > 0)
-        {
-        <div class="post-gallery-container">
-            <div class="post-image-gallery" id="post-image-gallery-@Model.PostDetails.Id">
-                @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
-                {
-
-                Image image = Model.PostDetails.Images[i];
-
-                <button type="button" class="post-image-card" data-index="@i">
-                    <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
-                </button>
-                }
-            </div>
-
-            <dialog id="image-dialog" class="lightbox">
-                <div class="modal-content">
-                    <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
-                    <img class="modal-image" src="" alt="" />
-                    <button type="button" class="modal-nav next modal-next">&#10095;</button>
-                    <p class="image-caption"></p>
-                </div>
-            </dialog>
-        </div>
-        }
-    </div>
-
-        <dialog id="image-dialog" class="lightbox">
-            <div class="modal-content">
-                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
-                <img class="modal-image" src="" alt="" />
-                <button type="button" class="modal-nav next modal-next">&#10095;</button>
-                <p class="image-caption"></p>
-            </div>
-        </dialog>
-    </div>
-    }
-
     @* funcitonality for deleting/editing posts *@
 
     @if (Model.PostDetails.Author != null && Model.PostDetails.Author.Id == Model.LoggedInUserId)
@@ -384,6 +335,53 @@
                 </div>
             </div>
         </details>
+    }
+   
+    <div class="post-body">
+        @if (Model.PostDetails.Title != null)
+        {
+        <p class="post-title">@Model.PostDetails.Title</p>
+        }
+
+        <p class="post-content">@Model.PostDetails.Content</p>
+
+        @* Only render the image gallery if the post has images to display *@
+        @if (Model.PostDetails.Images.Count > 0)
+        {
+        <div class="post-gallery-container">
+            <div class="post-image-gallery" id="post-image-gallery-@Model.PostDetails.Id">
+                @for (int i = 0; i < Model.PostDetails.Images.Count; i++)
+                {
+
+                Image image = Model.PostDetails.Images[i];
+
+                <button type="button" class="post-image-card" data-index="@i">
+                    <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" loading="lazy" />
+                </button>
+                }
+            </div>
+
+            <dialog id="image-dialog" class="lightbox">
+                <div class="modal-content">
+                    <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                    <img class="modal-image" src="" alt="" />
+                    <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                    <p class="image-caption"></p>
+                </div>
+            </dialog>
+        </div>
+        }
+    </div>
+
+        <dialog id="image-dialog" class="lightbox">
+            <div class="modal-content">
+                <button type="button" class="modal-nav prev modal-prev">&#10094;</button>
+                <img class="modal-image" src="" alt="" />
+                <button type="button" class="modal-nav next modal-next">&#10095;</button>
+                <p class="image-caption"></p>
+            </div>
+        </dialog>
+    </div>
     }
 
 
