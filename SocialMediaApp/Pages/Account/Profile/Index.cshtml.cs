@@ -137,7 +137,7 @@ public class IndexModel : PageModel
             }
             if (!IsOwnProfile)
             {
-                SaveRecentlyViewed(loggedInUserId, id, student);
+                SaveRecentlyViewedProfile(loggedInUserId, targetUserId);
             }
 
             CurrentStudent = student;
@@ -324,6 +324,12 @@ public class IndexModel : PageModel
         TotalPages = Math.Max(1, (int)Math.Ceiling((double)result.TotalCount / PageSize));
     }
 
+    /// <summary>
+    /// Records a recently viewed profile identifier in a per-user cookie ordered newest-first,
+    /// deduplicating repeat visits and capping the stored list at the maximum allowed count.
+    /// </summary>
+    /// <param name="loggedInUserId">The identifier of the currently signed-in user whose cookie is updated.</param>
+    /// <param name="viewedProfileId">The identifier of the profile being viewed.</param>
     private void SaveRecentlyViewedProfile(int loggedInUserId, int viewedProfileId)
     {
         string cookieName = $"recent_profiles_{loggedInUserId}";
