@@ -55,9 +55,9 @@ namespace SocialMediaAppLibrary.Services
         /// <param name="userId">The unique identifier of the user whose followers are counted.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>The follower count for <paramref name="userId"/>.</returns>
-        public async Task<UserSummary> GetByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken)
+        public async Task<UserSummary> GetSummaryByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken)
         {
-            return await _userRepository.GetByUserAuthIdAsync(userAuthId, cancellationToken);
+            return await _userRepository.GetSummaryByUserAuthIdAsync(userAuthId, cancellationToken);
         }
 
         /// <summary>
@@ -149,6 +149,17 @@ namespace SocialMediaAppLibrary.Services
         public Task<User> WriteAsync(User entity, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Retrieves <see cref="UserSummary"/> objects for the specified active user IDs.
+        /// </summary>
+        /// <param name="userIds">The list of user IDs to look up.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A list of matching non-deleted <see cref="UserSummary"/> items.</returns>
+        public Task<List<UserSummary>> GetSummariesByIdsAsync(List<int> userIds, CancellationToken cancellationToken)
+        {
+            return _userRepository.GetSummariesByIdsAsync(userIds, cancellationToken);
         }
     }
 }

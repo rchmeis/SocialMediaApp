@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,11 @@ public class IndexModel : PageModel
     /// Number of posts displayed per page on the profile feed.
     /// </summary>
     private const int PageSize = 10;
+
+    /// <summary>
+    /// Maximum number of profiles stored in the users brower through cookies.
+    /// </summary>
+    private const int MaxRecentProfiles = 5;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IndexModel"/> class.
@@ -115,7 +121,7 @@ public class IndexModel : PageModel
         {
             int loggedInUserId = ClaimsPrincipalExtensions.GetUserId(User);
             int targetUserId = id ?? loggedInUserId;
-            IsOwnProfile = targetUserId == loggedInUserId;
+            IsOwnProfile = targetUserId == loggedInUserId;           
             ProfileUserId = targetUserId;
 
             var student = await _studentService.ReadByIdAsync(targetUserId, cancellationToken);
@@ -128,6 +134,10 @@ public class IndexModel : PageModel
                 }
                 TempData["Error"] = "Profilen blev ikke fundet.";
                 return RedirectToPage("/Feed");
+            }
+            if (!IsOwnProfile)
+            {
+                SaveRecentlyViewedProfile(loggedInUserId, targetUserId);
             }
 
             CurrentStudent = student;
@@ -312,6 +322,48 @@ public class IndexModel : PageModel
        
         PagedPosts = result.Items;
         TotalPages = Math.Max(1, (int)Math.Ceiling((double)result.TotalCount / PageSize));
+    }
+
+    /// <summary>
+    /// Records a recently viewed profile identifier in a per-user cookie ordered newest-first,
+    /// deduplicating repeat visits and capping the stored list at the maximum allowed count.
+    /// </summary>
+    /// <param name="loggedInUserId">The identifier of the currently signed-in user whose cookie is updated.</param>
+    /// <param name="viewedProfileId">The identifier of the profile being viewed.</param>
+    private void SaveRecentlyViewedProfile(int loggedInUserId, int viewedProfileId)
+    {
+        string cookieName = $"recent_profiles_{loggedInUserId}";
+        List<int> recentIds = new();
+
+        if (Request.Cookies.TryGetValue(cookieName, out string? existingJson) &&
+            !string.IsNullOrWhiteSpace(existingJson))
+        {
+            try
+            {
+                recentIds = JsonSerializer.Deserialize<List<int>>(existingJson) ?? new List<int>();
+            }
+            catch (JsonException)
+            {
+                recentIds = new List<int>();
+            }
+        }
+
+        recentIds.Remove(viewedProfileId);
+        recentIds.Insert(0, viewedProfileId);
+
+        if (recentIds.Count > MaxRecentProfiles)
+        {
+            recentIds.RemoveRange(MaxRecentProfiles, recentIds.Count - MaxRecentProfiles); //starts at given index, removes given amount after the comma
+        }
+
+        Response.Cookies.Append(cookieName, JsonSerializer.Serialize(recentIds), new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddDays(30),
+            HttpOnly = true,
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = Request.IsHttps
+        });
     }
 
 

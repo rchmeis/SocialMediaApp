@@ -33,7 +33,7 @@ namespace SocialMediaAppLibrary.Repositories
             img.image_id AS img_id,
             img.file_name,
             img.alt_text,
-            img.image_data,
+            -- img.image_data,                               -- Commented out as Images PageModel will handle image data retrieval and caching
             img.height,
             img.width,
             img.file_size,
@@ -427,10 +427,10 @@ namespace SocialMediaAppLibrary.Repositories
             Image? image = null;
             if (!reader.IsDBNull(imageIdOrdinal) && !reader.IsDBNull(imgIdOrdinal))
             {
-                int imageDataOrdinal = reader.GetOrdinal("image_data");
+                /*int imageDataOrdinal = reader.GetOrdinal("image_data"); // Commented out as Images PageModel will handle image data retrieval and caching
                 byte[] imageData = reader.IsDBNull(imageDataOrdinal)
                     ? []
-                    : (byte[])reader[imageDataOrdinal];
+                    : (byte[])reader[imageDataOrdinal];*/
 
                 int fileNameOrdinal = reader.GetOrdinal("file_name");
                 int altTextOrdinal = reader.GetOrdinal("alt_text");
@@ -444,7 +444,7 @@ namespace SocialMediaAppLibrary.Repositories
                     Id = reader.GetInt32(imgIdOrdinal),
                     FileName = reader.IsDBNull(fileNameOrdinal) ? string.Empty : reader.GetString(fileNameOrdinal),
                     AltText = reader.IsDBNull(altTextOrdinal) ? string.Empty : reader.GetString(altTextOrdinal),
-                    ImageData = imageData,
+                    // ImageData = imageData, // Commented out as Images PageModel will handle image data retrieval and caching
                     Height = reader.IsDBNull(heightOrdinal) ? 0 : reader.GetInt32(heightOrdinal),
                     Width = reader.IsDBNull(widthOrdinal) ? 0 : reader.GetInt32(widthOrdinal),
                     FileSize = reader.IsDBNull(fileSizeOrdinal) ? 0 : reader.GetInt32(fileSizeOrdinal),

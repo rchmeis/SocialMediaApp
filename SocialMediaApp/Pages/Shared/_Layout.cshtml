@@ -28,8 +28,14 @@
     <!-- Header bar -->
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
-            <div class="container">
+            <div class="container d-flex align-items-center">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">StudentHub</a>
+                
+                <!--SEARCH BAR AND RECENTLY VIEWED PROFILES-->
+                <div class="d-flex align-items-center justify-content-center mx-auto px-3 header-search-slot">
+                    @await Component.InvokeAsync("RecentlyViewed")  <!--Note: ASP.NET CORE searches for a class inheriting from ViewComponent named RecentlyViewedViewComponent (strpping the ViewCompinent suffix) or decorated with ViewComponent(Name="RecentlyViewed)") -->
+                
+                </div>
                 <div>
                     <ul class="navbar-nav align-items-center ms-auto">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)

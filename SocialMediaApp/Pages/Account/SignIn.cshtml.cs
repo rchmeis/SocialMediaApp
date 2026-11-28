@@ -104,7 +104,7 @@ namespace SocialMediaApp.Pages.Account
                 return Page();
             }
 
-            UserSummary userSummary = await _userService.GetByUserAuthIdAsync(result.UserAuthentication.Id, cancellationToken);
+            UserSummary userSummary = await _userService.GetSummaryByUserAuthIdAsync(result.UserAuthentication.Id, cancellationToken);
             if (userSummary is null)
             {
                 
