@@ -1,0 +1,57 @@
+﻿@model List<SocialMediaAppLibrary.Models.UserSummary>
+@{
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+
+<div class="header-search-wrapper">
+    <form method="get" asp-page="/Search" class="header-search-form" role="search">
+        <input type="search"
+               name="q"
+               class="header-search-input"
+               placeholder="Søg efter profiler..."
+               aria-label="Søg efter profiler"
+               autocomplete="off" />
+    </form>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="recent-dropdown" aria-label="Senest sete profiler">
+            <div class="recent-dropdown-header">Senest sete</div>
+
+            <ul class="recent-dropdown-list">
+                @foreach (var profile in Model)
+                {
+                    <li class="recent-dropdown-row">
+                        <a class="recent-dropdown-item"
+                           asp-page="/Account/Profile/Index"
+                           asp-route-id="@profile.Id">
+                            <img class="recent-dropdown-avatar"
+                                 src="@(profile.ProfileImage != null
+                                                                         ? $"/images/{profile.ProfileImage.Id}/{profile.ProfileImage.FileName}"
+                                                                         : Url.Content("~/images/default-avatar.jpg"))"
+                                 alt="@profile.DisplayName" />
+                            <span class="recent-dropdown-name">@profile.DisplayName</span>
+                        </a>
+
+                        <!--Direct the user to /search to remove one specific profile from recently viewed-->
+                        <form method="post" asp-page="/Search" asp-page-handler="RemoveRecent" class="recent-remove-form">
+                            <input type="hidden" name="profileId" value="@profile.Id" />
+                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+                            <button type="submit" class="recent-remove-btn" aria-label="Fjern @profile.DisplayName">
+                                &times;
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+
+            <!--direct the user to /Search ClearRecent() to clear all viewed profiles-->
+            <div class="recent-dropdown-footer">
+                <form method="post" asp-page="/Search" asp-page-handler="ClearRecent">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit" class="recent-clear-btn">Ryd alle</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
