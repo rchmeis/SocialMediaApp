@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SocialMediaApp.Security;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -28,8 +29,9 @@ namespace SocialMediaApp.Pages
         /// <returns>A local redirect to <paramref name="returnUrl"/> if valid; otherwise, a redirect to <c>/Index</c>.</returns>
         public IActionResult OnPostRemoveRecent(int profileId, string? returnUrl = null)
         {
-            if (TryGetLoggedInUserId(out int loggedInUserId))
+            try
             {
+                int loggedInUserId = ClaimsPrincipalExtensions.GetUserId(User);
                 string cookieName = $"recent_profiles_{loggedInUserId}";
                 List<int> recentIds = ReadRecentProfileIds(cookieName);
 
@@ -44,9 +46,14 @@ namespace SocialMediaApp.Pages
                 {
                     WriteRecentProfileIds(cookieName, recentIds);
                 }
+                return RedirectToSafeLocalUrl(returnUrl);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return RedirectToPage("/Account/SignIn");
             }
 
-            return RedirectToSafeLocalUrl(returnUrl);
+            
         }
 
         /// <summary>
@@ -57,32 +64,21 @@ namespace SocialMediaApp.Pages
         /// <returns>A local redirect to <paramref name="returnUrl"/> if valid; otherwise, a redirect to <c>/Index</c>.</returns>
         public IActionResult OnPostClearRecent(string? returnUrl = null)
         {
-            if (TryGetLoggedInUserId(out int loggedInUserId))
+            try
             {
+                int loggedInUserId = ClaimsPrincipalExtensions.GetUserId(User);
+
                 string cookieName = $"recent_profiles_{loggedInUserId}";
                 Response.Cookies.Delete(cookieName);
+
+                return RedirectToSafeLocalUrl(returnUrl);
             }
-
-            return RedirectToSafeLocalUrl(returnUrl);
-        }
-
-        /// <summary>
-        /// Attempts to resolve a positive integer user identifier from the current user's claims.
-        /// </summary>
-        /// <param name="userId">When this method returns <see langword="true"/>, contains the authenticated user's identifier; otherwise, <c>0</c>.</param>
-        /// <returns><see langword="true"/> if the user is authenticated and has a valid integer <see cref="ClaimTypes.NameIdentifier"/> claim; otherwise, <see langword="false"/>.</returns>
-        private bool TryGetLoggedInUserId(out int userId)
-        {
-            userId = 0;
-
-            if (User?.Identity?.IsAuthenticated != true)
+            catch (UnauthorizedAccessException ex)
             {
-                return false;
+                return RedirectToPage("/Account/SignIn");
             }
-
-            string? userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return int.TryParse(userIdClaim, out userId) && userId > 0;
         }
+
 
         /// <summary>
         /// Reads and deserializes a list of recently viewed profile identifiers from a cookie.
