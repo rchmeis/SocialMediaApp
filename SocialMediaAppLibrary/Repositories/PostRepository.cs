@@ -292,9 +292,87 @@ namespace SocialMediaAppLibrary.Repositories
             return post;
         }
 
-        public Task<Post> UpdateAsync(int id, Post entity, CancellationToken cancellationToken)
+        /// <summary>
+        /// Updates a post's title, content and <c>updated_at</c> timestamp, and inserts any new images
+        /// linked to the post. All changes run in a single transaction, so either everything is saved or nothing is.
+        /// </summary>
+        /// <remarks>
+        /// Only images with an <see cref="Image.Id"/> of 0 are inserted; existing images are left unchanged.
+        /// Each new image is saved to the <c>images</c> table and linked to the post through <c>post_images</c>.
+        /// Removing images is handled separately by <c>ImageRepository.DeleteAsync</c>.
+        /// </remarks>
+        /// <param name="id">The unique identifier of the post to update.</param>
+        /// <param name="entity">The post containing the updated title, content and images.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>The updated post, with ids assigned to the newly inserted images.</returns>
+        /// <exception cref="Exception">Thrown when the post could not be updated. No changes are saved.</exception>
+        public async Task<Post> UpdateAsync(int id, Post entity, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            string sqlPosts = """
+                              UPDATE posts
+                              SET 
+                              title = @title,
+                              content = @content,
+                              updated_at = @updated_at
+                              WHERE post_id = @post_id
+                              """;
+            
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync();
+            
+            await using MySqlTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                // Step 1: update post table
+                await using MySqlCommand cmdPosts = new MySqlCommand(sqlPosts, connection, transaction);
+
+                cmdPosts.Parameters.AddWithValue("title", entity.Title);
+                cmdPosts.Parameters.AddWithValue("content", entity.Content);
+                cmdPosts.Parameters.AddWithValue("updated_at", DateTime.Now);
+                cmdPosts.Parameters.AddWithValue("post_id", entity.Id);
+
+                await cmdPosts.ExecuteNonQueryAsync(cancellationToken);
+
+                // Step 2: Udate images 
+                foreach (Image image in entity.Images.Where(i => i.Id == 0))
+                {
+                    // Insert the image itself
+                    const string sqlImages = """
+                                             INSERT INTO images (file_name, alt_text, image_data, height, width, file_size)
+                                             VALUES (@file_name, @alt_text, @image_data, @height, @width, @file_size);
+                                             """;
+
+                    await using MySqlCommand cmdImages = new MySqlCommand(sqlImages, connection, transaction);
+                    cmdImages.Parameters.AddWithValue("@file_name", image.FileName);
+                    cmdImages.Parameters.AddWithValue("@alt_text", image.AltText);
+                    cmdImages.Parameters.AddWithValue("@image_data", image.ImageData);
+                    cmdImages.Parameters.AddWithValue("@height", image.Height);
+                    cmdImages.Parameters.AddWithValue("@width", image.Width);
+                    cmdImages.Parameters.AddWithValue("@file_size", image.FileSize);
+
+                    await cmdImages.ExecuteNonQueryAsync(cancellationToken);
+                    image.Id = (int)cmdImages.LastInsertedId;
+
+                    // Link it to the post
+                    const string sqlPostImages = """
+                                                 INSERT INTO post_images (post_id, image_id)
+                                                 VALUES (@post_id, @image_id);
+                                                 """;
+
+                    await using MySqlCommand cmdPostImages = new MySqlCommand(sqlPostImages, connection, transaction);
+                    cmdPostImages.Parameters.AddWithValue("@post_id", entity.Id);
+                    cmdPostImages.Parameters.AddWithValue("@image_id", image.Id);
+                    await cmdPostImages.ExecuteNonQueryAsync(cancellationToken);
+                }
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Couldn't update Post", ex);
+            }
+
+            return entity;
         }
 
         /// <summary>

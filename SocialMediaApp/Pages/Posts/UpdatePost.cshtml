@@ -1,4 +1,56 @@
 ﻿@page
 @model SocialMediaApp.Pages.Posts.UpdatePostModel
+@using SocialMediaAppLibrary.Models;
 @{
 }
+
+<div>
+    <form method="post" enctype="multipart/form-data">
+
+        <input type="hidden" asp-for="ReturnUrl" />
+        
+        <div asp-validation-summary="All"></div>
+        
+        <!-- Sends person back to the url they came from, if cant find it, send person back to feed-->
+        <a href="@(Url.IsLocalUrl(Model.ReturnUrl) ? Model.ReturnUrl : Url.Page("/Feed"))">Annuller</a>
+        
+        <!-- Title -->
+        <div>
+            <label asp-for="PostTitle">Titel</label>
+            <input asp-for="PostTitle" />
+            <span asp-validation-for="PostTitle"></span>
+        </div>
+
+        <!-- Content -->
+        <div>
+            <label asp-for="PostContent">Indhold</label>
+            <input asp-for="PostContent" />
+            <span asp-validation-for="PostContent"></span>
+        </div>
+
+        <!-- Add Image -->
+        <div>
+            <label asp-for="PostImages">Vedhæft billeder (maks 4)</label>
+            <input asp-for="PostImages" type="file" accept=".png, .jpg, .jpeg, .webp" multiple />
+            <ul class="image-preview-list"></ul>
+            <span asp-validation-for="PostImages"></span>
+        </div>
+
+        <!-- Images to delete -->
+        <label>Billeder</label>
+
+        @foreach (Image image in Model.PostToUpdate!.Images)
+        {
+            <div>
+                <img src="/images/@image.Id/@image.FileName" alt="@image.AltText" />
+                <button type="submit" asp-page-handler="Delete"
+                        asp-route-imageId="@image.Id"
+                        asp-route-postId="@Model.PostToUpdate.Id">Delete</button>
+            </div>
+        }
+
+        <div>
+            <button type="submit" asp-route-postId="@Model.PostToUpdate.Id">Gem</button>
+        </div>
+    </form>
+</div>

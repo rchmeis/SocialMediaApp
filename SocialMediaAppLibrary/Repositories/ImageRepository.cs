@@ -23,9 +23,58 @@ namespace SocialMediaAppLibrary.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Image> DeleteAsync(int id, CancellationToken cancellationToken)
+        
+        /// <summary>
+        /// Deletes the image with the specified identifier and updates the <c>updated_at</c> timestamp
+        /// of the post it belongs to. Both changes run in a single transaction, so either both are saved or neither is.
+        /// </summary>
+        /// <remarks>
+        /// The <c>post_images</c> row is removed automatically by the database (<c>ON DELETE CASCADE</c>).
+        /// The post is updated before the image is deleted, because the link to the post is gone afterwards.
+        /// </remarks>
+        /// <param name="imageId">The unique identifier of the image to delete.</param>
+        /// <param name="cancellationToken">A token to cancel the operation, e.g. if the request is aborted.</param>
+        /// <returns>An <see cref="Image"/> containing only the <see cref="Image.Id"/> of the deleted image.</returns>
+        /// <exception cref="Exception">Thrown when the image could not be deleted. The transaction is rolled back.</exception>
+        public async Task<Image> DeleteAsync(int imageId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await using MySqlConnection connection = await _dbConnect.ConnectAsync();
+            await using MySqlTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+            
+            try
+            {
+                // For next time, update sql string so we left join post
+                // so "updated_at" gets updated when we delete a post 
+                string sqlUpdatePost = """
+                                       UPDATE posts
+                                        JOIN post_images ON posts.post_id = post_images.post_id
+                                       SET updated_at = @updated_at
+                                       WHERE post_images.image_id = @image_id
+                                       """;
+                
+                string sqlDelete = """
+                             DELETE FROM images 
+                             WHERE image_id = @image_id
+                             """;
+
+                await using MySqlCommand cmdUpdate = new MySqlCommand(sqlUpdatePost, connection, transaction);
+                cmdUpdate.Parameters.AddWithValue("updated_at", DateTime.Now);
+                cmdUpdate.Parameters.AddWithValue("image_id", imageId);
+                await cmdUpdate.ExecuteNonQueryAsync();
+
+                await using MySqlCommand cmdDelete = new MySqlCommand(sqlDelete, connection, transaction);
+                cmdDelete.Parameters.AddWithValue("image_id", imageId);
+                await cmdDelete.ExecuteNonQueryAsync();
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw new Exception("Coudn't delete image", ex);
+            }
+
+            return new Image { Id = imageId };
         }
 
         public List<Image> ReadAll()

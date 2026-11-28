@@ -89,5 +89,22 @@ namespace SocialMediaAppLibrary.Services
         {
             return await _postRepository.ReadByIdAsync(id, cancellationToken);
         }
+
+        
+        /// <summary>
+        /// Updates an existing post's title and content, and saves any new images attached to it.
+        /// </summary>
+        /// <remarks>
+        /// Images in <see cref="Post.Images"/> with an <see cref="Image.Id"/> of 0 are treated as new and inserted;
+        /// existing images are left unchanged. Image files must be optimized before calling this method.
+        /// </remarks>
+        /// <param name="id">The unique identifier of the post to update.</param>
+        /// <param name="post">The post containing the updated title, content and images.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>The updated post, with ids assigned to the newly saved images.</returns>
+        public async Task<Post> UpdateAsync(int id, Post post, CancellationToken cancellationToken)
+        {
+            return await _postRepository.UpdateAsync(id, post, cancellationToken);
+        }
     }
 }

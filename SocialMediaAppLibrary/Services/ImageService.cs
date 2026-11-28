@@ -117,5 +117,20 @@ namespace SocialMediaAppLibrary.Services
             return _imageRepository.WriteAsync(image, cancellationToken);
         }
 
+        /// <summary>
+        /// Deletes the image with the specified identifier.
+        /// </summary>
+        /// <remarks>
+        /// Links to posts and events are removed automatically by the database (<c>ON DELETE CASCADE</c>),
+        /// and the <c>updated_at</c> timestamp of the post the image belonged to is updated.
+        /// </remarks>
+        /// <param name="id">The unique identifier of the image to delete.</param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        /// <returns>An <see cref="Image"/> containing only the <see cref="Image.Id"/> of the deleted image.</returns>
+        public Task<Image> DeleteAsync(int id, CancellationToken  cancellationToken)
+        {
+            return _imageRepository.DeleteAsync(id, cancellationToken);
+        }
+
     }
 }

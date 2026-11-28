@@ -15,5 +15,6 @@ namespace SocialMediaAppLibrary.Services.Interfaces
         public Task<Image> OptimizeImageAsync(IFormFile file);
         //denne gemmer uden yderligere handlinger - bruges feks i step2 onboarding, hvor billeder er optimeret før preview.
         public Task<Image> WriteImageAsync(Image image, CancellationToken cancellationToken);
+        public Task<Image> DeleteAsync(int id, CancellationToken cancellationToken);
     }
 }

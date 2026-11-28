@@ -10,6 +10,7 @@ namespace SocialMediaAppLibrary.Services.Interfaces
     public interface IPostService
     {
         public Task<Post> CreateAsync(Post entity, List<IFormFile> formFiles, CancellationToken cancellationToken);
+        public Task<Post> UpdateAsync(int id, Post entity, CancellationToken cancellationToken);
         public Task<Post> DeleteAsync(int id, CancellationToken cancellationToken);
         public Task<Post?> ReadByIdAsync(int id, CancellationToken cancellationToken);
         public Task<GenericPaginatedResult<Post>> GetNewestFeedAsync(PaginationOptions queryOptions, CancellationToken cancellationToken);
