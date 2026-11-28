@@ -18,20 +18,12 @@ namespace SocialMediaAppLibrary.Repositories
             _dbConnect = dbConnect;
         }
 
-        public Image Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         public Task<Image> DeleteAsync(int id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public List<Image> ReadAll()
-        {
-            throw new NotImplementedException();
-        }
 
         /// <summary>
         /// Retrieves all images from the database and returns them as a list of <see cref="Image"/> objects.
@@ -67,11 +59,6 @@ namespace SocialMediaAppLibrary.Repositories
             }
 
             return images;
-        }
-
-        public Image? ReadById(int id)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -113,22 +100,8 @@ namespace SocialMediaAppLibrary.Repositories
             return null; // Return null if no image is found with the given ID
         }
 
-        public Image Update(int id, Image entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Image> UpdateAsync(int id, Image entity)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<Image> UpdateAsync(int id, Image entity, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Image Write(Image entity)
         {
             throw new NotImplementedException();
         }
