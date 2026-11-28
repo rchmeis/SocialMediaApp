@@ -369,5 +369,106 @@ namespace SocialMediaAppLibrary.Repositories
             int rowsAffected = await command.ExecuteNonQueryAsync(cancellationToken);
             return rowsAffected > 0;
         }
+
+        /// <summary>
+        /// Retrieves <see cref="UserSummary"/> objects for the specified active user IDs.
+        /// </summary>
+        /// <param name="userIds">The list of user IDs to look up.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A list of matching non-deleted <see cref="UserSummary"/> items.</returns>
+        public async Task<List<UserSummary>> GetSummariesByIdsAsync(List<int> userIds, CancellationToken cancellationToken = default)
+        {
+            if (userIds is null || userIds.Count == 0)
+            {
+                return new List<UserSummary>();
+            }
+
+            List<int> distinctIds = userIds
+                .Where(id => id > 0)
+                .Distinct()
+                .ToList();
+
+            if (distinctIds.Count == 0)
+            {
+                return new List<UserSummary>();
+            }
+
+            List<string> paramNames = new List<string>(distinctIds.Count);
+            for (int i = 0; i < distinctIds.Count; i++)
+            {
+                paramNames.Add($"@id{i}");
+            }
+
+            string inClause = string.Join(", ", paramNames);
+
+            string query = $"""
+                SELECT
+                    u.user_id AS id,
+                    COALESCE(
+                        p.name_of_organization,
+                        CONCAT_WS(' ', s.first_name, s.last_name)
+                    ) AS display_name,
+                    i.image_id,
+                    i.file_name,
+                    i.alt_text,
+                    i.created_at AS image_created_at
+                FROM users u
+                LEFT JOIN partners p ON p.user_id = u.user_id
+                LEFT JOIN students s ON s.user_id = u.user_id
+                LEFT JOIN images i ON i.image_id = u.image_id
+                WHERE u.user_id IN ({inClause})
+                  AND u.deleted_at IS NULL;
+                """;
+
+            await using MySqlConnection connection = await _db.ConnectAsync(cancellationToken);
+            await using MySqlCommand cmd = new MySqlCommand(query, connection);
+
+            for (int i = 0; i < distinctIds.Count; i++)
+            {
+                cmd.Parameters.Add(paramNames[i], MySqlDbType.Int32).Value = distinctIds[i];
+            }
+
+            List<UserSummary> results = new List<UserSummary>();
+
+            await using DbDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken);
+
+            int idOrdinal = reader.GetOrdinal("id");
+            int displayNameOrdinal = reader.GetOrdinal("display_name");
+            int imageIdOrdinal = reader.GetOrdinal("image_id");
+            int fileNameOrdinal = reader.GetOrdinal("file_name");
+            int altTextOrdinal = reader.GetOrdinal("alt_text");
+            int imageCreatedAtOrdinal = reader.GetOrdinal("image_created_at");
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                Image? image = null;
+                if (!await reader.IsDBNullAsync(imageIdOrdinal, cancellationToken))
+                {
+                    image = new Image
+                    {
+                        Id = reader.GetInt32(imageIdOrdinal),
+                        FileName = await reader.IsDBNullAsync(fileNameOrdinal, cancellationToken)
+                            ? string.Empty
+                            : reader.GetString(fileNameOrdinal),
+                        AltText = await reader.IsDBNullAsync(altTextOrdinal, cancellationToken)
+                            ? null
+                            : reader.GetString(altTextOrdinal),
+                        ImageData = Array.Empty<byte>(),
+                        CreatedAt = reader.GetDateTime(imageCreatedAtOrdinal)
+                    };
+                }
+
+                results.Add(new UserSummary
+                {
+                    Id = reader.GetInt32(idOrdinal),
+                    DisplayName = await reader.IsDBNullAsync(displayNameOrdinal, cancellationToken)
+                        ? string.Empty
+                        : reader.GetString(displayNameOrdinal),
+                    ProfileImage = image
+                });
+            }
+
+            return results;
+        }
     }
 }

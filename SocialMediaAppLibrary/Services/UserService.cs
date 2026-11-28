@@ -150,5 +150,16 @@ namespace SocialMediaAppLibrary.Services
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Retrieves <see cref="UserSummary"/> objects for the specified active user IDs.
+        /// </summary>
+        /// <param name="userIds">The list of user IDs to look up.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A list of matching non-deleted <see cref="UserSummary"/> items.</returns>
+        public Task<List<UserSummary>> GetSummariesByIdsAsync(List<int> userIds, CancellationToken cancellationToken)
+        {
+            return _userRepository.GetSummariesByIdsAsync(userIds, cancellationToken);
+        }
     }
 }

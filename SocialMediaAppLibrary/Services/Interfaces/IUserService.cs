@@ -12,5 +12,6 @@ namespace SocialMediaAppLibrary.Services.Interfaces
         public Task<bool> IsFollowingAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken);
         public Task<bool> FollowAsync(int loggedInUserId, int targetUserId, CancellationToken cancellation);
         public Task<bool> UnfollowAsync(int loggedInUserId, int targetUserId, CancellationToken cancellationToken);
+        public Task<List<UserSummary>> GetSummariesByIdsAsync(List<int> userIds, CancellationToken cancellationToken);
     }
 }
