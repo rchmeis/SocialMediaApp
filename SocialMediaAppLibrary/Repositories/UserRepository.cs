@@ -176,7 +176,7 @@ namespace SocialMediaAppLibrary.Repositories
         /// <returns>
         /// The matching non-deleted <see cref="UserSummary"/> if found; otherwise, <see langword="null"/>.
         /// </returns>
-        public async Task<UserSummary?> GetByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken=default)
+        public async Task<UserSummary?> GetSummaryByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken=default)
         {
             if (userAuthId <= 0)
             {

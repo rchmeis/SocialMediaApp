@@ -55,9 +55,9 @@ namespace SocialMediaAppLibrary.Services
         /// <param name="userId">The unique identifier of the user whose followers are counted.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>The follower count for <paramref name="userId"/>.</returns>
-        public async Task<UserSummary> GetByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken)
+        public async Task<UserSummary> GetSummaryByUserAuthIdAsync(int userAuthId, CancellationToken cancellationToken)
         {
-            return await _userRepository.GetByUserAuthIdAsync(userAuthId, cancellationToken);
+            return await _userRepository.GetSummaryByUserAuthIdAsync(userAuthId, cancellationToken);
         }
 
         /// <summary>

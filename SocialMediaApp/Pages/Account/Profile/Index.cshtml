@@ -126,8 +126,8 @@
                                         <div class="post-author-meta">
                                             <img class="post-author-avatar"
                                                  src="@(post.Author?.ProfileImage != null
-                                                                                                                                                       ? $"/images/{post.Author.ProfileImage.Id}/{post.Author.ProfileImage.FileName}"
-                                                                                                                                                       : Url.Content("~/images/default-avatar.jpg"))"
+                                                        ? $"/images/{post.Author.ProfileImage.Id}/{post.Author.ProfileImage.FileName}"
+                                                        : Url.Content("~/images/default-avatar.jpg"))"
                                                  alt="@post.Author?.DisplayName" />
                                             <div class="post-author-text">
                                                 <span class="post-author">@post.Author?.DisplayName</span>
@@ -143,7 +143,7 @@
                                                     <a class="post-menu-item"
                                                        asp-page="/Posts/UpdatePost"
                                                        asp-route-postId="@post.Id"
-                                                       asp-route-returnUrl="/Account/Profile/Index">
+                                                       asp-route-returnUrl="@Url.Page("/Account/Profile/Index", new { id = Model.ProfileUserId, pageNumber = Model.CurrentPage })">
                                                         Rediger
                                                     </a>
 
